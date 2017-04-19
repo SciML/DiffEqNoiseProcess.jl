@@ -17,6 +17,8 @@ type WienerProcess{T,T2,F,F2,inplace,S1,S2,RSWM}
   S₁::S1
   S₂::S2
   rswm::RSWM
+  maxstacksize::Int
+  maxstacksize2::Int
 end
 (W::WienerProcess)(t) = interpolate!(W,t)
 adaptive_alg(W::WienerProcess) = StochasticDiffEq.adaptive_alg(W.rswm)
@@ -30,5 +32,5 @@ function WienerProcess(t0,W0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
                 typeof(dist),typeof(bridge),
                 iip,typeof(S₁),typeof(S₂),typeof(rswm)}(
                 dist,bridge,[t0],[W0],[W0],t0,
-                W0,W0,t0,W0,W0,W0,W0,W0,W0,S₁,S₂,rswm)
+                W0,W0,t0,W0,W0,W0,W0,W0,W0,S₁,S₂,rswm,0,0)
 end

@@ -96,11 +96,9 @@ function reject_step!(W::WienerProcess,dtnew)
     if cutLength > W.rswm.discard_length
       push!(W.S₁,(cutLength,W.dW-W.dWtilde,W.dZ-W.dZtilde))
     end
-    #=
-    if length(W.S₁) > W.sol.maxstacksize
-        W.sol.maxstacksize = length(W.S₁)
+    if length(W.S₁) > W.maxstacksize
+        W.maxstacksize = length(W.S₁)
     end
-    =#
     if typeof(W.dW) <: AbstractArray
       copy!(W.dW,W.dWtilde); copy!(W.dZ,W.dZtilde)
     else
@@ -113,12 +111,9 @@ function reject_step!(W::WienerProcess,dtnew)
     else
       dttmp = 0.0; fill!(W.dWtmp,zero(eltype(W.dWtmp))); fill!(W.dZtmp,zero(eltype(W.dZtmp)))
     end
-    #=
-    if length(W.S₂) > W.sol.maxstacksize2
-      W.sol.maxstacksize2= length(W.S₂)
+    if length(W.S₂) > W.maxstacksize2
+      W.maxstacksize2= length(W.S₂)
     end
-    =#
-    @show "first",W.dWtmp,W.dZtmp
     while !isempty(W.S₂)
       L₁,L₂,L₃ = pop!(W.S₂)
       if dttmp + L₁ < (1-q)*W.dt #while the backwards movement is less than chop off
@@ -136,7 +131,6 @@ function reject_step!(W::WienerProcess,dtnew)
         break
       end
     end # end while
-    @show "second",W.dWtmp,W.dZtmp
     dtK = W.dt - dttmp
     qK = q*W.dt/dtK
     if typeof(W.dW) <: AbstractArray
@@ -152,11 +146,9 @@ function reject_step!(W::WienerProcess,dtnew)
     if cutLength > W.rswm.discard_length
       push!(W.S₁,(cutLength,W.dWtmp-W.dWtilde,W.dZtmp-W.dZtilde))
     end
-    #=
-    if length(W.S₁) > W.sol.maxstacksize
-        W.sol.maxstacksize = length(W.S₁)
+    if length(W.S₁) > W.maxstacksize
+        W.maxstacksize = length(W.S₁)
     end
-    =#
     W.dt = dtnew
     if typeof(W.dW) <: AbstractArray
       copy!(W.dW,W.dWtilde); copy!(W.dZ,W.dZtilde)
