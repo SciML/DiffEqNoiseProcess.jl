@@ -45,8 +45,15 @@ function accept_step!(W::WienerProcess,dt)
           push!(W.S₂,(L₁,L₂,L₃))
         end
       else #Popped too far
-        W.dWtilde = W.bridge(W.curW,L₂,qtmp,L₁)-W.curW
-        W.dZtilde = W.bridge(W.curZ,L₃,qtmp,L₁)-W.curZ
+        if isinplace(W)
+          W.bridge(W.dWtilde,W.curW,L₂,qtmp,L₁)
+          W.dWtilde .-= W.curW
+          W.bridge(W.dZtilde,W.curZ,L₃,qtmp,L₁)
+          W.dZtilde .-= W.curZ
+        else
+          W.dWtilde = W.bridge(W.curW,L₂,qtmp,L₁)-W.curW
+          W.dZtilde = W.bridge(W.curZ,L₃,qtmp,L₁)-W.curZ
+        end
         if typeof(W.dW) <: AbstractArray
           for i in eachindex(W.dW)
             W.dW[i] += W.dWtilde[i]; W.ΔZ[i] += W.dZtilde[i]
@@ -65,8 +72,13 @@ function accept_step!(W::WienerProcess,dt)
     end #end while empty
     dtleft = W.dt - dttmp
     if dtleft != 0 #Stack emptied
-      W.dWtilde = W.dist(W,dtleft)
-      W.dZtilde = W.dist(W,dtleft)
+      if isinplace(W)
+        W.dist(W.dWtilde,W,dtleft)
+        W.dist(W.dZtilde,W,dtleft)
+      else
+        W.dWtilde = W.dist(W,dtleft)
+        W.dZtilde = W.dist(W,dtleft)
+      end
       if typeof(W.dW) <: AbstractArray
         for i in eachindex(W.dW)
           W.dW[i] += W.dWtilde[i]; W.dZ[i] += W.dZtilde[i]
@@ -82,16 +94,28 @@ function accept_step!(W::WienerProcess,dt)
 end
 
 function calculate_step!(W::WienerProcess,dt)
-  W.dW = W.dist(W,dt)
-  W.dZ = W.dist(W,dt)
+  if isinplace(W)
+    W.dist(W.dW,W,dt)
+    W.dist(W.dZ,W,dt)
+  else
+    W.dW = W.dist(W,dt)
+    W.dZ = W.dist(W,dt)
+  end
   W.dt = dt
 end
 
 function reject_step!(W::WienerProcess,dtnew)
   q = dtnew/W.dt
   if adaptive_alg(W)==:RSwM1 || adaptive_alg(W)==:RSwM2
-    W.dWtilde = W.bridge(W.curW,W.curW+W.dW,q,dtnew)-W.curW
-    W.dZtilde=  W.bridge(W.curZ,W.curZ+W.dZ,q,dtnew)-W.curZ
+    if isinplace(W)
+      W.bridge(W.dWtilde,W.curW,W.curW+W.dW,q,dtnew)
+      W.dWtilde .-= W.curW
+      W.bridge(W.dZtilde,W.curZ,W.curZ+W.dZ,q,dtnew)
+      W.dZtilde .-= W.curZ
+    else
+      W.dWtilde = W.bridge(W.curW,W.curW+W.dW,q,dtnew)-W.curW
+      W.dZtilde=  W.bridge(W.curZ,W.curZ+W.dZ,q,dtnew)-W.curZ
+    end
     cutLength = W.dt-dtnew
     if cutLength > W.rswm.discard_length
       push!(W.S₁,(cutLength,W.dW-W.dWtilde,W.dZ-W.dZtilde))
@@ -140,8 +164,13 @@ function reject_step!(W::WienerProcess,dtnew)
     else
       W.dWtmp = W.dW - W.dWtmp; W.dZtmp = W.dZ - W.dZtmp
     end
-    W.dWtilde = W.bridge(0,W.dWtmp,qK,dtK)
-    W.dZtilde = W.bridge(0,W.dZtmp,qK,dtK)
+    if isinplace(W)
+      W.bridge(W.dWtilde,0,W.dWtmp,qK,dtK)
+      W.bridge(W.dZtilde,0,W.dZtmp,qK,dtK)
+    else
+      W.dWtilde = W.bridge(0,W.dWtmp,qK,dtK)
+      W.dZtilde = W.bridge(0,W.dZtmp,qK,dtK)
+    end
     cutLength = (1-qK)*dtK
     if cutLength > W.rswm.discard_length
       push!(W.S₁,(cutLength,W.dWtmp-W.dWtilde,W.dZtmp-W.dZtilde))
@@ -172,8 +201,15 @@ function interpolate!(W::WienerProcess,t)
       Z0,Zh = W.Z[i-1],W.Z[i]
       h = W.t[i]-W.t[i-1]
       q = (t-W.t[i-1])/h
-      new_curW = W.bridge(W0,Wh,q,h)
-      new_curZ = W.bridge(Z0,Zh,q,h)
+      if isinplace(W)
+        new_curW = similar(W.dW)
+        new_curZ = similar(W.dZ)
+        W.bridge(new_curW,W0,Wh,q,h)
+        W.bridge(new_curZ,Z0,Zh,q,h)
+      else
+        new_curW = W.bridge(W0,Wh,q,h)
+        new_curZ = W.bridge(Z0,Zh,q,h)
+      end
       W.curW = new_curW
       W.curZ = new_curZ
       insert!(W.W,i,new_curW)

@@ -2,6 +2,8 @@ module DiffEqNoiseProcess
 
 using DiffEqBase, DataStructures, ResettableStacks, StochasticDiffEq
 
+import DiffEqBase: isinplace
+
 include("types.jl")
 include("interface.jl")
 
