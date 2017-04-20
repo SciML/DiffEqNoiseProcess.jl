@@ -2,7 +2,8 @@ __precompile__()
 
 module DiffEqNoiseProcess
 
-using DataStructures, ResettableStacks, DiffEqBase, RecipesBase
+using DataStructures, ResettableStacks, DiffEqBase, RecipesBase,
+      RecursiveArrayTools
 
 import DiffEqBase: isinplace
 

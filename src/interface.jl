@@ -4,11 +4,11 @@ function accept_step!(W::NoiseProcess,dt,setup_next=true)
 
   W.curW += W.dW
   W.curt += W.dt
-  push!(W.W,W.curW)
-  push!(W.t,W.curt)
+  push!(W.W,copy(W.curW))
+  push!(W.t,copy(W.curt))
   if W.Z != nothing
     W.curZ += W.dZ
-    push!(W.Z,W.curZ)
+    push!(W.Z,copy(W.curZ))
   end
 
   W.dt = dt #dtpropose
@@ -307,20 +307,32 @@ function interpolate!(W::NoiseProcess,t)
       end
     end
     push!(W.t,t)
-    push!(W.W,copy(W.curW))
+    out1 = copy(W.curW)
+    push!(W.W,out1)
     if W.Z != nothing
-      push!(W.Z,copy(W.curZ))
+      out2= copy(W.curZ)
+      push!(W.Z,out2)
+    else
+      out2 = nothing
     end
-    return W.curW,W.curZ
+    return out1,out2
   else # Bridge
     i = searchsortedfirst(W.t,t)
     if t == W.t[i]
-      W.curW = W.W[i]
-      if W.Z != nothing
-        W.curZ = W.Z[i]
-        return W.W[i],W.Z[i]
+      if isinplace(W)
+        W.curW .= W.W[i]
       else
-        return W.W[i],nothing
+        W.curW = W.W[i]
+      end
+      if W.Z != nothing
+        if isinplace(W)
+          W.curZ .= W.Z[i]
+        else
+          W.curZ = W.Z[i]
+        end
+        return copy(W.curW),copy(W.curZ)
+      else
+        return copy(W.curW),nothing
       end
     else
       W0,Wh = W.W[i-1],W.W[i]
@@ -360,11 +372,25 @@ end
 
 function interpolate!(out1,out2,W::NoiseProcess,t)
   if t > W.t[end] # Steps past W
-    error("Cannot extrapolate with the interpolation")
+    dt = t - W.t[end]
+    W.dist(W.dW,W,dt)
+    out1 .+= W.dW
+    if W.Z != nothing
+      W.dist(W.dZ,W,dt)
+      out2 .+= W.dZ
+    end
+    push!(W.t,t)
+    push!(W.W,copy(out1))
+    if W.Z != nothing
+      push!(W.Z,copy(out2))
+    end
   else # Bridge
     i = searchsortedfirst(W.t,t)
     if t == W.t[i]
-      return W.W[i]
+      out1 .= W.W[i]
+      if W.Z != nothing
+        out2 .= W.Z[i]
+      end
     else
       W0,Wh = W.W[i-1],W.W[i]
       if W.Z != nothing
@@ -372,25 +398,17 @@ function interpolate!(out1,out2,W::NoiseProcess,t)
       end
       h = W.t[i]-W.t[i-1]
       q = (t-W.t[i-1])/h
-      if isinplace(W)
-        W.bridge(out1,W,W0,Wh,q,h)
-        if W.Z != nothing
-          W.bridge(out2,W,Z0,Zh,q,h)
-        end
-      else
-        out1 .= W.bridge(W,W0,Wh,q,h)
-        if W.Z != nothing
-          out2 .= W.bridge(W,Z0,Zh,q,h)
-        end
+      W.bridge(out1,W,W0,Wh,q,h)
+      if W.Z != nothing
+        W.bridge(out2,W,Z0,Zh,q,h)
       end
-      W.curW = new_curW
-      insert!(W.W,i,new_curW)
+      W.curW .= out1
+      insert!(W.W,i,copy(out1))
       insert!(W.t,i,t)
       if W.Z != nothing
-        W.curZ = new_curZ
-        insert!(W.Z,i,new_curZ)
+        W.curZ .= out2
+        insert!(W.Z,i,copy(out2))
       end
-      return new_curW
     end
   end
 end
