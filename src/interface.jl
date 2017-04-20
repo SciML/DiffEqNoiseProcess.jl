@@ -3,11 +3,13 @@ Base.getindex(W::NoiseProcess,i::Int) = W.W[i]
 function accept_step!(W::NoiseProcess,dt,setup_next=true)
 
   W.curW += W.dW
-  W.curZ += W.dZ
   W.curt += W.dt
   push!(W.W,W.curW)
-  push!(W.Z,W.curZ)
   push!(W.t,W.curt)
+  if W.Z != nothing
+    W.curZ += W.dZ
+    push!(W.Z,W.curZ)
+  end
 
   W.dt = dt #dtpropose
   # Setup next step
@@ -28,9 +30,15 @@ function setup_next_step!(W::NoiseProcess)
     end
   elseif adaptive_alg(W)==:RSwM2 || adaptive_alg(W)==:RSwM3
     if !(typeof(W.dW) <: AbstractArray)
-      dttmp = 0.0; W.dW = 0.0; W.dZ = 0.0
+      dttmp = 0.0; W.dW = 0.0
+      if W.Z != nothing
+        W.dZ = 0.0
+      end
     else
-      dttmp = 0.0; fill!(W.dW,zero(eltype(W.dW))); fill!(W.dZ,zero(eltype(W.dZ)))
+      dttmp = 0.0; fill!(W.dW,zero(eltype(W.dW)))
+      if W.Z != nothing
+        fill!(W.dZ,zero(eltype(W.dZ)))
+      end
     end
     while !isempty(W.S₁)
       L₁,L₂,L₃ = pop!(W.S₁)
@@ -39,10 +47,16 @@ function setup_next_step!(W::NoiseProcess)
         dttmp+=L₁
         if typeof(W.dW) <: AbstractArray
           for i in eachindex(W.dW)
-            W.dW[i]+=L₂[i]; W.dZ[i]+=L₃[i]
+            W.dW[i]+=L₂[i]
+            if W.Z != nothing
+              W.dZ[i]+=L₃[i]
+            end
           end
         else
-          W.dW+=L₂; W.dZ+=L₃
+          W.dW+=L₂
+          if W.Z != nothing
+            W.dZ+=L₃
+          end
         end
         if adaptive_alg(W)==:RSwM3
           push!(W.S₂,(L₁,L₂,L₃))
@@ -51,23 +65,41 @@ function setup_next_step!(W::NoiseProcess)
         if isinplace(W)
           W.bridge(W.dWtilde,W,W.curW,L₂,qtmp,L₁)
           W.dWtilde .-= W.curW
-          W.bridge(W.dZtilde,W,W.curZ,L₃,qtmp,L₁)
-          W.dZtilde .-= W.curZ
+          if W.Z != nothing
+            W.bridge(W.dZtilde,W,W.curZ,L₃,qtmp,L₁)
+            W.dZtilde .-= W.curZ
+          end
         else
           W.dWtilde = W.bridge(W,W.curW,L₂,qtmp,L₁)-W.curW
-          W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁)-W.curZ
+          if W.Z != nothing
+            W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁)-W.curZ
+          end
         end
         if typeof(W.dW) <: AbstractArray
           for i in eachindex(W.dW)
-            W.dW[i] += W.dWtilde[i]; W.ΔZ[i] += W.dZtilde[i]
+            W.dW[i] += W.dWtilde[i]
+            if W.Z != nothing
+              W.dZ[i] += W.dZtilde[i]
+            end
           end
         else
-          W.dW += W.dWtilde; W.dZ += W.dZtilde
+          W.dW += W.dWtilde
+          if W.Z != nothing
+            W.dZ += W.dZtilde
+          end
         end
         if (1-qtmp)*L₁ > W.rswm.discard_length
-          push!(W.S₁,((1-qtmp)*L₁,L₂-W.dWtilde,L₃-W.dZtilde))
+          if W.Z == nothing
+            push!(W.S₁,((1-qtmp)*L₁,L₂-W.dWtilde,nothing))
+          else
+            push!(W.S₁,((1-qtmp)*L₁,L₂-W.dWtilde,L₃-W.dZtilde))
+          end
           if adaptive_alg(W)==:RSwM3 && qtmp*L₁ > W.rswm.discard_length
-            push!(W.S₂,(qtmp*L₁,copy(W.dWtilde),copy(W.dZtilde)))
+            if W.Z == nothing
+              push!(W.S₂,(qtmp*L₁,copy(W.dWtilde),nothing))
+            else
+              push!(W.S₂,(qtmp*L₁,copy(W.dWtilde),copy(W.dZtilde)))
+            end
           end
         end
         break
@@ -77,20 +109,34 @@ function setup_next_step!(W::NoiseProcess)
     if dtleft != 0 #Stack emptied
       if isinplace(W)
         W.dist(W.dWtilde,W,dtleft)
-        W.dist(W.dZtilde,W,dtleft)
+        if W.Z != nothing
+          W.dist(W.dZtilde,W,dtleft)
+        end
       else
         W.dWtilde = W.dist(W,dtleft)
-        W.dZtilde = W.dist(W,dtleft)
+        if W.Z != nothing
+          W.dZtilde = W.dist(W,dtleft)
+        end
       end
       if typeof(W.dW) <: AbstractArray
         for i in eachindex(W.dW)
-          W.dW[i] += W.dWtilde[i]; W.dZ[i] += W.dZtilde[i]
+          W.dW[i] += W.dWtilde[i]
+          if W.Z != nothing
+            W.dZ[i] += W.dZtilde[i]
+          end
         end
       else
-        W.dW += W.dWtilde; W.dZ += W.dZtilde
+        W.dW += W.dWtilde
+        if W.Z != nothing
+          W.dZ += W.dZtilde
+        end
       end
       if adaptive_alg(W)==:RSwM3
-        push!(W.S₂,(dtleft,copy(W.dWtilde),copy(W.dZtilde)))
+        if W.Z == nothing
+          push!(W.S₂,(dtleft,copy(W.dWtilde),nothing))
+        else
+          push!(W.S₂,(dtleft,copy(W.dWtilde),copy(W.dZtilde)))
+        end
       end
     end
   end # End RSwM2 and RSwM3
@@ -99,10 +145,14 @@ end
 function calculate_step!(W::NoiseProcess,dt)
   if isinplace(W)
     W.dist(W.dW,W,dt)
-    W.dist(W.dZ,W,dt)
+    if W.Z != nothing
+      W.dist(W.dZ,W,dt)
+    end
   else
     W.dW = W.dist(W,dt)
-    W.dZ = W.dist(W,dt)
+    if W.Z != nothing
+      W.dZ = W.dist(W,dt)
+    end
   end
   W.dt = dt
 end
@@ -113,30 +163,50 @@ function reject_step!(W::NoiseProcess,dtnew)
     if isinplace(W)
       W.bridge(W.dWtilde,W,W.curW,W.curW+W.dW,q,dtnew)
       W.dWtilde .-= W.curW
-      W.bridge(W.dZtilde,W,W.curZ,W.curZ+W.dZ,q,dtnew)
-      W.dZtilde .-= W.curZ
+      if W.Z != nothing
+        W.bridge(W.dZtilde,W,W.curZ,W.curZ+W.dZ,q,dtnew)
+        W.dZtilde .-= W.curZ
+      end
     else
       W.dWtilde = W.bridge(W,W.curW,W.curW+W.dW,q,dtnew)-W.curW
-      W.dZtilde=  W.bridge(W,W.curZ,W.curZ+W.dZ,q,dtnew)-W.curZ
+      if W.Z != nothing
+        W.dZtilde=  W.bridge(W,W.curZ,W.curZ+W.dZ,q,dtnew)-W.curZ
+      end
     end
     cutLength = W.dt-dtnew
     if cutLength > W.rswm.discard_length
-      push!(W.S₁,(cutLength,W.dW-W.dWtilde,W.dZ-W.dZtilde))
+      if W.Z == nothing
+        push!(W.S₁,(cutLength,W.dW-W.dWtilde,nothing))
+      else
+        push!(W.S₁,(cutLength,W.dW-W.dWtilde,W.dZ-W.dZtilde))
+      end
     end
     if length(W.S₁) > W.maxstacksize
         W.maxstacksize = length(W.S₁)
     end
     if typeof(W.dW) <: AbstractArray
-      copy!(W.dW,W.dWtilde); copy!(W.dZ,W.dZtilde)
+      copy!(W.dW,W.dWtilde)
+      if W.Z!=nothing
+        copy!(W.dZ,W.dZtilde)
+      end
     else
-      W.dW = W.dWtilde; W.dZ = W.dZtilde
+      W.dW = W.dWtilde
+      if W.Z != nothing
+        W.dZ = W.dZtilde
+      end
     end
     W.dt = dtnew
   else # RSwM3
     if !(typeof(W.dW) <: AbstractArray)
-      dttmp = 0.0; W.dWtmp = 0.0; W.dZtmp = 0.0
+      dttmp = 0.0; W.dWtmp = 0.0
+      if W.Z != nothing
+        W.dZtmp = 0.0
+      end
     else
-      dttmp = 0.0; fill!(W.dWtmp,zero(eltype(W.dWtmp))); fill!(W.dZtmp,zero(eltype(W.dZtmp)))
+      dttmp = 0.0; fill!(W.dWtmp,zero(eltype(W.dWtmp)))
+      if W.Z!= nothing
+        fill!(W.dZtmp,zero(eltype(W.dZtmp)))
+      end
     end
     if length(W.S₂) > W.maxstacksize2
       W.maxstacksize2= length(W.S₂)
@@ -147,10 +217,16 @@ function reject_step!(W::NoiseProcess,dtnew)
         dttmp += L₁
         if typeof(W.dW) <: AbstractArray
           for i in eachindex(W.dW)
-            W.dWtmp[i] += L₂[i]; W.dZtmp[i] += L₃[i]
+            W.dWtmp[i] += L₂[i]
+            if W.Z != nothing
+              W.dZtmp[i] += L₃[i]
+            end
           end
         else
-          W.dWtmp += L₂; W.dZtmp += L₃
+          W.dWtmp += L₂
+          if W.Z != nothing
+            W.dZtmp += L₃
+          end
         end
         push!(W.S₁,(L₁,L₂,L₃))
       else
@@ -162,32 +238,52 @@ function reject_step!(W::NoiseProcess,dtnew)
     qK = q*W.dt/dtK
     if typeof(W.dW) <: AbstractArray
       for i in eachindex(W.dW)
-        W.dWtmp[i] = W.dW[i] - W.dWtmp[i]; W.dZtmp[i] = W.dZ[i] - W.dZtmp[i]
+        W.dWtmp[i] = W.dW[i] - W.dWtmp[i]
+        if W.Z != nothing
+          W.dZtmp[i] = W.dZ[i] - W.dZtmp[i]
+        end
       end
     else
-      W.dWtmp = W.dW - W.dWtmp; W.dZtmp = W.dZ - W.dZtmp
+      W.dWtmp = W.dW - W.dWtmp
+      if W.Z != nothing
+        W.dZtmp = W.dZ - W.dZtmp
+      end
     end
     if isinplace(W)
       W.bridge(W.dWtilde,W,0,W.dWtmp,qK,dtK)
       #W.dWtilde .-= W.curW
-      W.bridge(W.dZtilde,W,0,W.dZtmp,qK,dtK)
-      #W.dZtilde .-= W.curZ
+      if W.Z != nothing
+        W.bridge(W.dZtilde,W,0,W.dZtmp,qK,dtK)
+        #W.dZtilde .-= W.curZ
+      end
     else
       W.dWtilde = W.bridge(W,0,W.dWtmp,qK,dtK)# - W.curW
-      W.dZtilde = W.bridge(W,0,W.dZtmp,qK,dtK)# - W.curZ
+      if W.Z != nothing
+        W.dZtilde = W.bridge(W,0,W.dZtmp,qK,dtK)# - W.curZ
+      end
     end
     cutLength = (1-qK)*dtK
     if cutLength > W.rswm.discard_length
-      push!(W.S₁,(cutLength,W.dWtmp-W.dWtilde,W.dZtmp-W.dZtilde))
+      if W.Z == nothing
+        push!(W.S₁,(cutLength,W.dWtmp-W.dWtilde,nothing))
+      else
+        push!(W.S₁,(cutLength,W.dWtmp-W.dWtilde,W.dZtmp-W.dZtilde))
+      end
     end
     if length(W.S₁) > W.maxstacksize
         W.maxstacksize = length(W.S₁)
     end
     W.dt = dtnew
     if typeof(W.dW) <: AbstractArray
-      copy!(W.dW,W.dWtilde); copy!(W.dZ,W.dZtilde)
+      copy!(W.dW,W.dWtilde)
+      if W.Z != nothing
+        copy!(W.dZ,W.dZtilde)
+      end
     else
-      W.dW = W.dWtilde;  W.dZ = W.dZtilde
+      W.dW = W.dWtilde
+      if W.Z != nothing
+        W.dZ = W.dZtilde
+      end
     end
   end
 end
@@ -201,23 +297,31 @@ function interpolate!(W::NoiseProcess,t)
       return W.W[i]
     else
       W0,Wh = W.W[i-1],W.W[i]
-      Z0,Zh = W.Z[i-1],W.Z[i]
+      if W.Z != nothing
+        Z0,Zh = W.Z[i-1],W.Z[i]
+      end
       h = W.t[i]-W.t[i-1]
       q = (t-W.t[i-1])/h
       if isinplace(W)
         new_curW = similar(W.dW)
-        new_curZ = similar(W.dZ)
         W.bridge(new_curW,W,W0,Wh,q,h)
-        W.bridge(new_curZ,W,Z0,Zh,q,h)
+        if W.Z != nothing
+          new_curZ = similar(W.dZ)
+          W.bridge(new_curZ,W,Z0,Zh,q,h)
+        end
       else
         new_curW = W.bridge(W,W0,Wh,q,h)
-        new_curZ = W.bridge(W,Z0,Zh,q,h)
+        if W.Z != nothing
+          new_curZ = W.bridge(W,Z0,Zh,q,h)
+        end
       end
       W.curW = new_curW
-      W.curZ = new_curZ
       insert!(W.W,i,new_curW)
-      insert!(W.Z,i,new_curZ)
       insert!(W.t,i,t)
+      if W.Z != nothing
+        W.curZ = new_curZ
+        insert!(W.Z,i,new_curZ)
+      end
       return new_curW
     end
   end
