@@ -1,4 +1,6 @@
-function accept_step!(W::NoiseProcess,dt)
+Base.getindex(W::NoiseProcess,i::Int) = W.W[i]
+
+function accept_step!(W::NoiseProcess,dt,setup_next=true)
 
   W.curW += W.dW
   W.curZ += W.dZ
@@ -8,12 +10,13 @@ function accept_step!(W::NoiseProcess,dt)
   push!(W.t,W.curt)
 
   W.dt = dt #dtpropose
-
-  #modify_dt_for_tstops!(W)
-  # End with #W.sqdt = sqrt(abs(W.dt))
-
-
   # Setup next step
+  if setup_next
+    setup_next_step!(W::NoiseProcess)
+  end
+end
+
+function setup_next_step!(W::NoiseProcess)
   if adaptive_alg(W)==:RSwM3
     ResettableStacks.reset!(W.S₂) #Empty W.S₂
   end
@@ -187,8 +190,6 @@ function reject_step!(W::NoiseProcess,dtnew)
       W.dW = W.dWtilde;  W.dZ = W.dZtilde
     end
   end
-
-  # W.sqdt = sqrt(abs(W.dt))
 end
 
 function interpolate!(W::NoiseProcess,t)
