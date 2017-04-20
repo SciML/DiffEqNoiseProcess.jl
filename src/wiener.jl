@@ -20,7 +20,7 @@ end
 WHITE_NOISE_DIST  = (W,dt) -> sqrt(dt)*wiener_randn(typeof(W.dW))
 WHITE_NOISE_BRIDGE= (W,W0,Wh,q,h) -> sqrt((1-q)*q*h)*wiener_randn(typeof(W.dW))+q*(Wh-W0)+W0
 
-WienerProcess(t0,W0) = NoiseProcess(t0,W0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE,rswm=StochasticDiffEq.RSWM())
+WienerProcess(t0,W0) = NoiseProcess(t0,W0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE,rswm=RSWM())
 
 INPLACE_WHITE_NOISE_DIST  = function (rand_vec,W,dt)
   wiener_randn!(rand_vec)
@@ -30,4 +30,4 @@ INPLACE_WHITE_NOISE_BRIDGE = function (rand_vec,W,W0,Wh,q,h)
   wiener_randn!(rand_vec)
   rand_vec .= sqrt((1.-q).*q.*h).*rand_vec.+q.*(Wh.-W0).+W0
 end
-WienerProcess!(t0,W0) = NoiseProcess(t0,W0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE,rswm=StochasticDiffEq.RSWM())
+WienerProcess!(t0,W0) = NoiseProcess(t0,W0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE,rswm=RSWM())

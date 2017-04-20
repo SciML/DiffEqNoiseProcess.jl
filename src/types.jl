@@ -1,4 +1,4 @@
-type NoiseProcess{T,T2,F,F2,inplace,S1,S2,RSWM}
+type NoiseProcess{T,T2,F,F2,inplace,S1,S2,RSWM} <: AbstractNoiseProcess{inplace}
   dist::F
   bridge::F2
   t::Vector{T}
@@ -21,11 +21,11 @@ type NoiseProcess{T,T2,F,F2,inplace,S1,S2,RSWM}
   maxstacksize2::Int
 end
 (W::NoiseProcess)(t) = interpolate!(W,t)
-adaptive_alg(W::NoiseProcess) = StochasticDiffEq.adaptive_alg(W.rswm)
+adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 isinplace{T,T2,F,F2,inplace,S1,S2,RSWM}(W::NoiseProcess{T,T2,F,F2,inplace,S1,S2,RSWM}) = inplace
 
 function NoiseProcess(t0,W0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
-                       rswm = StochasticDiffEq.RSWM())
+                       rswm = RSWM())
   S₁ = DataStructures.Stack{}(Tuple{typeof(t0),typeof(W0),typeof(W0)})
   S₂ = ResettableStacks.ResettableStack{}(
                         Tuple{typeof(t0),typeof(W0),typeof(W0)})

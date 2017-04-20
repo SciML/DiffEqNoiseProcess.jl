@@ -2,7 +2,7 @@ using DiffEqNoiseProcess
 
 WHITE_NOISE_DIST  = (W,dt) -> sqrt(dt)*randn()
 WHITE_NOISE_BRIDGE= (W,W0,Wh,q,h) -> sqrt((1-q)*q*h)*randn()+q*(Wh-W0)+W0
-W = NoiseProcess(0.0,0.0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE,rswm=StochasticDiffEq.RSWM(adaptivealg=:RSwM1))
+W = NoiseProcess(0.0,0.0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE,rswm=RSWM(adaptivealg=:RSwM1))
 
 dt = 0.2
 calculate_step!(W,dt)
