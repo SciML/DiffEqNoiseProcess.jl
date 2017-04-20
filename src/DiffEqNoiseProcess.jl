@@ -6,8 +6,9 @@ import DiffEqBase: isinplace
 
 include("types.jl")
 include("interface.jl")
+include("wiener.jl")
 
-export WienerProcess, adaptive_alg
+export NoiseProcess, adaptive_alg, WienerProcess, WienerProcess!
 
 export accept_step!, reject_step!, calculate_step!
 

@@ -1,4 +1,4 @@
-type WienerProcess{T,T2,F,F2,inplace,S1,S2,RSWM}
+type NoiseProcess{T,T2,F,F2,inplace,S1,S2,RSWM}
   dist::F
   bridge::F2
   t::Vector{T}
@@ -20,18 +20,18 @@ type WienerProcess{T,T2,F,F2,inplace,S1,S2,RSWM}
   maxstacksize::Int
   maxstacksize2::Int
 end
-(W::WienerProcess)(t) = interpolate!(W,t)
-adaptive_alg(W::WienerProcess) = StochasticDiffEq.adaptive_alg(W.rswm)
-isinplace{T,T2,F,F2,inplace,S1,S2,RSWM}(W::WienerProcess{T,T2,F,F2,inplace,S1,S2,RSWM}) = inplace
+(W::NoiseProcess)(t) = interpolate!(W,t)
+adaptive_alg(W::NoiseProcess) = StochasticDiffEq.adaptive_alg(W.rswm)
+isinplace{T,T2,F,F2,inplace,S1,S2,RSWM}(W::NoiseProcess{T,T2,F,F2,inplace,S1,S2,RSWM}) = inplace
 
-function WienerProcess(t0,W0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
+function NoiseProcess(t0,W0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
                        rswm = StochasticDiffEq.RSWM())
   S₁ = DataStructures.Stack{}(Tuple{typeof(t0),typeof(W0),typeof(W0)})
   S₂ = ResettableStacks.ResettableStack{}(
                         Tuple{typeof(t0),typeof(W0),typeof(W0)})
-  WienerProcess{typeof(t0),typeof(W0),
+  NoiseProcess{typeof(t0),typeof(W0),
                 typeof(dist),typeof(bridge),
                 iip,typeof(S₁),typeof(S₂),typeof(rswm)}(
-                dist,bridge,[t0],[W0],[W0],t0,
-                W0,W0,t0,W0,W0,W0,W0,W0,W0,S₁,S₂,rswm,0,0)
+                dist,bridge,[t0],[copy(W0)],[copy(W0)],t0,
+                copy(W0),copy(W0),t0,copy(W0),copy(W0),copy(W0),copy(W0),copy(W0),copy(W0),S₁,S₂,rswm,0,0)
 end

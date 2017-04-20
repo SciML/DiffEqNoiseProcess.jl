@@ -1,4 +1,4 @@
-function accept_step!(W::WienerProcess,dt)
+function accept_step!(W::NoiseProcess,dt)
 
   W.curW += W.dW
   W.curZ += W.dZ
@@ -46,13 +46,13 @@ function accept_step!(W::WienerProcess,dt)
         end
       else #Popped too far
         if isinplace(W)
-          W.bridge(W.dWtilde,W.curW,L₂,qtmp,L₁)
+          W.bridge(W.dWtilde,W,W.curW,L₂,qtmp,L₁)
           W.dWtilde .-= W.curW
-          W.bridge(W.dZtilde,W.curZ,L₃,qtmp,L₁)
+          W.bridge(W.dZtilde,W,W.curZ,L₃,qtmp,L₁)
           W.dZtilde .-= W.curZ
         else
-          W.dWtilde = W.bridge(W.curW,L₂,qtmp,L₁)-W.curW
-          W.dZtilde = W.bridge(W.curZ,L₃,qtmp,L₁)-W.curZ
+          W.dWtilde = W.bridge(W,W.curW,L₂,qtmp,L₁)-W.curW
+          W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁)-W.curZ
         end
         if typeof(W.dW) <: AbstractArray
           for i in eachindex(W.dW)
@@ -93,7 +93,7 @@ function accept_step!(W::WienerProcess,dt)
   end # End RSwM2 and RSwM3
 end
 
-function calculate_step!(W::WienerProcess,dt)
+function calculate_step!(W::NoiseProcess,dt)
   if isinplace(W)
     W.dist(W.dW,W,dt)
     W.dist(W.dZ,W,dt)
@@ -104,17 +104,17 @@ function calculate_step!(W::WienerProcess,dt)
   W.dt = dt
 end
 
-function reject_step!(W::WienerProcess,dtnew)
+function reject_step!(W::NoiseProcess,dtnew)
   q = dtnew/W.dt
   if adaptive_alg(W)==:RSwM1 || adaptive_alg(W)==:RSwM2
     if isinplace(W)
-      W.bridge(W.dWtilde,W.curW,W.curW+W.dW,q,dtnew)
+      W.bridge(W.dWtilde,W,W.curW,W.curW+W.dW,q,dtnew)
       W.dWtilde .-= W.curW
-      W.bridge(W.dZtilde,W.curZ,W.curZ+W.dZ,q,dtnew)
+      W.bridge(W.dZtilde,W,W.curZ,W.curZ+W.dZ,q,dtnew)
       W.dZtilde .-= W.curZ
     else
-      W.dWtilde = W.bridge(W.curW,W.curW+W.dW,q,dtnew)-W.curW
-      W.dZtilde=  W.bridge(W.curZ,W.curZ+W.dZ,q,dtnew)-W.curZ
+      W.dWtilde = W.bridge(W,W.curW,W.curW+W.dW,q,dtnew)-W.curW
+      W.dZtilde=  W.bridge(W,W.curZ,W.curZ+W.dZ,q,dtnew)-W.curZ
     end
     cutLength = W.dt-dtnew
     if cutLength > W.rswm.discard_length
@@ -165,11 +165,13 @@ function reject_step!(W::WienerProcess,dtnew)
       W.dWtmp = W.dW - W.dWtmp; W.dZtmp = W.dZ - W.dZtmp
     end
     if isinplace(W)
-      W.bridge(W.dWtilde,0,W.dWtmp,qK,dtK)
-      W.bridge(W.dZtilde,0,W.dZtmp,qK,dtK)
+      W.bridge(W.dWtilde,W,0,W.dWtmp,qK,dtK)
+      #W.dWtilde .-= W.curW
+      W.bridge(W.dZtilde,W,0,W.dZtmp,qK,dtK)
+      #W.dZtilde .-= W.curZ
     else
-      W.dWtilde = W.bridge(0,W.dWtmp,qK,dtK)
-      W.dZtilde = W.bridge(0,W.dZtmp,qK,dtK)
+      W.dWtilde = W.bridge(W,0,W.dWtmp,qK,dtK)# - W.curW
+      W.dZtilde = W.bridge(W,0,W.dZtmp,qK,dtK)# - W.curZ
     end
     cutLength = (1-qK)*dtK
     if cutLength > W.rswm.discard_length
@@ -189,7 +191,7 @@ function reject_step!(W::WienerProcess,dtnew)
   # W.sqdt = sqrt(abs(W.dt))
 end
 
-function interpolate!(W::WienerProcess,t)
+function interpolate!(W::NoiseProcess,t)
   if t > W.t[end] # Steps past W
     error("Cannot extrapolate with the interpolation")
   else # Bridge
@@ -204,11 +206,11 @@ function interpolate!(W::WienerProcess,t)
       if isinplace(W)
         new_curW = similar(W.dW)
         new_curZ = similar(W.dZ)
-        W.bridge(new_curW,W0,Wh,q,h)
-        W.bridge(new_curZ,Z0,Zh,q,h)
+        W.bridge(new_curW,W,W0,Wh,q,h)
+        W.bridge(new_curZ,W,Z0,Zh,q,h)
       else
-        new_curW = W.bridge(W0,Wh,q,h)
-        new_curZ = W.bridge(Z0,Zh,q,h)
+        new_curW = W.bridge(W,W0,Wh,q,h)
+        new_curZ = W.bridge(W,Z0,Zh,q,h)
       end
       W.curW = new_curW
       W.curZ = new_curZ
