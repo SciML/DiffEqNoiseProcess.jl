@@ -290,11 +290,38 @@ end
 
 function interpolate!(W::NoiseProcess,t)
   if t > W.t[end] # Steps past W
-    error("Cannot extrapolate with the interpolation")
+    dt = t - W.t[end]
+    if isinplace(W)
+      W.dist(W.dW,W,dt)
+      W.curW .+= W.dW
+      if W.Z != nothing
+        W.dist(W.dZ,W,dt)
+        W.curZ .+= W.dZ
+      end
+    else
+      W.dW = W.dist(W,dt)
+      W.curW += W.dW
+      if W.Z != nothing
+        W.dZ = W.dist(W,dt)
+        W.curZ += W.dZ
+      end
+    end
+    push!(W.t,t)
+    push!(W.W,copy(W.curW))
+    if W.Z != nothing
+      push!(W.Z,copy(W.curZ))
+    end
+    return W.curW,W.curZ
   else # Bridge
     i = searchsortedfirst(W.t,t)
     if t == W.t[i]
-      return W.W[i]
+      W.curW = W.W[i]
+      if W.Z != nothing
+        W.curZ = W.Z[i]
+        return W.W[i],W.Z[i]
+      else
+        return W.W[i],nothing
+      end
     else
       W0,Wh = W.W[i-1],W.W[i]
       if W.Z != nothing
@@ -308,11 +335,52 @@ function interpolate!(W::NoiseProcess,t)
         if W.Z != nothing
           new_curZ = similar(W.dZ)
           W.bridge(new_curZ,W,Z0,Zh,q,h)
+        else
+          new_curZ = nothing
         end
       else
         new_curW = W.bridge(W,W0,Wh,q,h)
         if W.Z != nothing
           new_curZ = W.bridge(W,Z0,Zh,q,h)
+        else
+          new_curZ = nothing
+        end
+      end
+      W.curW = new_curW
+      insert!(W.W,i,new_curW)
+      insert!(W.t,i,t)
+      if W.Z != nothing
+        W.curZ = new_curZ
+        insert!(W.Z,i,new_curZ)
+      end
+      return new_curW,new_curZ
+    end
+  end
+end
+
+function interpolate!(out1,out2,W::NoiseProcess,t)
+  if t > W.t[end] # Steps past W
+    error("Cannot extrapolate with the interpolation")
+  else # Bridge
+    i = searchsortedfirst(W.t,t)
+    if t == W.t[i]
+      return W.W[i]
+    else
+      W0,Wh = W.W[i-1],W.W[i]
+      if W.Z != nothing
+        Z0,Zh = W.Z[i-1],W.Z[i]
+      end
+      h = W.t[i]-W.t[i-1]
+      q = (t-W.t[i-1])/h
+      if isinplace(W)
+        W.bridge(out1,W,W0,Wh,q,h)
+        if W.Z != nothing
+          W.bridge(out2,W,Z0,Zh,q,h)
+        end
+      else
+        out1 .= W.bridge(W,W0,Wh,q,h)
+        if W.Z != nothing
+          out2 .= W.bridge(W,Z0,Zh,q,h)
         end
       end
       W.curW = new_curW
