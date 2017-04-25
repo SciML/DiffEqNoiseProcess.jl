@@ -1,7 +1,7 @@
 # DiffEqNoiseProcess.jl
 
-[![Build Status](https://travis-ci.org/JuliaDiffEq/DiffEqNoiseProcess.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/SteadyStateDiffEq.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/akarfmep6cw1vqa6?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/steadystatediffeq-jl)
+[![Build Status](https://travis-ci.org/JuliaDiffEq/DiffEqNoiseProcess.jl.svg?branch=master)](https://travis-ci.org/JuliaDiffEq/DiffEqNoiseProcess.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/29rskms03i48xxt1?svg=true)](https://ci.appveyor.com/project/ChrisRackauckas/diffeqnoiseprocess-jl)
 [![Coverage Status](https://coveralls.io/repos/JuliaDiffEq/DiffEqNoiseProcess.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaDiffEq/DiffEqNoiseProcess.jl?branch=master)
 [![codecov.io](http://codecov.io/github/JuliaDiffEq/DiffEqNoiseProcess.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaDiffEq/DiffEqNoiseProcess.jl?branch=master)
 
