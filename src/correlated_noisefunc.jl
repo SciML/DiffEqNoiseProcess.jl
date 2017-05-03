@@ -1,6 +1,6 @@
 function construct_correlated_noisefunc(Γ)
   γ = svdfact(Γ)
-  A = γ[:U]*Diagonal(√γ[:S])
+  A = γ[:U]*Diagonal(sqrt.(γ[:S]))
   b = Vector{eltype(Γ)}(size(Γ,1))
   dist = function (W,dt)
     if typeof(W.dW) <: AbstractArray
@@ -18,7 +18,7 @@ CorrelatedWienerProcess(Γ,t0,W0,Z0=nothing) = NoiseProcess(t0,W0,Z0,construct_c
 
 function construct_correlated_noisefunc!(Γ)
   γ = svdfact(Γ)
-  A = γ[:U]*Diagonal(√.(γ[:S]))
+  A = γ[:U]*Diagonal(sqrt.(γ[:S]))
   b = Vector{eltype(Γ)}(size(Γ,1))
   dist = function (rand_vec,W,dt)
     wiener_randn!(b)
