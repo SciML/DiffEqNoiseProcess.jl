@@ -8,4 +8,5 @@ using Base.Test
 @time @testset "NoiseWrapper Test" begin include("noise_wrapper.jl") end
 @time @testset "SDE NoiseWrapper Test" begin include("sde_noise_wrapper.jl") end
 @time @testset "Multidim Test" begin include("multi_dim.jl") end
+@time @testset "GBM Test" begin include("geometric_bm.jl") end
 @time @testset "Adaptive SDE Distribution Test" begin include("sde_adaptivedistribution_tests.jl") end

@@ -25,7 +25,11 @@ function WHITE_NOISE_DIST(W,dt)
   end
 end
 function WHITE_NOISE_BRIDGE(W,W0,Wh,q,h)
-  sqrt((1-q)*q*abs(h))*wiener_randn(typeof(W.dW))+q*(Wh-W0)+W0
+  if typeof(W.dW) <: AbstractArray
+    return sqrt((1-q)*q*abs(h))*wiener_randn(size(W.dW))+q*(Wh-W0)+W0
+  else
+    return sqrt((1-q)*q*abs(h))*wiener_randn(typeof(W.dW))+q*(Wh-W0)+W0
+  end
 end
 WienerProcess(t0,W0,Z0=nothing) = NoiseProcess(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE,rswm=RSWM())
 

@@ -1,5 +1,3 @@
-Base.getindex(W::NoiseProcess,i::Int) = W.W[i]
-
 function accept_step!(W::NoiseProcess,dt,setup_next=true)
 
   W.curW += W.dW
