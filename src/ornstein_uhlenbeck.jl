@@ -1,25 +1,44 @@
-function ou_dist(W,dt)
-  if typeof(W.dW) <: AbstractArray
-    return sqrt(abs(dt))*wiener_randn(size(W.dW))
-  else
-    return sqrt(abs(dt))*wiener_randn(typeof(W.dW))
-  end
-end
-#=
-function ou_bridge(W,W0,Wh,q,h)
-  sqrt((1-q)*q*abs(h))*wiener_randn(typeof(W.dW))+q*(Wh-W0)+W0
-end
-=#
-OrnsteinUhlenbeckProcess(t0,W0,Z0=nothing) = NoiseProcess(t0,W0,Z0,ou_dist,nothing,rswm=RSWM())
 
-function ou_dist!(rand_vec,W,dt)
-  wiener_randn!(rand_vec)
-  rand_vec .*= sqrt(abs(dt))
+immutable OrnsteinUhlenbeck{T1,T2,T3}
+  Θ::T1
+  μ::T2
+  σ::T3
 end
+# http://www.math.ku.dk/~susanne/StatDiff/Overheads1b.pdf
+function (p::OrnsteinUhlenbeck)(W,dt) #dist
+  if typeof(W.dW) <: AbstractArray
+    rand_val = wiener_randn(size(W.dW))
+  else
+    rand_val = wiener_randn(typeof(W.dW))
+  end
+  drift = p.μ+(W[end]-p.μ)*exp(-p.Θ*dt)
+  diffusion = p.σ*sqrt((1-exp(-2p.Θ*dt))/(2p.Θ))
+  drift + rand_val*diffusion - W[end]
+end
+
 #=
-function ou_bridge!(rand_vec,W,W0,Wh,q,h)
-  wiener_randn!(rand_vec)
-  rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*(Wh.-W0).+W0
-end
+http://www.tandfonline.com/doi/pdf/10.1080/14697688.2014.941913?needAccess=true
+http://www.tandfonline.com/doi/full/10.1080/14697688.2014.941913?src=recsys
 =#
-OrnsteinUhlenbeckProcess!(t0,W0,Z0=nothing) = NoiseProcess(t0,W0,Z0,ou_dist!,nothing,rswm=RSWM())
+function ou_bridge(gbm,W,W0,Wh,q,h) end
+function ou_bridge!(rand_vec,gbm,W,W0,Wh,q,h) end
+
+function OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing)
+  ou = OrnsteinUhlenbeck(Θ,μ,σ)
+  NoiseProcess(t0,W0,Z0,ou,nothing,rswm=RSWM())
+end
+
+immutable OrnsteinUhlenbeck!{T1,T2,T3}
+  Θ::T1
+  μ::T2
+  σ::T3
+end
+
+function (p::OrnsteinUhlenbeck!)(rand_vec,W,dt) #dist!
+  wiener_randn!(rand_vec)
+  rand_vec .= p.μ.+(W[end].-p.μ).*exp.(-p.Θ.*dt) + rand_vec.*p.σ.*sqrt.((1.-exp.(-2.*p.Θ.*dt))./(2.*p.Θ)) .- W[end]
+end
+function OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing)
+  ou = OrnsteinUhlenbeck!(Θ,μ,σ)
+  NoiseProcess(t0,W0,Z0,ou,nothing,rswm=RSWM())
+end

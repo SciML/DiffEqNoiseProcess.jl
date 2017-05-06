@@ -47,9 +47,8 @@ immutable GeometricBrownianMotion!{T1,T2}
   σ::T2
 end
 function (p::GeometricBrownianMotion!)(rand_vec,W,dt) #dist!
-  drift = p.μ.-(1/2).*p.σ
   wiener_randn!(rand_vec)
-  rand_vec .= W[end].*(exp.(drift.*dt .+ p.σ.*sqrt(dt).*rand_vec).-1)
+  rand_vec .= W[end].*(exp.(p.μ.-(1/2).*p.σ.*dt .+ p.σ.*sqrt(dt).*rand_vec).-1)
 end
 function GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing)
   gbm = GeometricBrownianMotion!(μ,σ)

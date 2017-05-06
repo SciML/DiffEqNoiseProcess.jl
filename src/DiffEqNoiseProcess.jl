@@ -12,6 +12,7 @@ include("interface.jl")
 include("wiener.jl")
 include("solve.jl")
 include("geometric_bm.jl")
+include("ornstein_uhlenbeck.jl")
 include("rswm.jl")
 include("noise_wrapper_interface.jl")
 include("recipes.jl")
@@ -21,7 +22,11 @@ export RSWM
 
 export NoiseProcess, adaptive_alg
 
-export WienerProcess, WienerProcess!, GeometricBrownianMotionProcess, GeometricBrownianMotionProcess!
+export WienerProcess, WienerProcess!
+
+export GeometricBrownianMotionProcess, GeometricBrownianMotionProcess!
+
+export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!
 
 export NoiseWrapper
 

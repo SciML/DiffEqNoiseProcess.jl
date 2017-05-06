@@ -29,7 +29,7 @@ expected_mean = u0*exp(μ*t)
 expected_variance = u0^2*exp(2μ*t)*(exp(σ^2*t)-1)
 monte_prob = MonteCarloProblem(prob;output_func = (sol,i)-> sol[end])
 sol = solve(monte_prob;dt=0.1,num_monte=1000000)
-abs(mean(sol) - expected_mean) < 0.4
+@test abs(mean(sol) - expected_mean) < 0.4
 #abs(var(sol) - expected_variance) < 0.4 # Converges slowly
 
 W = GeometricBrownianMotionProcess!(μ,σ,0.0,ones(2),ones(2))
