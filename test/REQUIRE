@@ -3,4 +3,4 @@ StatsBase
 Distributions
 HypothesisTests
 DiffEqProblemLibrary
-DiffEqMonteCarlo
+DiffEqMonteCarlo 0.4.0
