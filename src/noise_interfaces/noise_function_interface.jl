@@ -51,3 +51,7 @@ end
 function reject_step!(W::NoiseFunction,dtnew)
   calculate_step!(W,dtnew)
 end
+
+function setup_next_step!(W::NoiseFunction)
+  calculate_step!(W,W.dt)
+end

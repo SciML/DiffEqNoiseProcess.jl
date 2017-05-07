@@ -6,7 +6,8 @@ function solve(prob::AbstractNoiseProblem,args...;dt=0.0,kwargs...)
   end
   W = deepcopy(prob.noise)
   W.curt = prob.tspan[1]
-  calculate_step!(W,dt)
+  W.dt = dt
+  setup_next_step!(W)
   tType = typeof(W.curt)
   while W.curt < prob.tspan[2]
     if tType <: AbstractFloat && abs(W.curt + dt - prob.tspan[2]) < 100*eps(dt) # Correct the end due to floating point error

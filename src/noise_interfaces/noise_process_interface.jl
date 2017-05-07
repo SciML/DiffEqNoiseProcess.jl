@@ -60,6 +60,8 @@ function setup_next_step!(W::NoiseProcess)
           push!(W.S₂,(L₁,L₂,L₃))
         end
       else #Popped too far
+        # Generate numbers to bridge and step perfectly
+        dttmp += qtmp*L₁
         if isinplace(W)
           W.bridge(W.dWtilde,W,W.curW,L₂,qtmp,L₁)
           W.dWtilde .-= W.curW

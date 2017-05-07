@@ -13,4 +13,5 @@ using Base.Test
 @time @testset "Multidim Test" begin include("multi_dim.jl") end
 @time @testset "GBM Test" begin include("geometric_bm.jl") end
 @time @testset "OU Test" begin include("ornstein.jl") end
+@time @testset "Bridge Test" begin include("bridge_test.jl") end
 @time @testset "Adaptive SDE Distribution Test" begin include("sde_adaptivedistribution_tests.jl") end

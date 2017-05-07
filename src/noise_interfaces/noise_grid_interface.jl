@@ -105,3 +105,7 @@ end
 function reject_step!(W::NoiseGrid,dtnew)
   calculate_step!(W,dtnew)
 end
+
+function setup_next_step!(W::NoiseGrid)
+  calculate_step!(W,W.dt)
+end

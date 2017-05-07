@@ -31,7 +31,7 @@ function WHITE_NOISE_BRIDGE(W,W0,Wh,q,h)
     return sqrt((1-q)*q*abs(h))*wiener_randn(typeof(W.dW))+q*(Wh-W0)+W0
   end
 end
-WienerProcess(t0,W0,Z0=nothing) = NoiseProcess(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE,rswm=RSWM())
+WienerProcess(t0,W0,Z0=nothing;rswm=RSWM()) = NoiseProcess(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE,rswm=rswm)
 
 function INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt)
   wiener_randn!(rand_vec)
@@ -41,4 +41,30 @@ function INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h)
   wiener_randn!(rand_vec)
   rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*(Wh.-W0).+W0
 end
-WienerProcess!(t0,W0,Z0=nothing) = NoiseProcess(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE,rswm=RSWM())
+WienerProcess!(t0,W0,Z0=nothing;rswm=RSWM()) = NoiseProcess(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE,rswm=rswm)
+
+function BrownianBridge(t0,tend,W0,Wend,Z0=nothing,Zend=nothing;rswm=RSWM())
+  W = WienerProcess(t0,W0,Z0,rswm=rswm)
+  h = tend-t0
+  Wh = Wend-W0
+  if Z0 != nothing
+    Zh = Zend - Z0
+  else
+    Zh = nothing
+  end
+  push!(W.S₁,(h,Wh,Zh))
+  W
+end
+
+function BrownianBridge!(t0,tend,W0,Wh,Z0=nothing,Zh=nothing;rswm=RSWM())
+  W = WienerProcess!(t0,W0,Z0,rswm=rswm)
+  h = tend-t0
+  Wh .-= W0
+  if Z0 != nothing
+    Zh .-= Z0
+  else
+    Zh = nothing
+  end
+  push!(W.S₁,(h,Wh,Zh))
+  W
+end

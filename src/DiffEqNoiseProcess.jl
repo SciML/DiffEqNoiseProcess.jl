@@ -27,6 +27,8 @@ export NoiseProcess, adaptive_alg
 
 export WienerProcess, WienerProcess!
 
+export BrownianBridge, BrownianBridge!
+
 export GeometricBrownianMotionProcess, GeometricBrownianMotionProcess!
 
 export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!

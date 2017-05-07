@@ -68,3 +68,7 @@ function reject_step!(W::NoiseApproximation,dtnew)
     end
   end
 end
+
+function setup_next_step!(W::NoiseApproximation)
+  calculate_step!(W,W.dt)
+end
