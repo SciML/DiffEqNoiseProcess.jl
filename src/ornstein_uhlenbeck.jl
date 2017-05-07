@@ -20,8 +20,15 @@ end
 http://www.tandfonline.com/doi/pdf/10.1080/14697688.2014.941913?needAccess=true
 http://www.tandfonline.com/doi/full/10.1080/14697688.2014.941913?src=recsys
 =#
-function ou_bridge(gbm,W,W0,Wh,q,h) end
-function ou_bridge!(rand_vec,gbm,W,W0,Wh,q,h) end
+
+#=
+(qX + r) = Θ(μ-x) = Θμ - Θx
+q = -Θ
+r = Θμ
+https://arxiv.org/pdf/1011.0067.pdf page 18
+=#
+function ou_bridge(ou,W,W0,Wh,q,h) end
+function ou_bridge!(rand_vec,ou,W,W0,Wh,q,h) end
 
 function OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing)
   ou = OrnsteinUhlenbeck(Θ,μ,σ)
