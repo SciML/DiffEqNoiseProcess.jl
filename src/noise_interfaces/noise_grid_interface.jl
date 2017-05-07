@@ -75,7 +75,6 @@ function calculate_step!(W::NoiseGrid,dt)
 end
 
 function accept_step!(W::NoiseGrid,dt,setup_next=true)
-  @show W.curt
   W.step_setup == false && error("Stepped past the defined domain for the NoiseGrid")
 
   if isinplace(W)

@@ -99,28 +99,42 @@ type NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseProcess{T,N
 end
 
 function (W::NoiseFunction)(t)
-  W.Z != nothing ? (z = W.Z(out2,t)) : z = nothing
-  W.W(t),z
+  if W.Z != nothing
+    if isinplace(W)
+      out2 = similar(W.dZ)
+      W.Z(out2,t)
+    else
+      out2 = W.Z(t)
+    end
+  else
+    out2 = nothing
+  end
+  if isinplace(W)
+    out1 = similar(W.dW)
+    W.W(out1,t)
+  else
+    out1 = W.W(t)
+  end
+  out1,out2
 end
 function (W::NoiseFunction)(out1,out2,t)
   W.W(out1,t)
   W.Z != nothing && W.Z(out2,t)
 end
 
-function NoiseFunction(t0,W,Z=nothing;iip=DiffEqBase.isinplace(W,2))
-  val = W(t0)
+function NoiseFunction(t0,W,Z=nothing;iip=DiffEqBase.isinplace(W,2),noise_prototype=W(t0))
   curt = t0
   dt = t0
-  curW = copy(val)
-  dW = copy(val)
+  curW = copy(noise_prototype)
+  dW = copy(noise_prototype)
   if Z==nothing
     curZ = nothing
     dZ = nothing
   else
-    curZ = copy(val)
-    dZ = copy(val)
+    curZ = copy(noise_prototype)
+    dZ = copy(noise_prototype)
   end
-  NoiseFunction{typeof(val),ndims(val),typeof(W),typeof(Z),
+  NoiseFunction{typeof(noise_prototype),ndims(noise_prototype),typeof(W),typeof(Z),
                 typeof(curt),typeof(curW),typeof(curZ),iip}(W,Z,curt,curW,curZ,
                 dt,dW,dZ)
 end
@@ -159,3 +173,48 @@ end
 
 (W::NoiseGrid)(t) = interpolate!(W,t)
 (W::NoiseGrid)(out1,out2,t) = interpolate!(out1,out2,W,t)
+
+type NoiseApproximation{T,N,Tt,T2,T3,S1,S2,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
+  t::Vector{Tt}
+  u::Vector{T2}
+  W::Vector{T2}
+  Z::ZType
+  curt::Tt
+  curW::T2
+  curZ::T3
+  dt::Tt
+  dW::T2
+  dZ::T3
+  source1::S1
+  source2::S2
+end
+
+function NoiseApproximation(source1::DEIntegrator,source2::Union{DEIntegrator,Void}=nothing)
+  _source1 = deepcopy(source1)
+  _source2 = deepcopy(source2)
+  if _source2==nothing
+    Z=nothing
+    curZ = nothing
+    dZ = nothing
+  else
+    Z=_source2.sol.u
+    curZ = copy(_source2.u)
+    dZ = copy(_source2.u)
+    _source2.opts.advance_to_tstop = true
+  end
+  val = copy(_source1.u)
+  t = _source1.sol.t
+  W = _source1.sol.u
+  curW = copy(_source1.u)
+  dW = copy(_source1.u)
+  dt = _source1.dt
+  curt = _source1.t
+  _source1.opts.advance_to_tstop = true
+  NoiseApproximation{typeof(val),ndims(val),typeof(curt),typeof(curW),typeof(curZ),
+                     typeof(_source1),typeof(_source2),typeof(Z),
+                     isinplace(_source1.sol.prob)}(
+                     t,W,W,Z,curt,curW,curZ,dt,dW,dZ,_source1,_source2)
+end
+
+(W::NoiseApproximation)(t) = interpolate!(W,t)
+(W::NoiseApproximation)(out1,out2,t) = interpolate!(out1,out2,W,t)
