@@ -54,7 +54,6 @@ function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
                 copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,S₁,S₂,rswm,0,0)
 end
 
-
 type NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
   t::Vector{Tt}
   u::Vector{T2}
@@ -125,3 +124,38 @@ function NoiseFunction(t0,W,Z=nothing;iip=DiffEqBase.isinplace(W,2))
                 typeof(curt),typeof(curW),typeof(curZ),iip}(W,Z,curt,curW,curZ,
                 dt,dW,dZ)
 end
+
+type NoiseGrid{T,N,Tt,T2,T3,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
+  t::Vector{Tt}
+  u::Vector{T2}
+  W::Vector{T2}
+  Z::ZType
+  curt::Tt
+  curW::T2
+  curZ::T3
+  dt::Tt
+  dW::T2
+  dZ::T3
+  step_setup::Bool
+end
+
+function NoiseGrid(t,W,Z=nothing)
+  val = W[1]
+  curt = t[1]
+  dt = t[1]
+  curW = copy(val)
+  dW = copy(val)
+  if Z==nothing
+    curZ = nothing
+    dZ = nothing
+  else
+    curZ = copy(Z[1])
+    dZ = copy(Z[1])
+  end
+  typeof(val) <: AbstractArray ? iip = true : iip = false
+  NoiseGrid{typeof(val),ndims(val),typeof(dt),typeof(dW),typeof(dZ),typeof(Z),iip}(
+            t,W,W,Z,curt,curW,curZ,dt,dW,dZ,true)
+end
+
+(W::NoiseGrid)(t) = interpolate!(W,t)
+(W::NoiseGrid)(out1,out2,t) = interpolate!(out1,out2,W,t)

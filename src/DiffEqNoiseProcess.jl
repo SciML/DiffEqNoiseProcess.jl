@@ -8,14 +8,15 @@ using DataStructures, ResettableStacks, DiffEqBase, RecipesBase,
 import DiffEqBase: isinplace, solve
 
 include("types.jl")
-include("interface.jl")
 include("wiener.jl")
 include("solve.jl")
 include("geometric_bm.jl")
 include("ornstein_uhlenbeck.jl")
 include("rswm.jl")
-include("noise_function_interface.jl")
-include("noise_wrapper_interface.jl")
+include("noise_interfaces/noise_process_interface.jl")
+include("noise_interfaces/noise_function_interface.jl")
+include("noise_interfaces/noise_grid_interface.jl")
+include("noise_interfaces/noise_wrapper_interface.jl")
 include("recipes.jl")
 include("correlated_noisefunc.jl")
 
@@ -29,7 +30,7 @@ export GeometricBrownianMotionProcess, GeometricBrownianMotionProcess!
 
 export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!
 
-export NoiseWrapper, NoiseFunction
+export NoiseWrapper, NoiseFunction, NoiseGrid
 
 export accept_step!, reject_step!, calculate_step!
 
