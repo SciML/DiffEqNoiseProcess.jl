@@ -1,12 +1,16 @@
-function interpolate!(W::NoiseWrapper,t)
-  W.source(t)
+Base.show(io::IO, A::NoiseFunction) =
+           invoke(show, Tuple{typeof(io), Any}, io, A)
+Base.show(io::IO, ::MIME"text/plain", A::NoiseFunction) = show(io, A)
+
+function interpolate!(W::NoiseFunction,t)
+  W.W(t)
 end
 
-function interpolate!(out1,out2,W::NoiseWrapper,t)
-  W.source(out1,out2,t)
+function interpolate!(out1,out2,W::NoiseFunction,t)
+  W.W(out1,out2,t)
 end
 
-function calculate_step!(W::NoiseWrapper,dt)
+function calculate_step!(W::NoiseFunction,dt)
   if isinplace(W)
     W(W.dW,W.dZ,W.curt+dt)
     W.dW .-= W.curW
@@ -23,23 +27,19 @@ function calculate_step!(W::NoiseWrapper,dt)
   W.dt = dt
 end
 
-function accept_step!(W::NoiseWrapper,dt,setup_next=true)
+function accept_step!(W::NoiseFunction,dt,setup_next=true)
   if isinplace(W)
     W.curW .+= W.dW
   else
     W.curW += W.dW
   end
   W.curt += W.dt
-  push!(W.W,copy(W.curW))
-  push!(W.t,copy(W.curt))
   if W.Z != nothing
     if isinplace(W)
       W.curZ .+= W.dZ
     else
       W.curZ += W.dZ
     end
-
-    push!(W.Z,copy(W.curZ))
   end
 
   W.dt = dt #dtpropose
@@ -48,6 +48,6 @@ function accept_step!(W::NoiseWrapper,dt,setup_next=true)
   end
 end
 
-function reject_step!(W::NoiseWrapper,dtnew)
-  calculate_step!(W::NoiseWrapper,dtnew)
+function reject_step!(W::NoiseFunction,dtnew)
+  calculate_step!(W,dtnew)
 end

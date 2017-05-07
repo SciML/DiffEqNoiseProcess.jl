@@ -1,3 +1,5 @@
+isinplace{T,N,inplace}(W::AbstractNoiseProcess{T,N,inplace}) = inplace
+
 type NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM} <: AbstractNoiseProcess{T,N,inplace}
   dist::F
   bridge::F2
@@ -24,7 +26,6 @@ end
 (W::NoiseProcess)(t) = interpolate!(W,t)
 (W::NoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,t)
 adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
-isinplace{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM}(W::NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM}) = inplace
 
 function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
                        rswm = RSWM())
@@ -85,6 +86,42 @@ end
 
 (W::NoiseWrapper)(t) = interpolate!(W,t)
 (W::NoiseWrapper)(out1,out2,t) = interpolate!(out1,out2,W,t)
-
 adaptive_alg(W::NoiseWrapper) = adaptive_alg(W.source)
-isinplace{T,N,Tt,T2,T3,T4,ZType,inplace}(W::NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace}) = inplace
+
+type NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseProcess{T,N,inplace}
+  W::wType
+  Z::zType
+  curt::Tt
+  curW::T2
+  curZ::T3
+  dt::Tt
+  dW::T2
+  dZ::T3
+end
+
+function (W::NoiseFunction)(t)
+  W.Z != nothing ? (z = W.Z(out2,t)) : z = nothing
+  W.W(t),z
+end
+function (W::NoiseFunction)(out1,out2,t)
+  W.W(out1,t)
+  W.Z != nothing && W.Z(out2,t)
+end
+
+function NoiseFunction(t0,W,Z=nothing;iip=DiffEqBase.isinplace(W,2))
+  val = W(t0)
+  curt = t0
+  dt = t0
+  curW = copy(val)
+  dW = copy(val)
+  if Z==nothing
+    curZ = nothing
+    dZ = nothing
+  else
+    curZ = copy(val)
+    dZ = copy(val)
+  end
+  NoiseFunction{typeof(val),ndims(val),typeof(W),typeof(Z),
+                typeof(curt),typeof(curW),typeof(curZ),iip}(W,Z,curt,curW,curZ,
+                dt,dW,dZ)
+end
