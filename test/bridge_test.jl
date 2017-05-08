@@ -4,7 +4,7 @@ using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo,
 W = BrownianBridge(0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))
 monte_prob = MonteCarloProblem(prob)
-@time sol = solve(monte_prob,dt=0.1,num_monte=100000)
+@time sol = solve(monte_prob,dt=0.1,num_monte=10000)
 
 # Spot check the mean and the variance
 q =  0.4
@@ -18,4 +18,4 @@ const σ = 2.2
 W = GeometricBrownianBridge(μ,σ,0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))
 monte_prob = MonteCarloProblem(prob)
-@time sol = solve(monte_prob,dt=0.1,num_monte=100000)
+@time sol = solve(monte_prob,dt=0.1,num_monte=100)
