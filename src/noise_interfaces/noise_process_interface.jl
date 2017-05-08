@@ -64,15 +64,13 @@ function setup_next_step!(W::NoiseProcess)
         dttmp += qtmp*L₁
         if isinplace(W)
           W.bridge(W.dWtilde,W,W.curW,L₂,qtmp,L₁)
-          W.dWtilde .-= W.curW
           if W.Z != nothing
             W.bridge(W.dZtilde,W,W.curZ,L₃,qtmp,L₁)
-            W.dZtilde .-= W.curZ
           end
         else
-          W.dWtilde = W.bridge(W,W.curW,L₂,qtmp,L₁)-W.curW
+          W.dWtilde = W.bridge(W,W.curW,L₂,qtmp,L₁)
           if W.Z != nothing
-            W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁)-W.curZ
+            W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁)
           end
         end
         if typeof(W.dW) <: AbstractArray
@@ -106,7 +104,7 @@ function setup_next_step!(W::NoiseProcess)
       end
     end #end while empty
     dtleft = W.dt - dttmp
-    if dtleft != 0 #Stack emptied
+    if !≈(dtleft,0.0,atol=W.rswm.discard_length) #Stack emptied
       if isinplace(W)
         W.dist(W.dWtilde,W,dtleft)
         if W.Z != nothing

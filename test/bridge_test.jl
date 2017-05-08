@@ -1,39 +1,21 @@
 using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo,
       Base.Test, DataStructures
 
-W = BrownianBridge(0.0,1.0,0.0,0.0,0.0,0.0)
-dt = 0.1
-W.dt = dt
-DiffEqNoiseProcess.setup_next_step!(W)
-for i in 1:10
-  accept_step!(W,dt)
-end
-@test ≈(W[end],0.0,atol=3e-8)
-
-W = BrownianBridge(0.0,1.0,0.0,0.0,0.0,0.0)
-prob = NoiseProblem(W,(0.0,1.0))
-sol = solve(prob;dt=0.1)
-
-@test ≈(sol[end],0.0,atol=3e-8)
-
 W = BrownianBridge(0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))
-sol = solve(prob;dt=0.1)
+monte_prob = MonteCarloProblem(prob)
+@time sol = solve(monte_prob,dt=0.1,num_monte=100000)
 
-@test ≈(sol[end],1.0,atol=3e-8)
+# Spot check the mean and the variance
+q =  0.4
+@test ≈(timestep_mean(sol,5),q,atol=1e-2)
+@test ≈(timestep_meanvar(sol,5)[2],(1-q)*q,atol=1e-2)
+@test ≈(timestep_mean(sol,11)[1],1.0,atol=1e-16)
+@test ≈(timestep_meanvar(sol,11)[2],0.0,atol=1e-16)
 
-#=
-const μ = 1.0
-const σ = 2.0
-
-W = BrownianBridge(0.0,1.0,0.0,0.0,0.0,0.0,rswm=RSWM(adaptivealg=:RSwM1))
+const μ = 1.2
+const σ = 2.2
+W = GeometricBrownianBridge(μ,σ,0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))
-sol = solve(prob;dt=0.1)
-
-using Plots; plot(sol)
-
-sol.t
-sol[end]
-
-W.S₁
-=#
+monte_prob = MonteCarloProblem(prob)
+@time sol = solve(monte_prob,dt=0.1,num_monte=100000)

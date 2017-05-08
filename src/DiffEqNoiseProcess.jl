@@ -13,6 +13,7 @@ include("solve.jl")
 include("geometric_bm.jl")
 include("ornstein_uhlenbeck.jl")
 include("rswm.jl")
+include("bridges.jl")
 include("noise_interfaces/noise_process_interface.jl")
 include("noise_interfaces/noise_function_interface.jl")
 include("noise_interfaces/noise_grid_interface.jl")
@@ -30,6 +31,8 @@ export WienerProcess, WienerProcess!
 export BrownianBridge, BrownianBridge!
 
 export GeometricBrownianMotionProcess, GeometricBrownianMotionProcess!
+
+export GeometricBrownianBridge, GeometricBrownianBridge!
 
 export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!
 
