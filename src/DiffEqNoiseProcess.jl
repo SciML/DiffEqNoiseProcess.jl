@@ -38,7 +38,7 @@ export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!
 
 export NoiseWrapper, NoiseFunction, NoiseGrid, NoiseApproximation
 
-export accept_step!, reject_step!, calculate_step!
+export accept_step!, reject_step!, calculate_step!, setup_next_step!
 
 export CorrelatedWienerProcess, CorrelatedWienerProcess!
 
