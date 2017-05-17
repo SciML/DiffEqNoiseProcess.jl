@@ -342,16 +342,20 @@ function interpolate!(W::NoiseProcess,t)
       if isinplace(W)
         new_curW = similar(W.dW)
         W.bridge(new_curW,W,W0,Wh,q,h)
+        new_curW .+= (1-q)*W0
         if W.Z != nothing
           new_curZ = similar(W.dZ)
           W.bridge(new_curZ,W,Z0,Zh,q,h)
+          new_curZ .+= (1-q)*Z0
         else
           new_curZ = nothing
         end
       else
         new_curW = W.bridge(W,W0,Wh,q,h)
+        new_curW += (1-q)*W0
         if W.Z != nothing
           new_curZ = W.bridge(W,Z0,Zh,q,h)
+          new_curZ += (1-q)*Z0
         else
           new_curZ = nothing
         end
@@ -397,8 +401,10 @@ function interpolate!(out1,out2,W::NoiseProcess,t)
       h = W.t[i]-W.t[i-1]
       q = (t-W.t[i-1])/h
       W.bridge(out1,W,W0,Wh,q,h)
+      out1 .+= (1-q)*W0
       if W.Z != nothing
         W.bridge(out2,W,Z0,Zh,q,h)
+        out2 .+= (1-q)*Z0
       end
       W.curW .= out1
       insert!(W.W,i,copy(out1))
