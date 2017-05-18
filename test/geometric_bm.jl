@@ -16,7 +16,8 @@ sol = solve(prob;dt=0.1)
 
 W = GeometricBrownianMotionProcess(μ,σ,0//1,1.0,1.0)
 prob_rational = NoiseProblem(W,(0,1))
-sol = solve(prob_rational;dt=1//10)
+dt = 1//10
+sol = solve(prob_rational;dt=dt)
 
 dt = dt/100
 for t in dt:dt:1-dt
