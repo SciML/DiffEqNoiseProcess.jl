@@ -1,3 +1,7 @@
+function save_noise!(W::NoiseGrid)
+
+end
+
 function linear_interpolant(Θ,dt,u0::Number,u1)
   (1-Θ)*u0 + Θ*u1
 end

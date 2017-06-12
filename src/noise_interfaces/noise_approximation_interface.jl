@@ -1,3 +1,7 @@
+function save_noise!(W::NoiseApproximation)
+
+end
+
 function interpolate!(W::NoiseApproximation,t)
   W.Z != nothing ? z = W.source2.sol(t) : z = nothing
   W.source1.sol(t),z

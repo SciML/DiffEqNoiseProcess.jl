@@ -1,3 +1,13 @@
+function save_noise!(W::NoiseProcess)
+  if W.t != W.curt
+    push!(W.W,copy(W.curW))
+    push!(W.t,copy(W.curt))
+    if W.Z != nothing
+      push!(W.Z,copy(W.curZ))
+    end
+  end
+end
+
 function accept_step!(W::NoiseProcess,dt,setup_next=true)
 
   W.curt += W.dt
