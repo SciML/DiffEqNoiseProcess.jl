@@ -1,6 +1,7 @@
 function accept_step!(W::NoiseProcess,dt,setup_next=true)
 
   W.curt += W.dt
+  W.iter += 1
 
   if isinplace(W)
     for i in eachindex(W.dW)
@@ -18,7 +19,7 @@ function accept_step!(W::NoiseProcess,dt,setup_next=true)
     end
   end
 
-  if W.save_everystep
+  if W.save_everystep && W.iter % W.timeseries_steps==0
     push!(W.W,copy(W.curW))
     push!(W.t,copy(W.curt))
     if W.Z != nothing
