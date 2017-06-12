@@ -31,14 +31,20 @@ function WHITE_NOISE_BRIDGE(W,W0,Wh,q,h)
     return sqrt((1-q)*q*abs(h))*wiener_randn(typeof(W.dW))+q*Wh
   end
 end
-WienerProcess(t0,W0,Z0=nothing;rswm=RSWM()) = NoiseProcess(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE,rswm=rswm)
+WienerProcess(t0,W0,Z0=nothing;kwargs...) = NoiseProcess(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE;kwargs...)
 
 function INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt)
   wiener_randn!(rand_vec)
-  rand_vec .*= sqrt(abs(dt))
+  for i in eachindex(rand_vec)
+    rand_vec[i] *= sqrt(abs(dt))
+  end
+  #rand_vec .*= sqrt(abs(dt))
 end
 function INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h)
   wiener_randn!(rand_vec)
-  rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
+  #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
+  for i in eachindex(rand_vec)
+    rand_vec[i] = sqrt((1.-q)*q*abs(h))*rand_vec[i]+q*Wh[i]
+  end
 end
-WienerProcess!(t0,W0,Z0=nothing;rswm=RSWM()) = NoiseProcess(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE,rswm=rswm)
+WienerProcess!(t0,W0,Z0=nothing;kwargs...) = NoiseProcess(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE;kwargs...)

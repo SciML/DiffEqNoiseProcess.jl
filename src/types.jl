@@ -22,13 +22,14 @@ type NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM} <: AbstractNoisePr
   rswm::RSWM
   maxstacksize::Int
   maxstacksize2::Int
+  save_everystep::Bool
 end
 (W::NoiseProcess)(t) = interpolate!(W,t)
 (W::NoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,t)
 adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 
 function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
-                       rswm = RSWM())
+                       rswm = RSWM(),save_everystep=true)
   S₁ = DataStructures.Stack{}(Tuple{typeof(t0),typeof(W0),typeof(Z0)})
   S₂ = ResettableStacks.ResettableStack{}(
                         Tuple{typeof(t0),typeof(W0),typeof(Z0)})
@@ -51,7 +52,8 @@ function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
                 typeof(dist),typeof(bridge),
                 iip,typeof(S₁),typeof(S₂),typeof(rswm)}(
                 dist,bridge,[t0],W,W,Z,t0,
-                copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,S₁,S₂,rswm,0,0)
+                copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
+                S₁,S₂,rswm,0,0,save_everystep)
 end
 
 type NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}

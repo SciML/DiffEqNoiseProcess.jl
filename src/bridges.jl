@@ -1,5 +1,5 @@
-function BrownianBridge(t0,tend,W0,Wend,Z0=nothing,Zend=nothing;rswm=RSWM())
-  W = WienerProcess(t0,W0,Z0,rswm=rswm)
+function BrownianBridge(t0,tend,W0,Wend,Z0=nothing,Zend=nothing;kwargs...)
+  W = WienerProcess(t0,W0,Z0;kwargs...)
   h = tend-t0
   Wh = Wend-W0
   if Z0 != nothing
@@ -11,8 +11,8 @@ function BrownianBridge(t0,tend,W0,Wend,Z0=nothing,Zend=nothing;rswm=RSWM())
   W
 end
 
-function BrownianBridge!(t0,tend,W0,Wh,Z0=nothing,Zh=nothing;rswm=RSWM())
-  W = WienerProcess!(t0,W0,Z0,rswm=rswm)
+function BrownianBridge!(t0,tend,W0,Wh,Z0=nothing,Zh=nothing;kwargs...)
+  W = WienerProcess!(t0,W0,Z0;kwargs...)
   h = tend-t0
   Wh .-= W0
   if Z0 != nothing
@@ -24,8 +24,8 @@ function BrownianBridge!(t0,tend,W0,Wh,Z0=nothing,Zh=nothing;rswm=RSWM())
   W
 end
 
-function GeometricBrownianBridge(μ,σ,t0,tend,W0,Wend,Z0=nothing,Zend=nothing;rswm=RSWM())
-  W = GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0,rswm=rswm)
+function GeometricBrownianBridge(μ,σ,t0,tend,W0,Wend,Z0=nothing,Zend=nothing;kwargs...)
+  W = GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0;kwargs...)
   h = tend-t0
   Wh = Wend-W0
   if Z0 != nothing
@@ -37,8 +37,8 @@ function GeometricBrownianBridge(μ,σ,t0,tend,W0,Wend,Z0=nothing,Zend=nothing;r
   W
 end
 
-function GeometricBrownianBridge!(μ,σ,t0,tend,W0,Wh,Z0=nothing,Zh=nothing;rswm=RSWM())
-  W = GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0,rswm=rswm)
+function GeometricBrownianBridge!(μ,σ,t0,tend,W0,Wh,Z0=nothing,Zh=nothing;kwargs...)
+  W = GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0;kwargs...)
   h = tend-t0
   Wh .-= W0
   if Z0 != nothing

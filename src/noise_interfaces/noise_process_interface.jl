@@ -1,12 +1,29 @@
 function accept_step!(W::NoiseProcess,dt,setup_next=true)
 
-  W.curW += W.dW
   W.curt += W.dt
-  push!(W.W,copy(W.curW))
-  push!(W.t,copy(W.curt))
-  if W.Z != nothing
-    W.curZ += W.dZ
-    push!(W.Z,copy(W.curZ))
+
+  if isinplace(W)
+    for i in eachindex(W.dW)
+      W.curW[i] += W.dW[i]
+    end
+    if W.Z != nothing
+      for i in eachindex(W.dW)
+        W.curZ[i] += W.dZ[i]
+      end
+    end
+  else
+    W.curW += W.dW
+    if W.Z != nothing
+      W.curZ += W.dZ
+    end
+  end
+
+  if W.save_everystep
+    push!(W.W,copy(W.curW))
+    push!(W.t,copy(W.curt))
+    if W.Z != nothing
+      push!(W.Z,copy(W.curZ))
+    end
   end
 
   W.dt = dt #dtpropose
@@ -57,7 +74,9 @@ function setup_next_step!(W::NoiseProcess)
           end
         end
         if adaptive_alg(W)==:RSwM3
-          push!(W.S₂,(L₁,L₂,L₃))
+          if L₁ > W.rswm.discard_length
+            push!(W.S₂,(L₁,L₂,L₃))
+          end
         end
       else #Popped too far
         # Generate numbers to bridge and step perfectly
@@ -87,10 +106,25 @@ function setup_next_step!(W::NoiseProcess)
           end
         end
         if (1-qtmp)*L₁ > W.rswm.discard_length
-          if W.Z == nothing
-            push!(W.S₁,((1-qtmp)*L₁,L₂-W.dWtilde,nothing))
+          if isinplace(W)
+            for i in eachindex(L₂)
+              L₂[i] -= W.dWtilde[i]
+            end
+            if W.Z != nothing
+              for i in eachindex(L₂)
+                L₃[i] -= W.dZtilde[i]
+              end
+            end
           else
-            push!(W.S₁,((1-qtmp)*L₁,L₂-W.dWtilde,L₃-W.dZtilde))
+            L₂ -= W.dWtilde
+            if W.Z != nothing
+              L₃ -= W.dZtilde
+            end
+          end
+          if W.Z == nothing
+            push!(W.S₁,((1-qtmp)*L₁,L₂,nothing))
+          else
+            push!(W.S₁,((1-qtmp)*L₁,L₂,L₃))
           end
           if adaptive_alg(W)==:RSwM3 && qtmp*L₁ > W.rswm.discard_length
             if W.Z == nothing
@@ -104,7 +138,7 @@ function setup_next_step!(W::NoiseProcess)
       end
     end #end while empty
     dtleft = W.dt - dttmp
-    if !≈(dtleft,0.0,atol=W.rswm.discard_length) #Stack emptied
+    if dtleft > W.rswm.discard_length #Stack emptied
       if isinplace(W)
         W.dist(W.dWtilde,W,dtleft)
         if W.Z != nothing
@@ -304,12 +338,16 @@ function interpolate!(W::NoiseProcess,t)
         W.curZ += W.dZ
       end
     end
-    push!(W.t,t)
     out1 = copy(W.curW)
-    push!(W.W,out1)
+    if W.save_everystep
+      push!(W.t,t)
+      push!(W.W,out1)
+    end
     if W.Z != nothing
       out2= copy(W.curZ)
-      push!(W.Z,out2)
+      if W.save_everystep
+        push!(W.Z,out2)
+      end
     else
       out2 = nothing
     end
@@ -361,11 +399,15 @@ function interpolate!(W::NoiseProcess,t)
         end
       end
       W.curW = new_curW
-      insert!(W.W,i,new_curW)
-      insert!(W.t,i,t)
+      if W.save_everystep
+        insert!(W.W,i,new_curW)
+        insert!(W.t,i,t)
+      end
       if W.Z != nothing
         W.curZ = new_curZ
-        insert!(W.Z,i,new_curZ)
+        if W.save_everystep
+          insert!(W.Z,i,new_curZ)
+        end
       end
       return new_curW,new_curZ
     end
@@ -381,10 +423,12 @@ function interpolate!(out1,out2,W::NoiseProcess,t)
       W.dist(W.dZ,W,dt)
       out2 .+= W.dZ
     end
-    push!(W.t,t)
-    push!(W.W,copy(out1))
-    if W.Z != nothing
-      push!(W.Z,copy(out2))
+    if W.save_everystep
+      push!(W.t,t)
+      push!(W.W,copy(out1))
+      if W.Z != nothing
+        push!(W.Z,copy(out2))
+      end
     end
   else # Bridge
     i = searchsortedfirst(W.t,t)
@@ -407,11 +451,15 @@ function interpolate!(out1,out2,W::NoiseProcess,t)
         out2 .+= (1-q)*Z0
       end
       W.curW .= out1
-      insert!(W.W,i,copy(out1))
-      insert!(W.t,i,t)
+      if W.save_everystep
+        insert!(W.W,i,copy(out1))
+        insert!(W.t,i,t)
+      end
       if W.Z != nothing
         W.curZ .= out2
-        insert!(W.Z,i,copy(out2))
+        if W.save_everystep
+          insert!(W.Z,i,copy(out2))
+        end
       end
     end
   end
