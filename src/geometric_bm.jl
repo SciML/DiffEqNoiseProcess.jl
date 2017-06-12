@@ -37,9 +37,9 @@ function gbm_bridge!(rand_vec,gbm,W,W0,Wh,q,h)
   rand_vec .= gbm.σ.*sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
 end
 
-function GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0=nothing;rswm=RSWM())
+function GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0=nothing;kwargs...)
   gbm = GeometricBrownianMotion(μ,σ)
-  NoiseProcess(t0,W0,Z0,gbm,(W,W0,Wh,q,h)->gbm_bridge(gbm,W,W0,Wh,q,h),rswm=rswm)
+  NoiseProcess(t0,W0,Z0,gbm,(W,W0,Wh,q,h)->gbm_bridge(gbm,W,W0,Wh,q,h);kwargs...)
 end
 
 immutable GeometricBrownianMotion!{T1,T2}
@@ -50,7 +50,7 @@ function (p::GeometricBrownianMotion!)(rand_vec,W,dt) #dist!
   wiener_randn!(rand_vec)
   rand_vec .= W[end].*(exp.(p.μ.-(1/2).*p.σ.*dt .+ p.σ.*sqrt(dt).*rand_vec).-1)
 end
-function GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;rswm=RSWM())
+function GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
   gbm = GeometricBrownianMotion!(μ,σ)
-  NoiseProcess(t0,W0,Z0,gbm,(rand_vec,W,W0,Wh,q,h)->gbm_bridge!(rand_vec,gbm,W,W0,Wh,q,h),rswm=rswm)
+  NoiseProcess(t0,W0,Z0,gbm,(rand_vec,W,W0,Wh,q,h)->gbm_bridge!(rand_vec,gbm,W,W0,Wh,q,h);kwargs...)
 end

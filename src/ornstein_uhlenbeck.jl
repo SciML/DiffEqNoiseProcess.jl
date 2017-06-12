@@ -30,9 +30,9 @@ https://arxiv.org/pdf/1011.0067.pdf page 18
 function ou_bridge(ou,W,W0,Wh,q,h) end
 function ou_bridge!(rand_vec,ou,W,W0,Wh,q,h) end
 
-function OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing;rswm=RSWM())
+function OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
   ou = OrnsteinUhlenbeck(Θ,μ,σ)
-  NoiseProcess(t0,W0,Z0,ou,nothing,rswm=rswm)
+  NoiseProcess(t0,W0,Z0,ou,nothing;kwargs...)
 end
 
 immutable OrnsteinUhlenbeck!{T1,T2,T3}
@@ -45,7 +45,7 @@ function (p::OrnsteinUhlenbeck!)(rand_vec,W,dt) #dist!
   wiener_randn!(rand_vec)
   rand_vec .= p.μ.+(W[end].-p.μ).*exp.(-p.Θ.*dt) + rand_vec.*p.σ.*sqrt.((1.-exp.(-2.*p.Θ.*dt))./(2.*p.Θ)) .- W[end]
 end
-function OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;rswm=RSWM())
+function OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
   ou = OrnsteinUhlenbeck!(Θ,μ,σ)
-  NoiseProcess(t0,W0,Z0,ou,nothing,rswm=rswm)
+  NoiseProcess(t0,W0,Z0,ou,nothing;kwargs...)
 end
