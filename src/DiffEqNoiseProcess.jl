@@ -19,7 +19,6 @@ include("noise_interfaces/noise_function_interface.jl")
 include("noise_interfaces/noise_grid_interface.jl")
 include("noise_interfaces/noise_approximation_interface.jl")
 include("noise_interfaces/noise_wrapper_interface.jl")
-include("recipes.jl")
 include("correlated_noisefunc.jl")
 
 export RSWM
