@@ -5,6 +5,8 @@ module DiffEqNoiseProcess
 using DataStructures, ResettableStacks, DiffEqBase, RecipesBase,
       RecursiveArrayTools
 
+import RandomNumbers: Xorshifts
+
 import DiffEqBase: isinplace, solve
 
 include("types.jl")

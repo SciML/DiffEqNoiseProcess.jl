@@ -1,4 +1,4 @@
-using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo
+using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo, Base.Test
 
 const μ = 1.0
 const σ = 2.0
@@ -29,7 +29,7 @@ u0 = 1.0
 expected_mean = u0*exp(μ*t)
 expected_variance = u0^2*exp(2μ*t)*(exp(σ^2*t)-1)
 monte_prob = MonteCarloProblem(prob;output_func = (sol,i)-> sol[end])
-sol = solve(monte_prob;dt=0.1,num_monte=10000)
+sol = solve(monte_prob;dt=0.1,num_monte=40000)
 @test abs(mean(sol) - expected_mean) < 0.4
 #abs(var(sol) - expected_variance) < 0.4 # Converges slowly
 

@@ -93,14 +93,14 @@ function setup_next_step!(W::NoiseProcess)
         # Generate numbers to bridge and step perfectly
         dttmp += qtmp*L₁
         if isinplace(W)
-          W.bridge(W.dWtilde,W,W.curW,L₂,qtmp,L₁)
+          W.bridge(W.dWtilde,W,W.curW,L₂,qtmp,L₁,W.rng)
           if W.Z != nothing
-            W.bridge(W.dZtilde,W,W.curZ,L₃,qtmp,L₁)
+            W.bridge(W.dZtilde,W,W.curZ,L₃,qtmp,L₁,W.rng)
           end
         else
-          W.dWtilde = W.bridge(W,W.curW,L₂,qtmp,L₁)
+          W.dWtilde = W.bridge(W,W.curW,L₂,qtmp,L₁,W.rng)
           if W.Z != nothing
-            W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁)
+            W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁,W.rng)
           end
         end
         if typeof(W.dW) <: AbstractArray
@@ -151,14 +151,14 @@ function setup_next_step!(W::NoiseProcess)
     dtleft = W.dt - dttmp
     if dtleft > W.rswm.discard_length #Stack emptied
       if isinplace(W)
-        W.dist(W.dWtilde,W,dtleft)
+        W.dist(W.dWtilde,W,dtleft,W.rng)
         if W.Z != nothing
-          W.dist(W.dZtilde,W,dtleft)
+          W.dist(W.dZtilde,W,dtleft,W.rng)
         end
       else
-        W.dWtilde = W.dist(W,dtleft)
+        W.dWtilde = W.dist(W,dtleft,W.rng)
         if W.Z != nothing
-          W.dZtilde = W.dist(W,dtleft)
+          W.dZtilde = W.dist(W,dtleft,W.rng)
         end
       end
       if typeof(W.dW) <: AbstractArray
@@ -187,14 +187,14 @@ end
 
 function calculate_step!(W::NoiseProcess,dt)
   if isinplace(W)
-    W.dist(W.dW,W,dt)
+    W.dist(W.dW,W,dt,W.rng)
     if W.Z != nothing
-      W.dist(W.dZ,W,dt)
+      W.dist(W.dZ,W,dt,W.rng)
     end
   else
-    W.dW = W.dist(W,dt)
+    W.dW = W.dist(W,dt,W.rng)
     if W.Z != nothing
-      W.dZ = W.dist(W,dt)
+      W.dZ = W.dist(W,dt,W.rng)
     end
   end
   W.dt = dt
@@ -204,16 +204,16 @@ function reject_step!(W::NoiseProcess,dtnew)
   q = dtnew/W.dt
   if adaptive_alg(W)==:RSwM1 || adaptive_alg(W)==:RSwM2
     if isinplace(W)
-      W.bridge(W.dWtilde,W,W.curW,W.curW+W.dW,q,dtnew)
+      W.bridge(W.dWtilde,W,W.curW,W.curW+W.dW,q,dtnew,W.rng)
       W.dWtilde .-= W.curW
       if W.Z != nothing
-        W.bridge(W.dZtilde,W,W.curZ,W.curZ+W.dZ,q,dtnew)
+        W.bridge(W.dZtilde,W,W.curZ,W.curZ+W.dZ,q,dtnew,W.rng)
         W.dZtilde .-= W.curZ
       end
     else
-      W.dWtilde = W.bridge(W,W.curW,W.curW+W.dW,q,dtnew)-W.curW
+      W.dWtilde = W.bridge(W,W.curW,W.curW+W.dW,q,dtnew,W.rng)-W.curW
       if W.Z != nothing
-        W.dZtilde=  W.bridge(W,W.curZ,W.curZ+W.dZ,q,dtnew)-W.curZ
+        W.dZtilde=  W.bridge(W,W.curZ,W.curZ+W.dZ,q,dtnew,W.rng)-W.curZ
       end
     end
     cutLength = W.dt-dtnew
@@ -293,16 +293,16 @@ function reject_step!(W::NoiseProcess,dtnew)
       end
     end
     if isinplace(W)
-      W.bridge(W.dWtilde,W,0,W.dWtmp,qK,dtK)
+      W.bridge(W.dWtilde,W,0,W.dWtmp,qK,dtK,W.rng)
       #W.dWtilde .-= W.curW
       if W.Z != nothing
-        W.bridge(W.dZtilde,W,0,W.dZtmp,qK,dtK)
+        W.bridge(W.dZtilde,W,0,W.dZtmp,qK,dtK,W.rng)
         #W.dZtilde .-= W.curZ
       end
     else
-      W.dWtilde = W.bridge(W,0,W.dWtmp,qK,dtK)# - W.curW
+      W.dWtilde = W.bridge(W,0,W.dWtmp,qK,dtK,W.rng)# - W.curW
       if W.Z != nothing
-        W.dZtilde = W.bridge(W,0,W.dZtmp,qK,dtK)# - W.curZ
+        W.dZtilde = W.bridge(W,0,W.dZtmp,qK,dtK,W.rng)# - W.curZ
       end
     end
     cutLength = (1-qK)*dtK
@@ -335,17 +335,17 @@ function interpolate!(W::NoiseProcess,t)
   if t > W.t[end] # Steps past W
     dt = t - W.t[end]
     if isinplace(W)
-      W.dist(W.dW,W,dt)
+      W.dist(W.dW,W,dt,W.rng)
       W.curW .+= W.dW
       if W.Z != nothing
-        W.dist(W.dZ,W,dt)
+        W.dist(W.dZ,W,dt,W.rng)
         W.curZ .+= W.dZ
       end
     else
-      W.dW = W.dist(W,dt)
+      W.dW = W.dist(W,dt,W.rng)
       W.curW += W.dW
       if W.Z != nothing
-        W.dZ = W.dist(W,dt)
+        W.dZ = W.dist(W,dt,W.rng)
         W.curZ += W.dZ
       end
     end
@@ -390,20 +390,20 @@ function interpolate!(W::NoiseProcess,t)
       q = (t-W.t[i-1])/h
       if isinplace(W)
         new_curW = similar(W.dW)
-        W.bridge(new_curW,W,W0,Wh,q,h)
+        W.bridge(new_curW,W,W0,Wh,q,h,W.rng)
         new_curW .+= (1-q)*W0
         if W.Z != nothing
           new_curZ = similar(W.dZ)
-          W.bridge(new_curZ,W,Z0,Zh,q,h)
+          W.bridge(new_curZ,W,Z0,Zh,q,h,W.rng)
           new_curZ .+= (1-q)*Z0
         else
           new_curZ = nothing
         end
       else
-        new_curW = W.bridge(W,W0,Wh,q,h)
+        new_curW = W.bridge(W,W0,Wh,q,h,W.rng)
         new_curW += (1-q)*W0
         if W.Z != nothing
-          new_curZ = W.bridge(W,Z0,Zh,q,h)
+          new_curZ = W.bridge(W,Z0,Zh,q,h,W.rng)
           new_curZ += (1-q)*Z0
         else
           new_curZ = nothing
@@ -428,10 +428,10 @@ end
 function interpolate!(out1,out2,W::NoiseProcess,t)
   if t > W.t[end] # Steps past W
     dt = t - W.t[end]
-    W.dist(W.dW,W,dt)
+    W.dist(W.dW,W,dt,W.rng)
     out1 .+= W.dW
     if W.Z != nothing
-      W.dist(W.dZ,W,dt)
+      W.dist(W.dZ,W,dt,W.rng)
       out2 .+= W.dZ
     end
     if W.save_everystep
@@ -455,10 +455,10 @@ function interpolate!(out1,out2,W::NoiseProcess,t)
       end
       h = W.t[i]-W.t[i-1]
       q = (t-W.t[i-1])/h
-      W.bridge(out1,W,W0,Wh,q,h)
+      W.bridge(out1,W,W0,Wh,q,h,W.rng)
       out1 .+= (1-q)*W0
       if W.Z != nothing
-        W.bridge(out2,W,Z0,Zh,q,h)
+        W.bridge(out2,W,Z0,Zh,q,h,W.rng)
         out2 .+= (1-q)*Z0
       end
       W.curW .= out1

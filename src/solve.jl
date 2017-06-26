@@ -5,6 +5,13 @@ function solve(prob::AbstractNoiseProblem,args...;dt=0.0,kwargs...)
     error("dt must be provided to simulate a noise process. Please pass dt=...")
   end
   W = deepcopy(prob.noise)
+  if typeof(W) <: NoiseProcess
+    if prob.seed != 0
+      srand(W.rng,prob.seed)
+    else
+      srand(W.rng,rand(UInt64))
+    end
+  end
   W.curt = prob.tspan[1]
   W.dt = dt
   setup_next_step!(W)
