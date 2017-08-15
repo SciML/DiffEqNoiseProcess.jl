@@ -1,4 +1,4 @@
-function save_noise!(W::NoiseProcess)
+@inline function save_noise!(W::NoiseProcess)
   if W.t != W.curt
     push!(W.W,copy(W.curW))
     push!(W.t,copy(W.curt))
@@ -8,7 +8,7 @@ function save_noise!(W::NoiseProcess)
   end
 end
 
-function accept_step!(W::NoiseProcess,dt,setup_next=true)
+@inline function accept_step!(W::NoiseProcess,dt,setup_next=true)
 
   W.curt += W.dt
   W.iter += 1
@@ -44,7 +44,7 @@ function accept_step!(W::NoiseProcess,dt,setup_next=true)
   end
 end
 
-function setup_next_step!(W::NoiseProcess)
+@inline function setup_next_step!(W::NoiseProcess)
   if adaptive_alg(W)==:RSwM3
     ResettableStacks.reset!(W.S₂) #Empty W.S₂
   end
@@ -185,7 +185,7 @@ function setup_next_step!(W::NoiseProcess)
   end # End RSwM2 and RSwM3
 end
 
-function calculate_step!(W::NoiseProcess,dt)
+@inline function calculate_step!(W::NoiseProcess,dt)
   if isinplace(W)
     W.dist(W.dW,W,dt,W.rng)
     if W.Z != nothing
@@ -200,7 +200,7 @@ function calculate_step!(W::NoiseProcess,dt)
   W.dt = dt
 end
 
-function reject_step!(W::NoiseProcess,dtnew)
+@inline function reject_step!(W::NoiseProcess,dtnew)
   q = dtnew/W.dt
   if adaptive_alg(W)==:RSwM1 || adaptive_alg(W)==:RSwM2
     if isinplace(W)
@@ -331,7 +331,7 @@ function reject_step!(W::NoiseProcess,dtnew)
   end
 end
 
-function interpolate!(W::NoiseProcess,t)
+@inline function interpolate!(W::NoiseProcess,t)
   if t > W.t[end] # Steps past W
     dt = t - W.t[end]
     if isinplace(W)
@@ -425,7 +425,7 @@ function interpolate!(W::NoiseProcess,t)
   end
 end
 
-function interpolate!(out1,out2,W::NoiseProcess,t)
+@inline function interpolate!(out1,out2,W::NoiseProcess,t)
   if t > W.t[end] # Steps past W
     dt = t - W.t[end]
     W.dist(W.dW,W,dt,W.rng)
