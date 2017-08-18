@@ -12,7 +12,7 @@ t = 1.0
 u0 = 2.0
 expected_mean = μ + (u0 - μ)*exp(-Θ*t)
 expected_variance = (1-exp(-2Θ*t))*σ^2/(2Θ)
-monte_prob = MonteCarloProblem(prob;output_func = (sol,i)-> sol[end])
+monte_prob = MonteCarloProblem(prob;output_func = (sol,i)-> (sol[end],false))
 sol = solve(monte_prob;dt=0.1,num_monte=10000)
 @test abs(mean(sol) - expected_mean) < 0.04
 @test abs(var(sol) - expected_variance) < 0.04

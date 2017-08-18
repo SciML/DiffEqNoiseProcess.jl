@@ -1,5 +1,5 @@
 julia 0.6
-ResettableStacks
+ResettableStacks 0.2.0
 DataStructures
 DiffEqBase 1.13.0
 RecipesBase

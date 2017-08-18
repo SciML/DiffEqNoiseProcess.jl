@@ -139,9 +139,9 @@ end
           end
           if adaptive_alg(W)==:RSwM3 && qtmp*L₁ > W.rswm.discard_length
             if W.Z == nothing
-              push!(W.S₂,(qtmp*L₁,copy(W.dWtilde),nothing))
+              ResettableStacks.copyat_or_push!(W.S₂,(qtmp*L₁,W.dWtilde,nothing))
             else
-              push!(W.S₂,(qtmp*L₁,copy(W.dWtilde),copy(W.dZtilde)))
+              ResettableStacks.copyat_or_push!(W.S₂,(qtmp*L₁,W.dWtilde,W.dZtilde))
             end
           end
         end
@@ -176,9 +176,9 @@ end
       end
       if adaptive_alg(W)==:RSwM3
         if W.Z == nothing
-          push!(W.S₂,(dtleft,copy(W.dWtilde),nothing))
+          ResettableStacks.copyat_or_push!(W.S₂,(dtleft,W.dWtilde,nothing))
         else
-          push!(W.S₂,(dtleft,copy(W.dWtilde),copy(W.dZtilde)))
+          ResettableStacks.copyat_or_push!(W.S₂,(dtleft,W.dWtilde,W.dZtilde))
         end
       end
     end
