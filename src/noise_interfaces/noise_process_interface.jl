@@ -475,3 +475,28 @@ end
     end
   end
 end
+
+function resize_stack!(W::NoiseProcess,i)
+  for j in eachindex(W.S₂.data)
+    resize!(W.S₂.data[j][2],i)
+    W.S₂.data[j][3] != nothing && resize!(W.S₂.data[j][3],i)
+  end
+end
+
+function deleteat_stack!(W::NoiseProcess,i)
+  for j in eachindex(W.S₂.data)
+    deleteat!(W.S₂.data[j],i)
+    W.S₂.data[j][3] != nothing && deleteat!(W.S₂.data[j][3],i)
+  end
+end
+
+#=
+function addat_stack!(W::NoiseProcess,i)
+  for j in eachindex(W.S₂.data)
+    resize!(W.S₂.data[j],i)
+    W.S₂.data[j][3] != nothing && resize!(W.S₂.data[j][3],i)
+  end
+end
+
+
+=#
