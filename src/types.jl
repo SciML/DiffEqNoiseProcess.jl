@@ -1,6 +1,6 @@
 isinplace{T,N,inplace}(W::AbstractNoiseProcess{T,N,inplace}) = inplace
 
-type NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM} <: AbstractNoiseProcess{T,N,inplace}
+type NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} <: AbstractNoiseProcess{T,N,inplace}
   dist::F
   bridge::F2
   t::Vector{Tt}
@@ -22,13 +22,18 @@ type NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM} <: AbstractNoisePr
   rswm::RSWM
   maxstacksize::Int
   maxstacksize2::Int
+  save_everystep::Bool
+  timeseries_steps::Int
+  iter::Int
+  rng::RNGType
 end
 (W::NoiseProcess)(t) = interpolate!(W,t)
 (W::NoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,t)
 adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 
-function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
-                       rswm = RSWM())
+function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,4),
+                       rswm = RSWM(),save_everystep=true,timeseries_steps=1,
+                       rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)))
   S₁ = DataStructures.Stack{}(Tuple{typeof(t0),typeof(W0),typeof(Z0)})
   S₂ = ResettableStacks.ResettableStack{}(
                         Tuple{typeof(t0),typeof(W0),typeof(Z0)})
@@ -49,9 +54,10 @@ function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,3),
   N = length((size(W0)..., length(W)))
   NoiseProcess{eltype(eltype(W0)),N,typeof(t0),typeof(W0),typeof(dZ),typeof(Z),
                 typeof(dist),typeof(bridge),
-                iip,typeof(S₁),typeof(S₂),typeof(rswm)}(
+                iip,typeof(S₁),typeof(S₂),typeof(rswm),typeof(rng)}(
                 dist,bridge,[t0],W,W,Z,t0,
-                copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,S₁,S₂,rswm,0,0)
+                copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
+                S₁,S₂,rswm,0,0,save_everystep,timeseries_steps,0,rng)
 end
 
 type NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}

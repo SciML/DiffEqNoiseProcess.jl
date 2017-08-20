@@ -1,3 +1,7 @@
+function save_noise!(W::NoiseWrapper)
+
+end
+
 function interpolate!(W::NoiseWrapper,t)
   W.source(t)
 end

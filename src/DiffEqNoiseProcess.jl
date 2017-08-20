@@ -5,6 +5,8 @@ module DiffEqNoiseProcess
 using DataStructures, ResettableStacks, DiffEqBase, RecipesBase,
       RecursiveArrayTools
 
+import RandomNumbers: Xorshifts
+
 import DiffEqBase: isinplace, solve
 
 include("types.jl")
@@ -19,7 +21,6 @@ include("noise_interfaces/noise_function_interface.jl")
 include("noise_interfaces/noise_grid_interface.jl")
 include("noise_interfaces/noise_approximation_interface.jl")
 include("noise_interfaces/noise_wrapper_interface.jl")
-include("recipes.jl")
 include("correlated_noisefunc.jl")
 
 export RSWM
@@ -27,6 +28,8 @@ export RSWM
 export NoiseProcess, adaptive_alg
 
 export WienerProcess, WienerProcess!
+
+export RealWienerProcess, RealWienerProcess!
 
 export BrownianBridge, BrownianBridge!
 
@@ -38,7 +41,7 @@ export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!
 
 export NoiseWrapper, NoiseFunction, NoiseGrid, NoiseApproximation
 
-export accept_step!, reject_step!, calculate_step!, setup_next_step!
+export accept_step!, reject_step!, calculate_step!, setup_next_step!, save_noise!
 
 export CorrelatedWienerProcess, CorrelatedWienerProcess!
 

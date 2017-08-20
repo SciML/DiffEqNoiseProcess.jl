@@ -1,3 +1,7 @@
+function save_noise!(W::NoiseFunction)
+
+end
+
 Base.show(io::IO, A::NoiseFunction) =
            invoke(show, Tuple{typeof(io), Any}, io, A)
 Base.show(io::IO, ::MIME"text/plain", A::NoiseFunction) = show(io, A)

@@ -17,28 +17,71 @@ end
   end
 end
 
-function WHITE_NOISE_DIST(W,dt)
+function WHITE_NOISE_DIST(W,dt,rng)
   if typeof(W.dW) <: AbstractArray
-    return sqrt(abs(dt))*wiener_randn(size(W.dW))
+    return sqrt(abs(dt))*wiener_randn(rng,size(W.dW))
   else
-    return sqrt(abs(dt))*wiener_randn(typeof(W.dW))
+    return sqrt(abs(dt))*wiener_randn(rng,typeof(W.dW))
   end
 end
-function WHITE_NOISE_BRIDGE(W,W0,Wh,q,h)
+function WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,rng)
   if typeof(W.dW) <: AbstractArray
-    return sqrt((1-q)*q*abs(h))*wiener_randn(size(W.dW))+q*Wh
+    return sqrt((1-q)*q*abs(h))*wiener_randn(rng,size(W.dW))+q*Wh
   else
-    return sqrt((1-q)*q*abs(h))*wiener_randn(typeof(W.dW))+q*Wh
+    return sqrt((1-q)*q*abs(h))*wiener_randn(rng,typeof(W.dW))+q*Wh
   end
 end
-WienerProcess(t0,W0,Z0=nothing;rswm=RSWM()) = NoiseProcess(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE,rswm=rswm)
+WienerProcess(t0,W0,Z0=nothing;kwargs...) = NoiseProcess(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE;kwargs...)
 
-function INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt)
-  wiener_randn!(rand_vec)
-  rand_vec .*= sqrt(abs(dt))
+function INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt,rng)
+  wiener_randn!(rng,rand_vec)
+  for i in eachindex(rand_vec)
+    rand_vec[i] *= sqrt(abs(dt))
+  end
+  #rand_vec .*= sqrt(abs(dt))
 end
-function INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h)
-  wiener_randn!(rand_vec)
-  rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
+function INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,rng)
+  wiener_randn!(rng,rand_vec)
+  #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
+  for i in eachindex(rand_vec)
+    rand_vec[i] = sqrt((1.-q)*q*abs(h))*rand_vec[i]+q*Wh[i]
+  end
 end
-WienerProcess!(t0,W0,Z0=nothing;rswm=RSWM()) = NoiseProcess(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE,rswm=rswm)
+WienerProcess!(t0,W0,Z0=nothing;kwargs...) = NoiseProcess(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE;kwargs...)
+
+
+
+#### Real Valued Wiener Process. Ignores complex and the like
+function REAL_WHITE_NOISE_DIST(W,dt,rng)
+  if typeof(W.dW) <: AbstractArray
+    return sqrt(abs(dt))*randn(rng,size(W.dW))
+  else
+    return sqrt(abs(dt))*randn(rng)
+  end
+end
+function REAL_WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,rng)
+  if typeof(W.dW) <: AbstractArray
+    return sqrt((1-q)*q*abs(h))*randn(rng,size(W.dW))+q*Wh
+  else
+    return sqrt((1-q)*q*abs(h))*randn(rng)+q*Wh
+  end
+end
+RealWienerProcess(t0,W0,Z0=nothing;kwargs...) = NoiseProcess(t0,W0,Z0,REAL_WHITE_NOISE_DIST,REAL_WHITE_NOISE_BRIDGE;kwargs...)
+
+function REAL_INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt,rng)
+  sqabsdt = sqrt(abs(dt))
+  for i in eachindex(rand_vec)
+    rand_vec[i] = randn(rng)*sqabsdt
+  end
+  #rand_vec .*= sqrt(abs(dt))
+end
+function REAL_INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,rng)
+  for i in eachindex(rand_vec)
+    rand_vec[i] = randn(rng)
+  end
+  #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
+  for i in eachindex(rand_vec)
+    rand_vec[i] = sqrt((1.-q)*q*abs(h))*rand_vec[i]+q*Wh[i]
+  end
+end
+RealWienerProcess!(t0,W0,Z0=nothing;kwargs...) = NoiseProcess(t0,W0,Z0,REAL_INPLACE_WHITE_NOISE_DIST,REAL_INPLACE_WHITE_NOISE_BRIDGE;kwargs...)

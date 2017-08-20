@@ -45,7 +45,7 @@ dt = 1//2^(5)
 sol3 = solve(prob2,EM(),dt=dt)
 
 prob = SDEProblem(f1,g1,ones(2),(0.0,1.0))
-sol4 = solve(prob,SRI(),abstol=1e-8)
+sol4 = solve(prob,SRI(),abstol=1e-6)
 
 W2 = NoiseWrapper(sol4.W)
 prob2 = SDEProblem(f1,g1,ones(2),(0.0,1.0),noise=W2)

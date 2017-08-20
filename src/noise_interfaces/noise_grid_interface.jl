@@ -1,3 +1,7 @@
+function save_noise!(W::NoiseGrid)
+
+end
+
 function linear_interpolant(Θ,dt,u0::Number,u1)
   (1-Θ)*u0 + Θ*u1
 end
@@ -8,7 +12,7 @@ end
 
 function linear_interpolant(Θ,dt,u0::AbstractArray,u1)
   out = similar(u0)
-  sde_interpolant!(out,Θ,dt,u0,u1)
+  linear_interpolant!(out,Θ,dt,u0,u1)
   out
 end
 
@@ -48,14 +52,14 @@ function interpolate!(out1,out2,W::NoiseGrid,t)
   else
     dt = ts[i] - ts[i-1]
     Θ = (t-ts[i-1])/dt
-    sde_interpolant!(out1,Θ,dt,timeseries[i-1],timeseries[i])
-    timeseries2 != nothing && sde_interpolant!(out2,Θ,dt,timeseries2[i-1],timeseries2[i])
+    linear_interpolant!(out1,Θ,dt,timeseries[i-1],timeseries[i])
+    timeseries2 != nothing && linear_interpolant!(out2,Θ,dt,timeseries2[i-1],timeseries2[i])
   end
 end
 
 function calculate_step!(W::NoiseGrid,dt)
   t = W.curt+dt
-  if typeof(t) <: AbstractFloat && t - W.t[end] < 100eps(typeof(dt))
+  if typeof(t) <: AbstractFloat && abs(t - W.t[end]) < 100eps(typeof(dt))
     t = W.t[end]
   end
   if isinplace(W)
