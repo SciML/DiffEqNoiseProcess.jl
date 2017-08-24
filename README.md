@@ -11,3 +11,7 @@ DiffEqNoiseProcess.jl is a component package in the DifferentialEquations ecosys
 It holds the tools for developing noise processes for differential equations.
 While completely independent and usable on its own, users interested in using this
 functionality should check out [DifferentialEquations.jl](https://github.com/JuliaDiffEq/DifferentialEquations.jl).
+
+## Documentation
+
+Extensive documentation of this functionality is on the [Noise Process page](http://docs.juliadiffeq.org/latest/features/noise_process.html)
