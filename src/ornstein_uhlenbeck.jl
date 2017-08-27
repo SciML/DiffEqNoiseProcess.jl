@@ -11,9 +11,9 @@ function (p::OrnsteinUhlenbeck)(W,dt,rng) #dist
   else
     rand_val = wiener_randn(rng,typeof(W.dW))
   end
-  drift = p.μ+(W[end]-p.μ)*exp(-p.Θ*dt)
-  diffusion = p.σ*sqrt((1-exp(-2p.Θ*dt))/(2p.Θ))
-  drift + rand_val*diffusion - W[end]
+  drift = p.μ .+ (W[end] .- p.μ) .* exp.(-p.Θ*dt)
+  diffusion = p.σ .* sqrt.((1 .- exp.(-2p.Θ*dt))./(2p.Θ))
+  drift .+ rand_val .* diffusion .- W[end]
 end
 
 #=
