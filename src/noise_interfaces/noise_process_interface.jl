@@ -497,6 +497,4 @@ function addat_stack!(W::NoiseProcess,i)
     W.S₂.data[j][3] != nothing && resize!(W.S₂.data[j][3],i)
   end
 end
-
-
 =#
