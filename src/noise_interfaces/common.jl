@@ -1,4 +1,4 @@
-has_reinit(i::AbstractNoiseProcess) = true
+DiffEqBase.has_reinit(i::AbstractNoiseProcess) = true
 function DiffEqBase.reinit!(W::Union{NoiseProcess,NoiseApproximation},dt;
                             t0 = W.t[1],
                             erase_sol = true)
