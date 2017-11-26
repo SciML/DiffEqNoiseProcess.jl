@@ -485,7 +485,7 @@ end
 
 function deleteat_stack!(W::NoiseProcess,i)
   for j in eachindex(W.S₂.data)
-    deleteat!(W.S₂.data[j],i)
+    deleteat!(W.S₂.data[j][2],i)
     W.S₂.data[j][3] != nothing && deleteat!(W.S₂.data[j][3],i)
   end
 end
