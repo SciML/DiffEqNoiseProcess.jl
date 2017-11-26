@@ -49,6 +49,10 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess,dt;
   W.curt = t0
   W.dt = dt
   if typeof(W) <: NoiseGrid
+    W.curW .= W.W[1]
+    if W.Z != nothing
+      W.curZ .= W.Z[1]
+    end
     W.step_setup = true
   end
   setup_next && setup_next_step!(W)
