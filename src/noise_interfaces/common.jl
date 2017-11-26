@@ -1,7 +1,8 @@
 DiffEqBase.has_reinit(i::AbstractNoiseProcess) = true
 function DiffEqBase.reinit!(W::Union{NoiseProcess,NoiseApproximation},dt;
                             t0 = W.t[1],
-                            erase_sol = true)
+                            erase_sol = true,
+                            setup_next = false)
 
   if erase_sol
     resize!(W.t,1)
@@ -38,18 +39,14 @@ function DiffEqBase.reinit!(W::Union{NoiseProcess,NoiseApproximation},dt;
     end
     ResettableStacks.reset!(W.S₂)
   end
-
-  setup_next_step!(W)
-
+  setup_next && setup_next_step!(W)
 end
-
-
 
 function DiffEqBase.reinit!(W::AbstractNoiseProcess,dt;
                             t0 = W.t[1],
-                            erase_sol = true)
-
+                            erase_sol = true,
+                            setup_next = false)
   W.curt = t0
   W.dt = dt
-  setup_next_step!(W)
+  setup_next && setup_next_step!(W)
 end

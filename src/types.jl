@@ -26,6 +26,7 @@ type NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} <: Abstrac
   timeseries_steps::Int
   iter::Int
   rng::RNGType
+  reset::Bool
 end
 (W::NoiseProcess)(t) = interpolate!(W,t)
 (W::NoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,t)
@@ -33,7 +34,8 @@ adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 
 function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,4),
                        rswm = RSWM(),save_everystep=true,timeseries_steps=1,
-                       rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)))
+                       rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+                       reset = true)
   S₁ = DataStructures.Stack{}(Tuple{typeof(t0),typeof(W0),typeof(Z0)})
   S₂ = ResettableStacks.ResettableStack{}(
                         Tuple{typeof(t0),typeof(W0),typeof(Z0)})
@@ -57,7 +59,7 @@ function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,4),
                 iip,typeof(S₁),typeof(S₂),typeof(rswm),typeof(rng)}(
                 dist,bridge,[t0],W,W,Z,t0,
                 copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
-                S₁,S₂,rswm,0,0,save_everystep,timeseries_steps,0,rng)
+                S₁,S₂,rswm,0,0,save_everystep,timeseries_steps,0,rng,reset)
 end
 
 type NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
@@ -72,9 +74,11 @@ type NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,inp
   dW::T2
   dZ::T3
   source::T4
+  reset::Bool
 end
 
-function NoiseWrapper{T,N,inplace}(source::AbstractNoiseProcess{T,N,inplace})
+function NoiseWrapper{T,N,inplace}(source::AbstractNoiseProcess{T,N,inplace};
+                                   reset=true)
   if source.Z==nothing
     Z=nothing
     curZ = nothing
@@ -86,7 +90,7 @@ function NoiseWrapper{T,N,inplace}(source::AbstractNoiseProcess{T,N,inplace})
   end
   W = [copy(source.W[1])]
   NoiseWrapper{T,N,typeof(source.t[1]),typeof(source.W[1]),typeof(dZ),typeof(source),typeof(Z),inplace}(
-                [source.t[1]],W,W,Z,source.t[1],copy(source.W[1]),curZ,source.t[1],copy(source.W[1]),dZ,source)
+                [source.t[1]],W,W,Z,source.t[1],copy(source.W[1]),curZ,source.t[1],copy(source.W[1]),dZ,source,reset)
 end
 
 (W::NoiseWrapper)(t) = interpolate!(W,t)
@@ -102,6 +106,7 @@ type NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseProcess{T,N
   dt::Tt
   dW::T2
   dZ::T3
+  reset::Bool
 end
 
 function (W::NoiseFunction)(t)
@@ -128,7 +133,8 @@ function (W::NoiseFunction)(out1,out2,t)
   W.Z != nothing && W.Z(out2,t)
 end
 
-function NoiseFunction(t0,W,Z=nothing;iip=DiffEqBase.isinplace(W,2),noise_prototype=W(t0))
+function NoiseFunction(t0,W,Z=nothing;iip=DiffEqBase.isinplace(W,2),
+                       noise_prototype=W(t0),reset=true)
   curt = t0
   dt = t0
   curW = copy(noise_prototype)
@@ -142,7 +148,7 @@ function NoiseFunction(t0,W,Z=nothing;iip=DiffEqBase.isinplace(W,2),noise_protot
   end
   NoiseFunction{typeof(noise_prototype),ndims(noise_prototype),typeof(W),typeof(Z),
                 typeof(curt),typeof(curW),typeof(curZ),iip}(W,Z,curt,curW,curZ,
-                dt,dW,dZ)
+                dt,dW,dZ,reset)
 end
 
 type NoiseGrid{T,N,Tt,T2,T3,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
@@ -157,9 +163,10 @@ type NoiseGrid{T,N,Tt,T2,T3,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
   dW::T2
   dZ::T3
   step_setup::Bool
+  reset::Bool
 end
 
-function NoiseGrid(t,W,Z=nothing)
+function NoiseGrid(t,W,Z=nothing;reset=true)
   val = W[1]
   curt = t[1]
   dt = t[1]
@@ -174,7 +181,7 @@ function NoiseGrid(t,W,Z=nothing)
   end
   typeof(val) <: AbstractArray ? iip = true : iip = false
   NoiseGrid{typeof(val),ndims(val),typeof(dt),typeof(dW),typeof(dZ),typeof(Z),iip}(
-            t,W,W,Z,curt,curW,curZ,dt,dW,dZ,true)
+            t,W,W,Z,curt,curW,curZ,dt,dW,dZ,true,reset)
 end
 
 (W::NoiseGrid)(t) = interpolate!(W,t)
@@ -193,9 +200,11 @@ type NoiseApproximation{T,N,Tt,T2,T3,S1,S2,ZType,inplace} <: AbstractNoiseProces
   dZ::T3
   source1::S1
   source2::S2
+  reset::Bool
 end
 
-function NoiseApproximation(source1::DEIntegrator,source2::Union{DEIntegrator,Void}=nothing)
+function NoiseApproximation(source1::DEIntegrator,source2::Union{DEIntegrator,Void}=nothing;
+                   reset=true)
   _source1 = deepcopy(source1)
   _source2 = deepcopy(source2)
   if _source2==nothing
@@ -219,7 +228,7 @@ function NoiseApproximation(source1::DEIntegrator,source2::Union{DEIntegrator,Vo
   NoiseApproximation{typeof(val),ndims(val),typeof(curt),typeof(curW),typeof(curZ),
                      typeof(_source1),typeof(_source2),typeof(Z),
                      isinplace(_source1.sol.prob)}(
-                     t,W,W,Z,curt,curW,curZ,dt,dW,dZ,_source1,_source2)
+                     t,W,W,Z,curt,curW,curZ,dt,dW,dZ,_source1,_source2,reset)
 end
 
 (W::NoiseApproximation)(t) = interpolate!(W,t)
