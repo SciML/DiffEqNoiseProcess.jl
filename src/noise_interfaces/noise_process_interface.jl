@@ -61,7 +61,7 @@ end
         W.dZ = 0.0
       end
     else
-      dttmp = 0.0; fill!(W.dW,zero(recursive_eltype(W.dW)))
+      dttmp = 0.0; fill!(W.dW,zero(eltype(W.dW)))
       if W.Z != nothing
         fill!(W.dZ,zero(eltype(W.dZ)))
       end
