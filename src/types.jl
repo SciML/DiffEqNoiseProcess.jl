@@ -28,39 +28,45 @@ type NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} <: Abstrac
   rng::RNGType
   reset::Bool
   reseed::Bool
+
+  function NoiseProcess{iip}(t0,W0,Z0,dist,bridge;
+                         rswm = RSWM(),save_everystep=true,timeseries_steps=1,
+                         rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+                         reset = true, reseed = true) where iip
+    S₁ = DataStructures.Stack(Tuple{typeof(t0),typeof(W0),typeof(Z0)})
+    S₂ = ResettableStacks.ResettableStack(
+                          Tuple{typeof(t0),typeof(W0),typeof(Z0)})
+    if Z0==nothing
+      Z=nothing
+      curZ = nothing
+      dZ = nothing
+      dZtilde= nothing
+      dZtmp = nothing
+    else
+      Z=[copy(Z0)]
+      curZ = copy(Z0)
+      dZ = copy(Z0)
+      dZtilde= copy(Z0)
+      dZtmp = copy(Z0)
+    end
+    W = [copy(W0)]
+    N = length((size(W0)..., length(W)))
+    new{eltype(eltype(W0)),N,typeof(t0),typeof(W0),typeof(dZ),typeof(Z),
+                  typeof(dist),typeof(bridge),
+                  iip,typeof(S₁),typeof(S₂),typeof(rswm),typeof(rng)}(
+                  dist,bridge,[t0],W,W,Z,t0,
+                  copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
+                  S₁,S₂,rswm,0,0,save_everystep,timeseries_steps,0,rng,reset,reseed)
+  end
+
 end
 (W::NoiseProcess)(t) = interpolate!(W,t)
 (W::NoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,t)
 adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 
-function NoiseProcess(t0,W0,Z0,dist,bridge;iip=DiffEqBase.isinplace(dist,4),
-                       rswm = RSWM(),save_everystep=true,timeseries_steps=1,
-                       rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
-                       reset = true, reseed = true)
-  S₁ = DataStructures.Stack{}(Tuple{typeof(t0),typeof(W0),typeof(Z0)})
-  S₂ = ResettableStacks.ResettableStack{}(
-                        Tuple{typeof(t0),typeof(W0),typeof(Z0)})
-  if Z0==nothing
-    Z=nothing
-    curZ = nothing
-    dZ = nothing
-    dZtilde= nothing
-    dZtmp = nothing
-  else
-    Z=[copy(Z0)]
-    curZ = copy(Z0)
-    dZ = copy(Z0)
-    dZtilde= copy(Z0)
-    dZtmp = copy(Z0)
-  end
-  W = [copy(W0)]
-  N = length((size(W0)..., length(W)))
-  NoiseProcess{eltype(eltype(W0)),N,typeof(t0),typeof(W0),typeof(dZ),typeof(Z),
-                typeof(dist),typeof(bridge),
-                iip,typeof(S₁),typeof(S₂),typeof(rswm),typeof(rng)}(
-                dist,bridge,[t0],W,W,Z,t0,
-                copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
-                S₁,S₂,rswm,0,0,save_everystep,timeseries_steps,0,rng,reset,reseed)
+function NoiseProcess(t0,W0,Z0,dist,bridge;kwargs...)
+  iip=DiffEqBase.isinplace(dist,4)
+  NoiseProcess{iip}(t0,W0,Z0,dist,bridge;kwargs...)
 end
 
 type NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
@@ -108,6 +114,25 @@ type NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseProcess{T,N
   dW::T2
   dZ::T3
   reset::Bool
+
+  function NoiseFunction{iip}(t0,W,Z=nothing;
+                         noise_prototype=W(t0),reset=true) where iip
+    curt = t0
+    dt = t0
+    curW = copy(noise_prototype)
+    dW = copy(noise_prototype)
+    if Z==nothing
+      curZ = nothing
+      dZ = nothing
+    else
+      curZ = copy(noise_prototype)
+      dZ = copy(noise_prototype)
+    end
+    new{typeof(noise_prototype),ndims(noise_prototype),typeof(W),typeof(Z),
+                  typeof(curt),typeof(curW),typeof(curZ),iip}(W,Z,curt,curW,curZ,
+                  dt,dW,dZ,reset)
+  end
+
 end
 
 function (W::NoiseFunction)(t)
@@ -134,22 +159,9 @@ function (W::NoiseFunction)(out1,out2,t)
   W.Z != nothing && W.Z(out2,t)
 end
 
-function NoiseFunction(t0,W,Z=nothing;iip=DiffEqBase.isinplace(W,2),
-                       noise_prototype=W(t0),reset=true)
-  curt = t0
-  dt = t0
-  curW = copy(noise_prototype)
-  dW = copy(noise_prototype)
-  if Z==nothing
-    curZ = nothing
-    dZ = nothing
-  else
-    curZ = copy(noise_prototype)
-    dZ = copy(noise_prototype)
-  end
-  NoiseFunction{typeof(noise_prototype),ndims(noise_prototype),typeof(W),typeof(Z),
-                typeof(curt),typeof(curW),typeof(curZ),iip}(W,Z,curt,curW,curZ,
-                dt,dW,dZ,reset)
+function NoiseFunction(t0,W,Z=nothing;kwargs...)
+  iip=DiffEqBase.isinplace(W,2)
+  NoiseFunction{iip}(t0,W,Z;kwargs...)
 end
 
 type NoiseGrid{T,N,Tt,T2,T3,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
