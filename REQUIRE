@@ -5,3 +5,4 @@ DiffEqBase 1.13.0
 RecipesBase
 RecursiveArrayTools
 RandomNumbers
+StaticArrays

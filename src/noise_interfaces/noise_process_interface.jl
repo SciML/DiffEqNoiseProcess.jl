@@ -55,10 +55,10 @@ end
       calculate_step!(W,W.dt)
     end
   elseif adaptive_alg(W)==:RSwM2 || adaptive_alg(W)==:RSwM3
-    if !(typeof(W.dW) <: AbstractArray)
-      dttmp = 0.0; W.dW = 0.0
+    if !(typeof(W.dW) <: AbstractArray) || typeof(W.dW) <: SArray
+      dttmp = 0.0; W.dW = zero(W.dW)
       if W.Z != nothing
-        W.dZ = 0.0
+        W.dZ = zero(W.dZ)
       end
     else
       dttmp = 0.0; fill!(W.dW,zero(eltype(W.dW)))
@@ -71,7 +71,7 @@ end
       qtmp = (W.dt-dttmp)/L₁
       if qtmp>1
         dttmp+=L₁
-        if typeof(W.dW) <: AbstractArray
+        if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
           for i in eachindex(W.dW)
             W.dW[i]+=L₂[i]
             if W.Z != nothing
@@ -103,7 +103,7 @@ end
             W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁,W.rng)
           end
         end
-        if typeof(W.dW) <: AbstractArray
+        if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
           for i in eachindex(W.dW)
             W.dW[i] += W.dWtilde[i]
             if W.Z != nothing
@@ -161,7 +161,7 @@ end
           W.dZtilde = W.dist(W,dtleft,W.rng)
         end
       end
-      if typeof(W.dW) <: AbstractArray
+      if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
         for i in eachindex(W.dW)
           W.dW[i] += W.dWtilde[i]
           if W.Z != nothing
@@ -227,7 +227,7 @@ end
     if length(W.S₁) > W.maxstacksize
         W.maxstacksize = length(W.S₁)
     end
-    if typeof(W.dW) <: AbstractArray
+    if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
       copy!(W.dW,W.dWtilde)
       if W.Z!=nothing
         copy!(W.dZ,W.dZtilde)
@@ -240,10 +240,10 @@ end
     end
     W.dt = dtnew
   else # RSwM3
-    if !(typeof(W.dW) <: AbstractArray)
-      dttmp = 0.0; W.dWtmp = 0.0
+    if !(typeof(W.dW) <: AbstractArray) || typeof(W.dW) <: SArray
+      dttmp = 0.0; W.dWtmp = zero(W.dW)
       if W.Z != nothing
-        W.dZtmp = 0.0
+        W.dZtmp = zero(W.dZtmp)
       end
     else
       dttmp = 0.0; fill!(W.dWtmp,zero(eltype(W.dWtmp)))
@@ -258,7 +258,7 @@ end
       L₁,L₂,L₃ = pop!(W.S₂)
       if dttmp + L₁ < (1-q)*W.dt #while the backwards movement is less than chop off
         dttmp += L₁
-        if typeof(W.dW) <: AbstractArray
+        if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
           for i in eachindex(W.dW)
             W.dWtmp[i] += L₂[i]
             if W.Z != nothing
@@ -279,7 +279,7 @@ end
     end # end while
     dtK = W.dt - dttmp
     qK = q*W.dt/dtK
-    if typeof(W.dW) <: AbstractArray
+    if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
       for i in eachindex(W.dW)
         W.dWtmp[i] = W.dW[i] - W.dWtmp[i]
         if W.Z != nothing
@@ -317,7 +317,7 @@ end
         W.maxstacksize = length(W.S₁)
     end
     W.dt = dtnew
-    if typeof(W.dW) <: AbstractArray
+    if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
       copy!(W.dW,W.dWtilde)
       if W.Z != nothing
         copy!(W.dZ,W.dZtilde)
