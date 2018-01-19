@@ -5,7 +5,7 @@ const one_over_sqrt2 = 1/sqrt(2)
 @inline wiener_randn(y::AbstractRNG,::Type{Complex{T}}) where T = one_over_sqrt2*(randn(y,T)+im*randn(y,T))
 
 @inline function wiener_randn!{T<:Number}(y::AbstractRNG,x::AbstractArray{<:Complex{T}})
-  for i in eachindex(x)
+  @inbounds for i in eachindex(x)
     x[i] = one_over_sqrt2*(randn(y,T)+im*randn(y,T))
   end
 end
@@ -67,17 +67,17 @@ RealWienerProcess(t0,W0,Z0=nothing;kwargs...) = NoiseProcess{false}(t0,W0,Z0,REA
 
 function REAL_INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt,rng)
   sqabsdt = @fastmath sqrt(abs(dt))
-  for i in eachindex(rand_vec)
+  @inbounds for i in eachindex(rand_vec)
     rand_vec[i] = randn(rng)*sqabsdt
   end
   #rand_vec .*= sqrt(abs(dt))
 end
 function REAL_INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,rng)
-  for i in eachindex(rand_vec)
+  @inbounds for i in eachindex(rand_vec)
     rand_vec[i] = randn(rng)
   end
   #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
-  for i in eachindex(rand_vec)
+  @inbounds for i in eachindex(rand_vec)
     rand_vec[i] = @fastmath sqrt((1.-q)*q*abs(h))*rand_vec[i]+q*Wh[i]
   end
 end
