@@ -204,16 +204,14 @@ end
   q = dtnew/W.dt
   if adaptive_alg(W)==:RSwM1 || adaptive_alg(W)==:RSwM2
     if isinplace(W)
-      W.bridge(W.dWtilde,W,W.curW,W.curW+W.dW,q,dtnew,W.rng)
-      W.dWtilde .-= W.curW
+      W.bridge(W.dWtilde,W,0,W.dW,q,dtnew,W.rng)
       if W.Z != nothing
-        W.bridge(W.dZtilde,W,W.curZ,W.curZ+W.dZ,q,dtnew,W.rng)
-        W.dZtilde .-= W.curZ
+        W.bridge(W.dZtilde,W,0,W.dZ,q,dtnew,W.rng)
       end
     else
-      W.dWtilde = W.bridge(W,W.curW,W.curW+W.dW,q,dtnew,W.rng)-W.curW
+      W.dWtilde = W.bridge(W,0,W.dW,q,dtnew,W.rng)
       if W.Z != nothing
-        W.dZtilde=  W.bridge(W,W.curZ,W.curZ+W.dZ,q,dtnew,W.rng)-W.curZ
+        W.dZtilde=  W.bridge(W,0,W.dZ,q,dtnew,W.rng)
       end
     end
     cutLength = W.dt-dtnew
