@@ -7,7 +7,8 @@ using DataStructures, ResettableStacks, DiffEqBase, RecipesBase,
 
 import RandomNumbers: Xorshifts
 
-import DiffEqBase: isinplace, solve
+import DiffEqBase: isinplace, solve, AbstractNoiseProcess,
+       DEIntegrator, AbstractNoiseProblem
 
 include("types.jl")
 include("wiener.jl")
