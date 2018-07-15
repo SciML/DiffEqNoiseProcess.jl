@@ -1,5 +1,5 @@
 
-immutable OrnsteinUhlenbeck{T1,T2,T3}
+struct OrnsteinUhlenbeck{T1,T2,T3}
   Θ::T1
   μ::T2
   σ::T3
@@ -35,7 +35,7 @@ function OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
   NoiseProcess(t0,W0,Z0,ou,nothing;kwargs...)
 end
 
-immutable OrnsteinUhlenbeck!{T1,T2,T3}
+struct OrnsteinUhlenbeck!{T1,T2,T3}
   Θ::T1
   μ::T2
   σ::T3
