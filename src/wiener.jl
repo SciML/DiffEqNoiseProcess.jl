@@ -78,7 +78,7 @@ function REAL_INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,rng)
   end
   #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
   @inbounds for i in eachindex(rand_vec)
-    rand_vec[i] = @fastmath sqrt((1.0-q)*q*abs(h))*rand_vec[i]+q*Wh[i]
+    rand_vec[i] = @fastmath sqrt((1-q)*q*abs(h))*rand_vec[i]+q*Wh[i]
   end
 end
 RealWienerProcess!(t0,W0,Z0=nothing;kwargs...) = NoiseProcess{true}(t0,W0,Z0,REAL_INPLACE_WHITE_NOISE_DIST,REAL_INPLACE_WHITE_NOISE_BRIDGE;kwargs...)
