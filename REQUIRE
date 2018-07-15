@@ -1,4 +1,4 @@
-julia 0.7-
+julia 0.7-beta2
 ResettableStacks 0.2.0
 DataStructures
 DiffEqBase 3.0.0

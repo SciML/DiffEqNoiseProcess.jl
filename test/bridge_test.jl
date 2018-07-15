@@ -1,5 +1,5 @@
 using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo,
-      Base.Test, DataStructures
+      Test, DataStructures
 
 W = BrownianBridge(0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))

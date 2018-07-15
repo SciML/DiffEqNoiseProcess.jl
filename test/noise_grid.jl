@@ -1,4 +1,4 @@
-using DiffEqNoiseProcess, DiffEqBase, Base.Test
+using DiffEqNoiseProcess, DiffEqBase, Test
 t = 0:0.001:1
 grid = exp.(t)
 W = NoiseGrid(t,grid)

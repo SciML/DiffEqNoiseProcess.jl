@@ -1,4 +1,4 @@
-using DiffEqNoiseProcess, DiffEqBase, StochasticDiffEq, DiffEqProblemLibrary, Base.Test
+using DiffEqNoiseProcess, DiffEqBase, StochasticDiffEq, DiffEqProblemLibrary, Test
 
 prob = prob_sde_linear
 integrator = init(prob,EM(),dt=0.01)

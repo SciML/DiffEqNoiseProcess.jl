@@ -1,4 +1,4 @@
-using DiffEqNoiseProcess, DiffEqBase, Base.Test
+using DiffEqNoiseProcess, DiffEqBase, Test
 f = (t) -> exp(t)
 
 W = NoiseFunction(0.0,f)
