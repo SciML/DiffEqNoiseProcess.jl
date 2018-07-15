@@ -1,4 +1,4 @@
-using StochasticDiffEq,  DiffEqBase, DiffEqNoiseProcess, Base.Test
+using StochasticDiffEq,  DiffEqBase, DiffEqNoiseProcess, Test
 f1 = (u,p,t) -> 1.01u
 g1 = (u,p,t) -> 1.01u
 dt = 1//2^(4)

@@ -1,4 +1,4 @@
-using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo, Base.Test
+using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo, Test
 
 const μ = 1.0
 const σ = 2.0

@@ -1,4 +1,4 @@
-using DiffEqNoiseProcess, Base.Test
+using DiffEqNoiseProcess, Test
 
 _W = WienerProcess(0.0,0.0,0.0)
 
@@ -31,7 +31,7 @@ end
 old_W = copy(_W.W)
 
 W2 = NoiseWrapper(_W)
-lspace =linspace(_W.t[1],_W.t[end],1000)
+lspace =range(_W.t[1], stop=_W.t[end], length=1000)
 dt = lspace[2]-lspace[1]
 calculate_step!(W2,dt)
 for t in lspace
@@ -74,7 +74,7 @@ for i in 1:10
 end
 
 W2 = NoiseWrapper(_W)
-lspace =linspace(_W.t[1],_W.t[end],20)
+lspace =range(_W.t[1], stop=_W.t[end], length=20)
 dt = lspace[2]-lspace[1]
 calculate_step!(W2,dt)
 for t in lspace
