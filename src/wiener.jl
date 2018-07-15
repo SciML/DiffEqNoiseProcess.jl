@@ -4,7 +4,7 @@ const one_over_sqrt2 = 1/sqrt(2)
 @inline wiener_randn!(rng,rand_vec) = randn!(rng,rand_vec)
 @inline wiener_randn(y::AbstractRNG,::Type{Complex{T}}) where T = one_over_sqrt2*(randn(y,T)+im*randn(y,T))
 
-@inline function wiener_randn!{T<:Number}(y::AbstractRNG,x::AbstractArray{<:Complex{T}})
+@inline function wiener_randn!(y::AbstractRNG,x::AbstractArray{<:Complex{T}}) where T<:Number
   @inbounds for i in eachindex(x)
     x[i] = one_over_sqrt2*(randn(y,T)+im*randn(y,T))
   end

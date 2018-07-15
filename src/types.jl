@@ -1,6 +1,6 @@
-isinplace{T,N,inplace}(W::AbstractNoiseProcess{T,N,inplace}) = inplace
+isinplace(W::AbstractNoiseProcess{T,N,inplace}) where {T,N,inplace} = inplace
 
-type NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} <: AbstractNoiseProcess{T,N,inplace}
+mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} <: AbstractNoiseProcess{T,N,inplace}
   dist::F
   bridge::F2
   t::Vector{Tt}
@@ -69,7 +69,7 @@ function NoiseProcess(t0,W0,Z0,dist,bridge;kwargs...)
   NoiseProcess{iip}(t0,W0,Z0,dist,bridge;kwargs...)
 end
 
-type NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
+mutable struct NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
   t::Vector{Tt}
   u::Vector{T2}
   W::Vector{T2}
@@ -84,8 +84,8 @@ type NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,inp
   reset::Bool
 end
 
-function NoiseWrapper{T,N,inplace}(source::AbstractNoiseProcess{T,N,inplace};
-                                   reset=true)
+function NoiseWrapper(source::AbstractNoiseProcess{T,N,inplace};
+                      reset=true) where {T,N,inplace}
   if source.Z==nothing
     Z=nothing
     curZ = nothing
@@ -104,7 +104,7 @@ end
 (W::NoiseWrapper)(out1,out2,t) = interpolate!(out1,out2,W,t)
 adaptive_alg(W::NoiseWrapper) = adaptive_alg(W.source)
 
-type NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseProcess{T,N,inplace}
+mutable struct NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseProcess{T,N,inplace}
   W::wType
   Z::zType
   curt::Tt
@@ -164,7 +164,7 @@ function NoiseFunction(t0,W,Z=nothing;kwargs...)
   NoiseFunction{iip}(t0,W,Z;kwargs...)
 end
 
-type NoiseGrid{T,N,Tt,T2,T3,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
+mutable struct NoiseGrid{T,N,Tt,T2,T3,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
   t::Vector{Tt}
   u::Vector{T2}
   W::Vector{T2}
@@ -200,7 +200,7 @@ end
 (W::NoiseGrid)(t) = interpolate!(W,t)
 (W::NoiseGrid)(out1,out2,t) = interpolate!(out1,out2,W,t)
 
-type NoiseApproximation{T,N,Tt,T2,T3,S1,S2,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
+mutable struct NoiseApproximation{T,N,Tt,T2,T3,S1,S2,ZType,inplace} <: AbstractNoiseProcess{T,N,inplace}
   t::Vector{Tt}
   u::Vector{T2}
   W::Vector{T2}

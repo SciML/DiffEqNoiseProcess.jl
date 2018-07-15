@@ -1,4 +1,4 @@
-type RSWM{adaptivealg,T}
+mutable struct RSWM{adaptivealg,T}
   discard_length::T
 end
 
@@ -8,4 +8,4 @@ Base.@pure function RSWM(;
      RSWM{adaptivealg,typeof(discard_length)}(discard_length)
 end
 
-adaptive_alg{adaptivealg,T}(rswm::RSWM{adaptivealg,T}) = adaptivealg
+adaptive_alg(rswm::RSWM{adaptivealg,T}) where {adaptivealg,T} = adaptivealg

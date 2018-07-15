@@ -1,4 +1,4 @@
-immutable GeometricBrownianMotion{T1,T2}
+struct GeometricBrownianMotion{T1,T2}
   μ::T1
   σ::T2
 end
@@ -42,7 +42,7 @@ function GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0=nothing;kwargs...)
   NoiseProcess(t0,W0,Z0,gbm,(W,W0,Wh,q,h,rng)->gbm_bridge(gbm,W,W0,Wh,q,h,rng);kwargs...)
 end
 
-immutable GeometricBrownianMotion!{T1,T2}
+struct GeometricBrownianMotion!{T1,T2}
   μ::T1
   σ::T2
 end

@@ -2,8 +2,8 @@ __precompile__()
 
 module DiffEqNoiseProcess
 
-using DataStructures, ResettableStacks, DiffEqBase, RecipesBase,
-      RecursiveArrayTools, StaticArrays
+using DataStructures, ResettableStacks, DiffEqBase, RecipesBase
+using RecursiveArrayTools, StaticArrays
 
 import RandomNumbers: Xorshifts
 
