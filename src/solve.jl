@@ -1,4 +1,4 @@
-solve(prob::AbstractNoiseProblem,::Void,args...;dt=0.0,kwargs...) = solve(prob,args...;dt=dt,kwargs...)
+solve(prob::AbstractNoiseProblem,::Nothing,args...;dt=0.0,kwargs...) = solve(prob,args...;dt=dt,kwargs...)
 
 function solve(prob::AbstractNoiseProblem,args...;dt=0.0,kwargs...)
   if dt == 0.0 || dt == nothing

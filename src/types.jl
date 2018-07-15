@@ -216,7 +216,7 @@ mutable struct NoiseApproximation{T,N,Tt,T2,T3,S1,S2,ZType,inplace} <: AbstractN
   reset::Bool
 end
 
-function NoiseApproximation(source1::DEIntegrator,source2::Union{DEIntegrator,Void}=nothing;
+function NoiseApproximation(source1::DEIntegrator,source2::Union{DEIntegrator,Nothing}=nothing;
                    reset=true)
   _source1 = deepcopy(source1)
   _source2 = deepcopy(source2)
