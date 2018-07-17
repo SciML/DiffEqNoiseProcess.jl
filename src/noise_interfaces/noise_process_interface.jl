@@ -226,9 +226,9 @@ end
         W.maxstacksize = length(W.S₁)
     end
     if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
-      copy!(W.dW,W.dWtilde)
+      copyto!(W.dW,W.dWtilde)
       if W.Z!=nothing
-        copy!(W.dZ,W.dZtilde)
+        copyto!(W.dZ,W.dZtilde)
       end
     else
       W.dW = W.dWtilde
@@ -316,9 +316,9 @@ end
     end
     W.dt = dtnew
     if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
-      copy!(W.dW,W.dWtilde)
+      copyto!(W.dW,W.dWtilde)
       if W.Z != nothing
-        copy!(W.dZ,W.dZtilde)
+        copyto!(W.dZ,W.dZtilde)
       end
     else
       W.dW = W.dWtilde

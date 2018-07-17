@@ -44,11 +44,11 @@ function interpolate!(out1,out2,W::NoiseGrid,t)
   tdir = sign(ts[end]-ts[1])
   @inbounds i = searchsortedfirst(ts,t,rev=tdir<0) # It's in the interval ts[i-1] to ts[i]
   @inbounds if ts[i] == t
-    copy!(out1,timeseries[i])
-    timeseries2 != nothing && copy!(out2,timeseries2[i])
+    copyto!(out1,timeseries[i])
+    timeseries2 != nothing && copyto!(out2,timeseries2[i])
   elseif ts[i-1] == t # Can happen if it's the first value!
-    copy!(out1,timeseries[i-1])
-    timeseries2 != nothing && copy!(out2,timeseries2[i-1])
+    copyto!(out1,timeseries[i-1])
+    timeseries2 != nothing && copyto!(out2,timeseries2[i-1])
   else
     dt = ts[i] - ts[i-1]
     Θ = (t-ts[i-1])/dt
