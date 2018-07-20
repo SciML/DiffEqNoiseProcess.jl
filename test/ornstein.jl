@@ -1,4 +1,4 @@
-using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo, Test
+using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo, Test, Statistics
 
 const Θ = 1.0
 const μ = 1.2
