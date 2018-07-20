@@ -4,6 +4,7 @@ module DiffEqNoiseProcess
 
 using DataStructures, ResettableStacks, DiffEqBase, RecipesBase
 using RecursiveArrayTools, StaticArrays, Random
+using LinearAlgebra
 
 import RandomNumbers: Xorshifts
 

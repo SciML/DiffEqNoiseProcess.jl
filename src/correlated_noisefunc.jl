@@ -1,6 +1,6 @@
 function construct_correlated_noisefunc(Γ)
   γ = svdfact(Γ)
-  A = γ[:U]*Diagonal(sqrt.(γ[:S]))
+  A = γ.U*Diagonal(sqrt.(γ.S))
   b = Vector{eltype(Γ)}(size(Γ,1))
   dist = function (W,dt,rng)
     if typeof(W.dW) <: AbstractArray
@@ -18,12 +18,12 @@ CorrelatedWienerProcess(Γ,t0,W0,Z0=nothing;rng = Xorshifts.Xoroshiro128Plus(ran
 
 function construct_correlated_noisefunc!(Γ)
   γ = svdfact(Γ)
-  A = γ[:U]*Diagonal(sqrt.(γ[:S]))
+  A = γ.U*Diagonal(sqrt.(γ.S))
   b = Vector{eltype(Γ)}(size(Γ,1))
   dist = function (rand_vec,W,dt,rng)
     wiener_randn!(rng,b)
     b .*= sqrt.(abs(dt))
-    A_mul_B!(rand_vec,A,b)
+    mul!(rand_vec,A,b)
   end
   bridge = function (rand_vec,W,W0,Wh,q,h,rng)
     error("Bridging distribution is unknown. Cannot use adapativity")
