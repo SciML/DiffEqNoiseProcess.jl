@@ -1,6 +1,6 @@
 @testset "NoiseWrapper" begin
 
-using DiffEqNoiseProcess, Test
+using DiffEqNoiseProcess, Test, Random
 
 _W = WienerProcess(0.0,0.0,0.0)
 

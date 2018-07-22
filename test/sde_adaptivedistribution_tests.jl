@@ -1,6 +1,8 @@
 @testset "SDE Adaptive Distribution Tests" begin
 
-using StochasticDiffEq, StatsBase, Distributions, HypothesisTests, DiffEqProblemLibrary
+using StochasticDiffEq, StatsBase, Distributions, HypothesisTests
+using Random, DiffEqProblemLibrary
+
 prob = prob_sde_linear
 srand(200)
 N = 100
