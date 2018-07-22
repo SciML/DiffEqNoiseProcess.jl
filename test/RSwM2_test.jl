@@ -1,3 +1,5 @@
+@testset "RSwM2" begin
+
 using DiffEqNoiseProcess
 
 W = WienerProcess(0.0,0.0,rswm=RSWM(adaptivealg=:RSwM2))
@@ -25,4 +27,6 @@ end
 dt = dt/100
 for t in dt:dt:W.t[end]-dt
   W(t)
+end
+
 end

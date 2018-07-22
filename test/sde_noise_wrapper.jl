@@ -1,4 +1,7 @@
+@testset "NoiseWrapper" begin
+
 using StochasticDiffEq,  DiffEqBase, DiffEqNoiseProcess, Test
+
 f1 = (u,p,t) -> 1.01u
 g1 = (u,p,t) -> 1.01u
 dt = 1//2^(4)
@@ -53,3 +56,5 @@ sol5 = solve(prob2,SRIW1(),abstol=1e-8)
 
 @test sol4.t != sol5.t
 @test ≈(sol5[end],sol4[end],atol=1e-1)
+
+end

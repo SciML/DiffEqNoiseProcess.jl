@@ -1,7 +1,9 @@
-using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo, Test
+@testset "GeometricBM" begin
 
-const μ = 1.0
-const σ = 2.0
+using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo, Test, Statistics
+
+μ = 1.0
+σ = 2.0
 
 W = GeometricBrownianMotionProcess(μ,σ,0.0,1.0,1.0)
 dt = 0.1
@@ -36,3 +38,5 @@ sol = solve(monte_prob;dt=0.1,num_monte=40000)
 W = GeometricBrownianMotionProcess!(μ,σ,0.0,ones(2),ones(2))
 prob = NoiseProblem(W,(0.0,1.0))
 sol = solve(prob;dt=0.1)
+
+end

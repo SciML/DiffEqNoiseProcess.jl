@@ -1,8 +1,9 @@
-using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo, Test, Statistics
+@testset "OU" begin
 
-const Θ = 1.0
-const μ = 1.2
-const σ = 0.3
+using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo, Test, Statistics
+Θ = 1.0
+μ = 1.2
+σ = 0.3
 
 W = OrnsteinUhlenbeckProcess(Θ,μ,σ,0.0,2.0,1.0)
 prob = NoiseProblem(W,(0.0,1.0))
@@ -20,3 +21,5 @@ sol = solve(monte_prob;dt=0.1,num_monte=10000)
 W = OrnsteinUhlenbeckProcess!(Θ,μ,σ,0.0,ones(2),ones(2))
 prob = NoiseProblem(W,(0.0,1.0))
 sol = solve(prob;dt=0.1)
+
+end

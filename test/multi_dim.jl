@@ -1,4 +1,6 @@
-using DiffEqNoiseProcess
+@testset "Multidim" begin
+
+using DiffEqNoiseProcess, Random
 
 W = WienerProcess(0.0,rand(4,4),rswm=RSWM(adaptivealg=:RSwM3))
 
@@ -13,6 +15,7 @@ for i in 1:100
 end
 
 dt = dt/100
+
 for t in dt:dt:W.t[end]-dt
   W(t)
 end
@@ -32,4 +35,6 @@ end
 dt = dt/100
 for t in dt:dt:W.t[end]-dt
   W(t)
+end
+
 end

@@ -1,3 +1,5 @@
+@testset "NoiseFunction" begin
+
 using DiffEqNoiseProcess, DiffEqBase, Test
 f = (t) -> exp(t)
 
@@ -27,3 +29,5 @@ out2 = nothing
 sol(out1,out2,0.5)
 
 @test out1 == sol(0.5)[1]
+
+end

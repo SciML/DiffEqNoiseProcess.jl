@@ -3,7 +3,7 @@ __precompile__()
 module DiffEqNoiseProcess
 
 using DataStructures, ResettableStacks, DiffEqBase, RecipesBase
-using RecursiveArrayTools, StaticArrays, Random
+using RecursiveArrayTools, StaticArrays, Random, Statistics
 using LinearAlgebra
 
 import RandomNumbers: Xorshifts

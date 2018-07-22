@@ -1,6 +1,9 @@
-using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo,
-      Test, DataStructures
+@testset "Brownian Bridge" begin
 
+using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo,
+      Test, DataStructures, Random
+
+srand(100)
 W = BrownianBridge(0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))
 monte_prob = MonteCarloProblem(prob)
@@ -19,9 +22,11 @@ end
 @test ≈(timestep_meanvar(sol,11)[2],0.0,atol=1e-16)
 
 
-const μ = 1.2
-const σ = 2.2
+μ = 1.2
+σ = 2.2
 W = GeometricBrownianBridge(μ,σ,0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))
 monte_prob = MonteCarloProblem(prob)
 @time sol = solve(monte_prob,dt=0.1,num_monte=100)
+
+end

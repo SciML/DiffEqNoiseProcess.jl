@@ -1,3 +1,5 @@
+@testset "NoiseWrapper" begin
+
 using DiffEqNoiseProcess, Test
 
 _W = WienerProcess(0.0,0.0,0.0)
@@ -85,3 +87,5 @@ end
 @test W2.Z[end]≈ _W(W2.t[end])[2]
 
 @test W2.W[end] ≈ _W.W[end-1]
+
+end

@@ -1,9 +1,10 @@
+@testset "NoiseApproximation" begin
+
 using DiffEqNoiseProcess, DiffEqBase, StochasticDiffEq
 using DiffEqProblemLibrary, Test
 
 using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems; importsdeproblems()
 import DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_linear, prob_sde_2Dlinear
-
 
 prob = prob_sde_linear
 integrator = init(prob,EM(),dt=0.01)
@@ -38,3 +39,5 @@ integrator = init(prob,EM(),dt=0.01)
 W = NoiseApproximation(integrator)
 prob = NoiseProblem(W,(0.0,1.0))
 sol = solve(prob;dt=0.1)
+
+end
