@@ -3,7 +3,7 @@
 using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo,
       Test, DataStructures, Random
 
-srand(100)
+Random.seed!(100)
 W = BrownianBridge(0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))
 monte_prob = MonteCarloProblem(prob)

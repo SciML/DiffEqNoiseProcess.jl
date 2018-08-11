@@ -4,7 +4,7 @@ using DiffEqNoiseProcess, Random, Statistics
 
 W = WienerProcess(0.0,rand(4,4),rswm=RSWM(adaptivealg=:RSwM3))
 
-srand(200)
+Random.seed!(200)
 dt = 0.2
 calculate_step!(W,dt)
 
@@ -22,7 +22,7 @@ end
 
 W = WienerProcess!(0.0,rand(4,4),rand(4,4),rswm=RSWM(adaptivealg=:RSwM3))
 
-srand(200)
+Random.seed!(200)
 dt = 0.2
 calculate_step!(W,dt)
 

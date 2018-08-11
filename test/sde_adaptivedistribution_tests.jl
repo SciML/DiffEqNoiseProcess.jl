@@ -4,7 +4,7 @@ using StochasticDiffEq, StatsBase, Distributions, HypothesisTests
 using Random, DiffEqProblemLibrary
 
 prob = prob_sde_linear
-srand(200)
+Random.seed!(200)
 N = 100
 M= 5
 ps = Vector{Float64}(undef,M)

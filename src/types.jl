@@ -33,7 +33,7 @@ mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} 
                          rswm = RSWM(),save_everystep=true,timeseries_steps=1,
                          rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
                          reset = true, reseed = true) where iip
-    S₁ = DataStructures.Stack(Tuple{typeof(t0),typeof(W0),typeof(Z0)})
+    S₁ = DataStructures.Stack{Tuple{typeof(t0),typeof(W0),typeof(Z0)}}()
     S₂ = ResettableStacks.ResettableStack(
                           Tuple{typeof(t0),typeof(W0),typeof(Z0)})
     if Z0==nothing
