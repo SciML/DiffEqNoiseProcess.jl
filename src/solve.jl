@@ -7,9 +7,9 @@ function solve(prob::AbstractNoiseProblem,args...;dt=0.0,kwargs...)
   W = deepcopy(prob.noise)
   if typeof(W) <: NoiseProcess
     if prob.seed != 0
-      srand(W.rng,prob.seed)
+      Random.seed!(W.rng,prob.seed)
     else
-      srand(W.rng,rand(UInt64))
+      Random.seed!(W.rng,rand(UInt64))
     end
   end
   W.curt = prob.tspan[1]
