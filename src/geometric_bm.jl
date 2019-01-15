@@ -10,7 +10,7 @@ function (p::GeometricBrownianMotion)(W,dt,rng) #dist
   else
     rand_val = wiener_randn(rng,typeof(W.dW))
   end
-  new_val = exp(drift*dt + p.σ*sqrt(dt)*rand_val)
+  new_val = @. exp(drift*dt + p.σ*sqrt(dt)*rand_val)
   return W[end]*(new_val-1)
 end
 
