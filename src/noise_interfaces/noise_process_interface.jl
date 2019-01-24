@@ -55,7 +55,7 @@ end
       calculate_step!(W,W.dt)
     end
   elseif adaptive_alg(W)==:RSwM2 || adaptive_alg(W)==:RSwM3
-    if !(typeof(W.dW) <: AbstractArray) || typeof(W.dW) <: SArray
+    if !isinplace(W)
       dttmp = 0.0; W.dW = zero(W.dW)
       if W.Z != nothing
         W.dZ = zero(W.dZ)
@@ -71,7 +71,7 @@ end
       qtmp = (W.dt-dttmp)/L₁
       if qtmp>1
         dttmp+=L₁
-        if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
+        if isinplace(W)
           for i in eachindex(W.dW)
             W.dW[i]+=L₂[i]
             if W.Z != nothing
@@ -103,7 +103,7 @@ end
             W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁,W.rng)
           end
         end
-        if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
+        if isinplace(W)
           for i in eachindex(W.dW)
             W.dW[i] += W.dWtilde[i]
             if W.Z != nothing
@@ -161,7 +161,7 @@ end
           W.dZtilde = W.dist(W,dtleft,W.rng)
         end
       end
-      if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
+      if isinplace(W)
         for i in eachindex(W.dW)
           W.dW[i] += W.dWtilde[i]
           if W.Z != nothing
@@ -225,7 +225,7 @@ end
     if length(W.S₁) > W.maxstacksize
         W.maxstacksize = length(W.S₁)
     end
-    if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
+    if isinplace(W)
       copyto!(W.dW,W.dWtilde)
       if W.Z!=nothing
         copyto!(W.dZ,W.dZtilde)
@@ -256,7 +256,7 @@ end
       L₁,L₂,L₃ = pop!(W.S₂)
       if dttmp + L₁ < (1-q)*W.dt #while the backwards movement is less than chop off
         dttmp += L₁
-        if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
+        if isinplace(W)
           for i in eachindex(W.dW)
             W.dWtmp[i] += L₂[i]
             if W.Z != nothing
@@ -277,7 +277,7 @@ end
     end # end while
     dtK = W.dt - dttmp
     qK = q*W.dt/dtK
-    if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
+    if isinplace(W)
       for i in eachindex(W.dW)
         W.dWtmp[i] = W.dW[i] - W.dWtmp[i]
         if W.Z != nothing
@@ -315,7 +315,7 @@ end
         W.maxstacksize = length(W.S₁)
     end
     W.dt = dtnew
-    if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
+    if isinplace(W)
       copyto!(W.dW,W.dWtilde)
       if W.Z != nothing
         copyto!(W.dZ,W.dZtilde)
