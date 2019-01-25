@@ -1,10 +1,10 @@
 const one_over_sqrt2 = 1/sqrt(2)
-@inline wiener_randn(rng,::Type{T}) where T = randn(rng,T)
-@inline wiener_randn(x,y) = randn(x,y)
-@inline wiener_randn!(rng,rand_vec::Array) = randn!(rng,rand_vec)
+@inline wiener_randn(rng::AbstractRNG,::Type{T}) where T = randn(rng,T)
+@inline wiener_randn(rng::AbstractRNG,y) = randn(rng,y)
+@inline wiener_randn!(rng::AbstractRNG,rand_vec::Array) = randn!(rng,rand_vec)
 
 # TODO: This needs an overload for GPUs
-@inline wiener_randn!(rng,rand_vec) = rand_vec .= Base.Broadcast.Broadcasted(randn,())
+@inline wiener_randn!(rng::AbstractRNG,rand_vec) = rand_vec .= Base.Broadcast.Broadcasted(randn,())
 @inline wiener_randn(y::AbstractRNG,::Type{Complex{T}}) where T = one_over_sqrt2*(randn(y,T)+im*randn(y,T))
 
 @inline function wiener_randn!(y::AbstractRNG,x::AbstractArray{<:Complex{T}}) where T<:Number
