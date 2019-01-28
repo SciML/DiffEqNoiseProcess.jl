@@ -6,7 +6,7 @@ end
 function (p::GeometricBrownianMotion)(W,dt,rng) #dist
   drift = p.μ-(1/2)*p.σ^2
   if typeof(W.dW) <: AbstractArray
-    rand_val = wiener_randn(rng,size(W.dW))
+    rand_val = wiener_randn(rng,W.dW)
   else
     rand_val = wiener_randn(rng,typeof(W.dW))
   end
@@ -27,7 +27,7 @@ https://math.stackexchange.com/questions/412470/conditional-distribution-in-brow
 =#
 function gbm_bridge(gbm,W,W0,Wh,q,h,rng)
   if typeof(W.dW) <: AbstractArray
-    return gbm.σ*sqrt((1-q)*q*abs(h))*wiener_randn(rng,size(W.dW))+q*Wh
+    return gbm.σ*sqrt((1-q)*q*abs(h))*wiener_randn(rng,W.dW)+q*Wh
   else
     return gbm.σ*sqrt((1-q)*q*abs(h))*wiener_randn(rng,typeof(W.dW))+q*Wh
   end

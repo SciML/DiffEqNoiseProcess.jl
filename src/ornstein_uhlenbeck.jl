@@ -7,7 +7,7 @@ end
 # http://www.math.ku.dk/~susanne/StatDiff/Overheads1b.pdf
 function (p::OrnsteinUhlenbeck)(W,dt,rng) #dist
   if typeof(W.dW) <: AbstractArray
-    rand_val = wiener_randn(rng,size(W.dW))
+    rand_val = wiener_randn(rng,W.dW)
   else
     rand_val = wiener_randn(rng,typeof(W.dW))
   end

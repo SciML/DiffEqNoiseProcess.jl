@@ -56,12 +56,12 @@ end
     end
   elseif adaptive_alg(W)==:RSwM2 || adaptive_alg(W)==:RSwM3
     if !isinplace(W)
-      dttmp = 0.0; W.dW = zero(W.dW)
+      dttmp = zero(eltype(W.dWtmp)); W.dW = zero(W.dW)
       if W.Z != nothing
         W.dZ = zero(W.dZ)
       end
     else
-      dttmp = 0.0; fill!(W.dW,zero(eltype(W.dW)))
+      dttmp = zero(eltype(W.dWtmp)); fill!(W.dW,zero(eltype(W.dW)))
       if W.Z != nothing
         fill!(W.dZ,zero(eltype(W.dZ)))
       end
@@ -148,7 +148,8 @@ end
         break
       end
     end #end while empty
-    dtleft = W.dt - dttmp
+    # This is a control variable so do not diff through it
+    dtleft = DiffEqBase.ODE_DEFAULT_NORM(W.dt - dttmp)
     if dtleft > W.rswm.discard_length #Stack emptied
       if isinplace(W)
         W.dist(W.dWtilde,W,dtleft,W.rng)
@@ -239,12 +240,12 @@ end
     W.dt = dtnew
   else # RSwM3
     if !isinplace(W)
-      dttmp = 0.0; W.dWtmp = zero(W.dW)
+      dttmp = zero(eltype(W.dWtmp)); W.dWtmp = zero(W.dW)
       if W.Z != nothing
         W.dZtmp = zero(W.dZtmp)
       end
     else
-      dttmp = 0.0; fill!(W.dWtmp,zero(eltype(W.dWtmp)))
+      dttmp = zero(eltype(W.dWtmp)); fill!(W.dWtmp,zero(eltype(W.dWtmp)))
       if W.Z!= nothing
         fill!(W.dZtmp,zero(eltype(W.dZtmp)))
       end
@@ -303,7 +304,8 @@ end
         W.dZtilde = W.bridge(W,0,W.dZtmp,qK,dtK,W.rng)# - W.curZ
       end
     end
-    cutLength = (1-qK)*dtK
+    # This is a control variable so do not diff through it
+    cutLength = DiffEqBase.ODE_DEFAULT_NORM((1-qK)*dtK)
     if cutLength > W.rswm.discard_length
       if W.Z == nothing
         push!(W.S₁,(cutLength,W.dWtmp-W.dWtilde,nothing))
