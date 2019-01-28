@@ -238,7 +238,7 @@ end
     end
     W.dt = dtnew
   else # RSwM3
-    if isinplace(W)
+    if !isinplace(W)
       dttmp = 0.0; W.dWtmp = zero(W.dW)
       if W.Z != nothing
         W.dZtmp = zero(W.dZtmp)
