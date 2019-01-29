@@ -56,12 +56,12 @@ end
     end
   elseif adaptive_alg(W)==:RSwM2 || adaptive_alg(W)==:RSwM3
     if !isinplace(W)
-      dttmp = zero(eltype(W.dWtmp)); W.dW = zero(W.dW)
+      dttmp = zero(W.dt); W.dW = zero(W.dW)
       if W.Z != nothing
         W.dZ = zero(W.dZ)
       end
     else
-      dttmp = zero(eltype(W.dWtmp)); fill!(W.dW,zero(eltype(W.dW)))
+      dttmp = zero(W.dt); fill!(W.dW,zero(eltype(W.dW)))
       if W.Z != nothing
         fill!(W.dZ,zero(eltype(W.dZ)))
       end
@@ -240,12 +240,12 @@ end
     W.dt = dtnew
   else # RSwM3
     if !isinplace(W)
-      dttmp = zero(eltype(W.dWtmp)); W.dWtmp = zero(W.dW)
+      dttmp = zero(W.dt); W.dWtmp = zero(W.dW)
       if W.Z != nothing
         W.dZtmp = zero(W.dZtmp)
       end
     else
-      dttmp = zero(eltype(W.dWtmp)); fill!(W.dWtmp,zero(eltype(W.dWtmp)))
+      dttmp = zero(W.dt); fill!(W.dWtmp,zero(eltype(W.dWtmp)))
       if W.Z!= nothing
         fill!(W.dZtmp,zero(eltype(W.dZtmp)))
       end
