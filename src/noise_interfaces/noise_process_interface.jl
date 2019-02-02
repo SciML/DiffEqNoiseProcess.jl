@@ -29,7 +29,7 @@ end
     end
   end
 
-  if W.save_everystep && W.iter % W.timeseries_steps==0
+  if W.save_everystep
     push!(W.W,copy(W.curW))
     push!(W.t,copy(W.curt))
     if W.Z != nothing
