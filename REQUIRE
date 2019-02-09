@@ -1,7 +1,7 @@
 julia 1.0
 ResettableStacks 0.6.0
 DataStructures
-DiffEqBase 5.0.0
+DiffEqBase 5.1.0
 RecipesBase
 RecursiveArrayTools
 RandomNumbers
