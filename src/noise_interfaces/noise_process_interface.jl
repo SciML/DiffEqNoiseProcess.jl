@@ -149,7 +149,7 @@ end
       end
     end #end while empty
     # This is a control variable so do not diff through it
-    dtleft = DiffEqBase.ODE_DEFAULT_NORM(W.dt - dttmp)
+    dtleft = DiffEqBase.ODE_DEFAULT_NORM(W.dt - dttmp,W.curt)
     if dtleft > W.rswm.discard_length #Stack emptied
       if isinplace(W)
         W.dist(W.dWtilde,W,dtleft,W.rng)
@@ -305,7 +305,7 @@ end
       end
     end
     # This is a control variable so do not diff through it
-    cutLength = DiffEqBase.ODE_DEFAULT_NORM((1-qK)*dtK)
+    cutLength = DiffEqBase.ODE_DEFAULT_NORM((1-qK)*dtK,W.curt)
     if cutLength > W.rswm.discard_length
       if W.Z == nothing
         push!(W.S₁,(cutLength,W.dWtmp-W.dWtilde,nothing))
