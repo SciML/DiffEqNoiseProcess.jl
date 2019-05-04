@@ -11,6 +11,8 @@ import RandomNumbers: Xorshifts
 import DiffEqBase: isinplace, solve, AbstractNoiseProcess,
        DEIntegrator, AbstractNoiseProblem
 
+using DiffEqBase: @..
+
 include("types.jl")
 include("wiener.jl")
 include("solve.jl")

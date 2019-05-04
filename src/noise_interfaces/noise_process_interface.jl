@@ -14,13 +14,9 @@ end
   W.iter += 1
 
   if isinplace(W)
-    for i in eachindex(W.dW)
-      W.curW[i] += W.dW[i]
-    end
+    @.. W.curW += W.dW
     if W.Z != nothing
-      for i in eachindex(W.dW)
-        W.curZ[i] += W.dZ[i]
-      end
+      @.. W.curZ += W.dZ
     end
   else
     W.curW += W.dW
@@ -72,11 +68,9 @@ end
       if qtmp>1
         dttmp+=L₁
         if isinplace(W)
-          for i in eachindex(W.dW)
-            W.dW[i]+=L₂[i]
-            if W.Z != nothing
-              W.dZ[i]+=L₃[i]
-            end
+          @.. W.dW+=L₂
+          if W.Z != nothing
+            @.. W.dZ+=L₃
           end
         else
           W.dW+=L₂
@@ -104,11 +98,9 @@ end
           end
         end
         if isinplace(W)
-          for i in eachindex(W.dW)
-            W.dW[i] += W.dWtilde[i]
-            if W.Z != nothing
-              W.dZ[i] += W.dZtilde[i]
-            end
+          @.. W.dW += W.dWtilde
+          if W.Z != nothing
+            @.. W.dZ += W.dZtilde
           end
         else
           W.dW += W.dWtilde
@@ -118,13 +110,9 @@ end
         end
         if (1-qtmp)*L₁ > W.rswm.discard_length
           if isinplace(W)
-            for i in eachindex(L₂)
-              L₂[i] -= W.dWtilde[i]
-            end
+            @.. L₂ -= W.dWtilde
             if W.Z != nothing
-              for i in eachindex(L₂)
-                L₃[i] -= W.dZtilde[i]
-              end
+              @.. L₃ -= W.dZtilde
             end
           else
             L₂ -= W.dWtilde
@@ -163,11 +151,9 @@ end
         end
       end
       if isinplace(W)
-        for i in eachindex(W.dW)
-          W.dW[i] += W.dWtilde[i]
-          if W.Z != nothing
-            W.dZ[i] += W.dZtilde[i]
-          end
+        @.. W.dW += W.dWtilde
+        if W.Z != nothing
+          @.. W.dZ += W.dZtilde
         end
       else
         W.dW += W.dWtilde
@@ -258,11 +244,9 @@ end
       if dttmp + L₁ < (1-q)*W.dt #while the backwards movement is less than chop off
         dttmp += L₁
         if isinplace(W)
-          for i in eachindex(W.dW)
-            W.dWtmp[i] += L₂[i]
-            if W.Z != nothing
-              W.dZtmp[i] += L₃[i]
-            end
+          @.. W.dWtmp += L₂
+          if W.Z != nothing
+            @.. W.dZtmp += L₃
           end
         else
           W.dWtmp += L₂
@@ -279,11 +263,9 @@ end
     dtK = W.dt - dttmp
     qK = q*W.dt/dtK
     if isinplace(W)
-      for i in eachindex(W.dW)
-        W.dWtmp[i] = W.dW[i] - W.dWtmp[i]
-        if W.Z != nothing
-          W.dZtmp[i] = W.dZ[i] - W.dZtmp[i]
-        end
+      @.. W.dWtmp = W.dW - W.dWtmp
+      if W.Z != nothing
+        @.. W.dZtmp = W.dZ - W.dZtmp
       end
     else
       W.dWtmp = W.dW - W.dWtmp

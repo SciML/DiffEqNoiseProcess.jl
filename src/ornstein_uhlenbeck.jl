@@ -43,7 +43,7 @@ end
 
 function (p::OrnsteinUhlenbeck!)(rand_vec,W,dt,rng) #dist!
   wiener_randn!(rng,rand_vec)
-  @. rand_vec = p.μ+(W[end]-p.μ)*exp(-p.Θ*dt) + rand_vec*p.σ*sqrt((1-exp.(-2*p.Θ.*dt))/(2*p.Θ)) - W[end]
+  @.. rand_vec = p.μ+(W[end]-p.μ)*exp(-p.Θ*dt) + rand_vec*p.σ*sqrt((1-exp.(-2*p.Θ.*dt))/(2*p.Θ)) - W[end]
 end
 function OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
   ou = OrnsteinUhlenbeck!(Θ,μ,σ)
