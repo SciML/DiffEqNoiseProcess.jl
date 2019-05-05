@@ -1,6 +1,0 @@
-StochasticDiffEq
-StatsBase
-Distributions
-HypothesisTests
-DiffEqProblemLibrary
-DiffEqMonteCarlo 0.4.0
