@@ -1,16 +1,19 @@
 name = "DiffEqNoiseProcess"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "v3.2.0"
+version = "3.2.0"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 RandomNumbers = "e6cf234a-135c-5ec9-84dd-332b85af5143"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 ResettableStacks = "ae5879a3-cd67-5da8-be7f-38c6eb64a37b"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 julia = "1"
@@ -18,11 +21,11 @@ julia = "1"
 [extras]
 DiffEqMonteCarlo = "78ddff82-25fc-5f2b-89aa-309469cbf16f"
 DiffEqProblemLibrary = "a077e3f3-b75c-5d7f-a0c6-6bc4c8ec64a9"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 HypothesisTests = "09f84164-cd44-5f33-b23f-e6b0d136a0d5"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test","DiffEqMonteCarlo","DiffEqProblemLibrary","StatsBase","StochasticDiffEq","Distributions","HypothesisTests"]
+test = ["Test", "DiffEqMonteCarlo", "DiffEqProblemLibrary", "StatsBase", "StochasticDiffEq", "Distributions", "HypothesisTests"]
