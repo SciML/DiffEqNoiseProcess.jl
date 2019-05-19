@@ -71,7 +71,7 @@ RealWienerProcess(t0,W0,Z0=nothing;kwargs...) = NoiseProcess{false}(t0,W0,Z0,REA
 
 function REAL_INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt,rng)
   sqabsdt = @fastmath sqrt(abs(dt))
-  wiener_randn!(rng,rand_vec!)
+  wiener_randn!(rng,rand_vec)
   sqabsdt = sqrt(abs(dt))
   @.. rand_vec *= sqabsdt
 end
