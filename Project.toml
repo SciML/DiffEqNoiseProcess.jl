@@ -14,6 +14,7 @@ RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 ResettableStacks = "ae5879a3-cd67-5da8-be7f-38c6eb64a37b"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 julia = "1"

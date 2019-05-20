@@ -4,7 +4,7 @@ module DiffEqNoiseProcess
 
 using DataStructures, ResettableStacks, DiffEqBase, RecipesBase
 using RecursiveArrayTools, StaticArrays, Random, Statistics
-using LinearAlgebra
+using LinearAlgebra, Requires
 
 import RandomNumbers: Xorshifts
 
@@ -13,6 +13,7 @@ import DiffEqBase: isinplace, solve, AbstractNoiseProcess,
 
 using DiffEqBase: @..
 
+include("init.jl")
 include("types.jl")
 include("wiener.jl")
 include("solve.jl")
