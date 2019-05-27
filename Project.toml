@@ -1,7 +1,7 @@
 name = "DiffEqNoiseProcess"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "3.3.0"
+version = "3.3.1"
 
 [deps]
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
