@@ -11,13 +11,14 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 RandomNumbers = "e6cf234a-135c-5ec9-84dd-332b85af5143"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 ResettableStacks = "ae5879a3-cd67-5da8-be7f-38c6eb64a37b"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 
 [compat]
 DiffEqBase = ">= 5.8.1"
+RecursiveArrayTools = "1.0"
 julia = "1"
 
 [extras]
