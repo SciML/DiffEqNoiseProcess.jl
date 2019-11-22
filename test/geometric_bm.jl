@@ -31,7 +31,7 @@ u0 = 1.0
 expected_mean = u0*exp(μ*t)
 expected_variance = u0^2*exp(2μ*t)*(exp(σ^2*t)-1)
 ensemble_prob = EnsembleProblem(prob;output_func = (sol,i)-> (sol[end],false))
-sol = solve(ensemble_prob;dt=0.1,num_monte=40000)
+sol = solve(ensemble_prob;dt=0.1,trajectories=40000)
 @test abs(mean(sol) - expected_mean) < 0.4
 #abs(var(sol) - expected_variance) < 0.4 # Converges slowly
 
