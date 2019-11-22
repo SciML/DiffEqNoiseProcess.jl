@@ -1,13 +1,12 @@
 @testset "Brownian Bridge" begin
 
-using DiffEqNoiseProcess, DiffEqBase, DiffEqMonteCarlo,
-      Test, DataStructures, Random
+using DiffEqNoiseProcess, DiffEqBase, Test, DataStructures, Random
 
 Random.seed!(100)
 W = BrownianBridge(0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))
-monte_prob = MonteCarloProblem(prob)
-@time sol = solve(monte_prob,dt=0.1,num_monte=10000)
+ensemble_prob = EnsembleProblem(prob)
+@time sol = solve(ensemble_prob,dt=0.1,num_monte=10000)
 
 # Spot check the mean and the variance
 qs = 0:0.1:1
@@ -26,7 +25,7 @@ end
 σ = 2.2
 W = GeometricBrownianBridge(μ,σ,0.0,1.0,0.0,1.0,0.0,0.0)
 prob = NoiseProblem(W,(0.0,1.0))
-monte_prob = MonteCarloProblem(prob)
-@time sol = solve(monte_prob,dt=0.1,num_monte=100)
+ensemble_prob = EnsembleProblem(prob)
+@time sol = solve(ensemble_prob,dt=0.1,num_monte=100)
 
 end
