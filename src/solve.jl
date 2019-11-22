@@ -1,6 +1,4 @@
-solve(prob::AbstractNoiseProblem,::Nothing,args...;dt=0.0,kwargs...) = solve(prob,args...;dt=dt,kwargs...)
-
-function solve(prob::AbstractNoiseProblem,args...;dt=0.0,kwargs...)
+function DiffEqBase.__solve(prob::AbstractNoiseProblem,args...;dt=0.0,kwargs...)
   if dt == 0.0 || dt == nothing
     error("dt must be provided to simulate a noise process. Please pass dt=...")
   end
