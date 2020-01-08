@@ -1,4 +1,4 @@
-isinplace(W::AbstractNoiseProcess{T,N,inplace}) where {T,N,inplace} = inplace
+isinplace(W::AbstractNoiseProcess{T,N,S,inplace}) where {T,N,S,inplace} = inplace
 
 mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
   dist::F
