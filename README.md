@@ -12,4 +12,4 @@ functionality should check out [DifferentialEquations.jl](https://github.com/Jul
 
 ## Documentation
 
-Extensive documentation of this functionality is on the [Noise Process page](https://docs.sciml.ai/latest/features/noise_process).
+Extensive documentation of this functionality is on the [Noise Process page](https://docs.sciml.ai/stable/features/noise_process/).
