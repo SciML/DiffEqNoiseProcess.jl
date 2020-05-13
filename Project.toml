@@ -25,7 +25,7 @@ RecursiveArrayTools = "2"
 Requires = "0.5, 1.0"
 ResettableStacks = "0.6, 1.0"
 StaticArrays = "0.10, 0.11, 0.12"
-julia = "1"
+julia = "1.4"
 
 [extras]
 DiffEqProblemLibrary = "a077e3f3-b75c-5d7f-a0c6-6bc4c8ec64a9"
