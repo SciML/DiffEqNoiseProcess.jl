@@ -19,6 +19,7 @@ include("geometric_bm.jl")
 include("ornstein_uhlenbeck.jl")
 include("rswm.jl")
 include("bridges.jl")
+include("noise_interfaces/simple_noise_process_interface.jl")
 include("noise_interfaces/noise_process_interface.jl")
 include("noise_interfaces/noise_function_interface.jl")
 include("noise_interfaces/noise_grid_interface.jl")
@@ -29,9 +30,9 @@ include("correlated_noisefunc.jl")
 
 export RSWM
 
-export NoiseProcess, adaptive_alg
+export NoiseProcess, SimpleNoiseProcess, adaptive_alg
 
-export WienerProcess, WienerProcess!
+export WienerProcess, WienerProcess!, SimpleWienerProcess, SimpleWienerProcess!
 
 export RealWienerProcess, RealWienerProcess!
 

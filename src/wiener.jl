@@ -36,6 +36,7 @@ function WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,rng)
 
 end
 WienerProcess(t0,W0,Z0=nothing;kwargs...) = NoiseProcess{false}(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE;kwargs...)
+SimpleWienerProcess(t0,W0,Z0=nothing;kwargs...) = SimpleNoiseProcess{false}(t0,W0,Z0,WHITE_NOISE_DIST;kwargs...)
 
 function INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt,rng)
   wiener_randn!(rng,rand_vec)
@@ -49,7 +50,7 @@ function INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,rng)
   @.. rand_vec = sqrtcoeff*rand_vec+q*Wh
 end
 WienerProcess!(t0,W0,Z0=nothing;kwargs...) = NoiseProcess{true}(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE;kwargs...)
-
+SimpleWienerProcess!(t0,W0,Z0=nothing;kwargs...) = SimpleNoiseProcess{true}(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST;kwargs...)
 
 
 #### Real Valued Wiener Process. Ignores complex and the like
