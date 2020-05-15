@@ -8,7 +8,7 @@
   end
 end
 
-@inline function accept_step!(W::SimpleNoiseProcess,dt,setup_next=true)
+@inline function accept_step!(W::SimpleNoiseProcess,dt,u,p,setup_next=true)
 
   W.curt += W.dt
   W.iter += 1
@@ -36,30 +36,30 @@ end
   W.dt = dt #dtpropose
   # Setup next step
   if setup_next
-    setup_next_step!(W::SimpleNoiseProcess)
+    setup_next_step!(W::SimpleNoiseProcess,u,p)
   end
 end
 
-@inline function setup_next_step!(W::SimpleNoiseProcess)
-  calculate_step!(W,W.dt)
+@inline function setup_next_step!(W::SimpleNoiseProcess,u,p)
+  calculate_step!(W,W.dt,u,p)
 end
 
-@inline function calculate_step!(W::SimpleNoiseProcess,dt)
+@inline function calculate_step!(W::SimpleNoiseProcess,dt,u,p)
   if isinplace(W)
-    W.dist(W.dW,W,dt,W.rng)
+    W.dist(W.dW,W,dt,u,p,W.curt,W.rng)
     if W.Z != nothing
-      W.dist(W.dZ,W,dt,W.rng)
+      W.dist(W.dZ,W,dt,u,p,W.curt,W.rng)
     end
   else
-    W.dW = W.dist(W,dt,W.rng)
+    W.dW = W.dist(W,dt,u,p,W.curt,W.rng)
     if W.Z != nothing
-      W.dZ = W.dist(W,dt,W.rng)
+      W.dZ = W.dist(W,dt,u,p,W.curt,W.rng)
     end
   end
   W.dt = dt
 end
 
-@inline function reject_step!(W::SimpleNoiseProcess,dtnew)
+@inline function reject_step!(W::SimpleNoiseProcess,dtnew,u,p)
   error("SimpleNoiseProcess cannot be used with adaptivity rejections")
 end
 
@@ -67,17 +67,17 @@ end
   if t > W.t[end] # Steps past W
     dt = t - W.t[end]
     if isinplace(W)
-      W.dist(W.dW,W,dt,W.rng)
+      W.dist(W.dW,W,dt,u,p,t,W.rng)
       W.curW .+= W.dW
       if W.Z != nothing
-        W.dist(W.dZ,W,dt,W.rng)
+        W.dist(W.dZ,W,dt,u,p,t,W.rng)
         W.curZ .+= W.dZ
       end
     else
-      W.dW = W.dist(W,dt,W.rng)
+      W.dW = W.dist(W,dt,u,p,t,W.rng)
       W.curW += W.dW
       if W.Z != nothing
-        W.dZ = W.dist(W,dt,W.rng)
+        W.dZ = W.dist(W,dt,u,p,t,W.rng)
         W.curZ += W.dZ
       end
     end
@@ -103,10 +103,10 @@ end
 @inline function interpolate!(out1,out2,W::SimpleNoiseProcess,t)
   if t > W.t[end] # Steps past W
     dt = t - W.t[end]
-    W.dist(W.dW,W,dt,W.rng)
+    W.dist(W.dW,W,dt,u,p,t,W.rng)
     out1 .+= W.dW
     if W.Z != nothing
-      W.dist(W.dZ,W,dt,W.rng)
+      W.dist(W.dZ,W,dt,u,p,t,W.rng)
       out2 .+= W.dZ
     end
     if W.save_everystep

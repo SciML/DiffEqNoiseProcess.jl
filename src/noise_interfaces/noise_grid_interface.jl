@@ -57,7 +57,7 @@ function interpolate!(out1,out2,W::NoiseGrid,t)
   end
 end
 
-function calculate_step!(W::NoiseGrid,dt)
+function calculate_step!(W::NoiseGrid,dt,u,p)
   t = W.curt+dt
   if typeof(t) <: AbstractFloat && abs(t - W.t[end]) < 100eps(typeof(dt))
     t = W.t[end]
@@ -78,7 +78,7 @@ function calculate_step!(W::NoiseGrid,dt)
   W.dt = dt
 end
 
-function accept_step!(W::NoiseGrid,dt,setup_next=true)
+function accept_step!(W::NoiseGrid,dt,u,p,setup_next=true)
   W.step_setup == false && error("Stepped past the defined domain for the NoiseGrid")
 
   if isinplace(W)
@@ -102,14 +102,14 @@ function accept_step!(W::NoiseGrid,dt,setup_next=true)
   end
 
   if setup_next
-    calculate_step!(W,dt)
+    calculate_step!(W,dt,u,p)
   end
 end
 
-function reject_step!(W::NoiseGrid,dtnew)
-  calculate_step!(W,dtnew)
+function reject_step!(W::NoiseGrid,dtnew,u,p)
+  calculate_step!(W,dtnew,u,p)
 end
 
-function setup_next_step!(W::NoiseGrid)
-  calculate_step!(W,W.dt)
+function setup_next_step!(W::NoiseGrid,u,p)
+  calculate_step!(W,W.dt,u,p)
 end

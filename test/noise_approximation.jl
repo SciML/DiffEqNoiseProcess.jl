@@ -13,11 +13,11 @@ W = NoiseApproximation(integrator)
 
 
 dt = 0.1
-calculate_step!(W,dt)
+calculate_step!(W,dt,nothing,nothing)
 dWold = W.dW
 @test W.curW == W[1]
 @test W.curt == 0.0
-accept_step!(W,dt)
+accept_step!(W,dt,nothing,nothing)
 @test W.curW == 0.5 + dWold
 @test W.curt == dt
 @test W.curW + W.dW == W[end]
@@ -25,7 +25,7 @@ accept_step!(W,dt)
 
 W = NoiseApproximation(integrator)
 for i in 1:10
-  accept_step!(W,dt)
+  accept_step!(W,dt,nothing,nothing)
 end
 W.t[end] == 1.0
 

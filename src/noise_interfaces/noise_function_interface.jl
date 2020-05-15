@@ -6,23 +6,23 @@ Base.show(io::IO, A::NoiseFunction) =
            invoke(show, Tuple{typeof(io), Any}, io, A)
 Base.show(io::IO, ::MIME"text/plain", A::NoiseFunction) = show(io, A)
 
-function interpolate!(W::NoiseFunction,t)
-  W.W(t)
+function interpolate!(W::NoiseFunction,u,p,t)
+  W.W(u,p,t)
 end
 
-function interpolate!(out1,out2,W::NoiseFunction,t)
-  W.W(out1,out2,t)
+function interpolate!(out1,out2,W::NoiseFunction,u,p,t)
+  W.W(out1,out2,u,p,t)
 end
 
-function calculate_step!(W::NoiseFunction,dt)
+function calculate_step!(W::NoiseFunction,dt,u,p)
   if isinplace(W)
-    W(W.dW,W.dZ,W.curt+dt)
+    W(W.dW,W.dZ,u,p,W.curt+dt)
     W.dW .-= W.curW
     if W.Z != nothing
       W.dZ .-= W.curZ
     end
   else
-    new_W, new_Z = W(W.curt+dt)
+    new_W, new_Z = W(u,p,W.curt+dt)
     W.dW = new_W - W.curW
     if W.Z != nothing
       W.dZ = new_Z - W.curZ
@@ -31,7 +31,7 @@ function calculate_step!(W::NoiseFunction,dt)
   W.dt = dt
 end
 
-function accept_step!(W::NoiseFunction,dt,setup_next=true)
+function accept_step!(W::NoiseFunction,dt,u,p,setup_next=true)
   if isinplace(W)
     W.curW .+= W.dW
   else
@@ -48,14 +48,14 @@ function accept_step!(W::NoiseFunction,dt,setup_next=true)
 
   W.dt = dt #dtpropose
   if setup_next
-    calculate_step!(W,dt)
+    calculate_step!(W,dt,u,p)
   end
 end
 
-function reject_step!(W::NoiseFunction,dtnew)
-  calculate_step!(W,dtnew)
+function reject_step!(W::NoiseFunction,dtnew,u,p)
+  calculate_step!(W,dtnew,u,p)
 end
 
-function setup_next_step!(W::NoiseFunction)
-  calculate_step!(W,W.dt)
+function setup_next_step!(W::NoiseFunction,u,p)
+  calculate_step!(W,W.dt,u,p)
 end

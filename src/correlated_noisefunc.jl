@@ -9,7 +9,7 @@ function construct_correlated_noisefunc(Γ)
       return A*sqrt.(abs(dt))*wiener_randn(rng,typeof(W.dW))
     end
   end
-  bridge = function (W,W0,Wh,q,h,rng)
+  bridge = function (W,W0,Wh,q,h,u,p,t,rng)
     error("Bridging distribution is unknown. Cannot use adapativity")
   end
   dist,bridge
@@ -20,12 +20,12 @@ function construct_correlated_noisefunc!(Γ)
   γ = svd(Γ)
   A = γ.U*Diagonal(sqrt.(γ.S))
   b = Vector{eltype(Γ)}(undef,size(Γ,1))
-  dist = function (rand_vec,W,dt,rng)
+  dist = function (rand_vec,W,dt,u,p,t,rng)
     wiener_randn!(rng,b)
     b .*= sqrt.(abs(dt))
     mul!(rand_vec,A,b)
   end
-  bridge = function (rand_vec,W,W0,Wh,q,h,rng)
+  bridge = function (rand_vec,W,W0,Wh,q,h,u,p,t,rng)
     error("Bridging distribution is unknown. Cannot use adapativity")
   end
   dist,bridge

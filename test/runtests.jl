@@ -12,6 +12,7 @@ using Test
   include("sde_noise_wrapper.jl")
   include("multi_dim.jl")
   include("geometric_bm.jl")
+  include("compoundpoisson.jl")
   include("ornstein.jl")
   include("bridge_test.jl")
   include("sde_adaptivedistribution_tests.jl")

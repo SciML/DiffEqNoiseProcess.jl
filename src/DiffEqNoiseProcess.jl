@@ -9,6 +9,8 @@ import RandomNumbers: Xorshifts
 import DiffEqBase: isinplace, solve, AbstractNoiseProcess,
        DEIntegrator, AbstractNoiseProblem
 
+import PoissonRandom, Distributions
+
 using DiffEqBase: @..
 
 include("init.jl")
@@ -16,6 +18,7 @@ include("types.jl")
 include("wiener.jl")
 include("solve.jl")
 include("geometric_bm.jl")
+include("compoundpoisson.jl")
 include("ornstein_uhlenbeck.jl")
 include("rswm.jl")
 include("bridges.jl")
@@ -40,7 +43,11 @@ export BrownianBridge, BrownianBridge!
 
 export GeometricBrownianMotionProcess, GeometricBrownianMotionProcess!
 
+export CompoundPoissonProcess, CompoundPoissonProcess!
+
 export GeometricBrownianBridge, GeometricBrownianBridge!
+
+export CompoundPoissonBridge, CompoundPoissonBridge!
 
 export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!
 
