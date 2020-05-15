@@ -65,7 +65,7 @@ end
 adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 
 function NoiseProcess(t0,W0,Z0,dist,bridge;kwargs...)
-  iip=DiffEqBase.isinplace(dist,4)
+  iip=DiffEqBase.isinplace(dist,7)
   NoiseProcess{iip}(t0,W0,Z0,dist,bridge;kwargs...)
 end
 
@@ -123,7 +123,7 @@ end
 (W::SimpleNoiseProcess)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t)
 
 function SimpleNoiseProcess(t0,W0,Z0,dist,bridge;kwargs...)
-  iip=DiffEqBase.isinplace(dist,4)
+  iip=DiffEqBase.isinplace(dist,7)
   SimpleNoiseProcess{iip}(t0,W0,Z0,dist,bridge;kwargs...)
 end
 

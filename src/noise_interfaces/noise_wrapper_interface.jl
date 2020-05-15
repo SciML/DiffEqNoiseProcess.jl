@@ -53,9 +53,9 @@ function accept_step!(W::NoiseWrapper,dt,u,p,setup_next=true)
 end
 
 function reject_step!(W::NoiseWrapper,dtnew,u,p)
-  calculate_step!(W::NoiseWrapper,dtnew)
+  calculate_step!(W::NoiseWrapper,dtnew,u,p)
 end
 
 function setup_next_step!(W::NoiseWrapper,u,p)
-  calculate_step!(W,W.dt)
+  calculate_step!(W,W.dt,u,p)
 end

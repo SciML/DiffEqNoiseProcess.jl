@@ -7,9 +7,9 @@ using DiffEqNoiseProcess, DiffEqBase, Test, Statistics
 
 W = GeometricBrownianMotionProcess(μ,σ,0.0,1.0,1.0)
 dt = 0.1
-calculate_step!(W,dt)
+calculate_step!(W,dt,nothing,nothing)
 for i in 1:10
-  accept_step!(W,dt)
+  accept_step!(W,dt,nothing,nothing)
 end
 
 W = GeometricBrownianMotionProcess(μ,σ,0.0,1.0,1.0)
