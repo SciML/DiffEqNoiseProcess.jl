@@ -35,7 +35,7 @@ function calculate_step!(W::NoiseApproximation,dt)
   end
 end
 
-function accept_step!(W::NoiseApproximation,dt,setup_next=true)
+function accept_step!(W::NoiseApproximation,dt,u,p,setup_next=true)
   if isinplace(W)
     W.curW .+= W.dW
   else
@@ -56,7 +56,7 @@ function accept_step!(W::NoiseApproximation,dt,setup_next=true)
   end
 end
 
-function reject_step!(W::NoiseApproximation,dtnew)
+function reject_step!(W::NoiseApproximation,dtnew,u,p)
   W.dt = dtnew
   if isinplace(W)
     W.source1(W.dW,W.curt+dtnew)
@@ -73,6 +73,6 @@ function reject_step!(W::NoiseApproximation,dtnew)
   end
 end
 
-function setup_next_step!(W::NoiseApproximation)
+function setup_next_step!(W::NoiseApproximation,u,p)
   calculate_step!(W,W.dt)
 end

@@ -19,7 +19,7 @@ end
   end
 end
 
-@inline function WHITE_NOISE_DIST(W,dt,rng)
+@inline function WHITE_NOISE_DIST(W,dt,u,p,t,rng)
   if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
     return @fastmath sqrt(abs(dt))*wiener_randn(rng,W.dW)
   else
@@ -27,7 +27,7 @@ end
   end
 end
 
-function WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,rng)
+function WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,u,p,t,rng)
   if typeof(W.dW) <: AbstractArray
     return @fastmath sqrt((1-q)*q*abs(h))*wiener_randn(rng,W.dW)+q*Wh
   else
@@ -38,12 +38,12 @@ end
 WienerProcess(t0,W0,Z0=nothing;kwargs...) = NoiseProcess{false}(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE;kwargs...)
 SimpleWienerProcess(t0,W0,Z0=nothing;kwargs...) = SimpleNoiseProcess{false}(t0,W0,Z0,WHITE_NOISE_DIST;kwargs...)
 
-function INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt,rng)
+function INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt,u,p,t,rng)
   wiener_randn!(rng,rand_vec)
   sqrtabsdt = @fastmath sqrt(abs(dt))
   @.. rand_vec *= sqrtabsdt
 end
-function INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,rng)
+function INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,u,p,t,rng)
   wiener_randn!(rng,rand_vec)
   #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
   sqrtcoeff = @fastmath sqrt((1-q)*q*abs(h))
@@ -54,14 +54,14 @@ SimpleWienerProcess!(t0,W0,Z0=nothing;kwargs...) = SimpleNoiseProcess{true}(t0,W
 
 
 #### Real Valued Wiener Process. Ignores complex and the like
-function REAL_WHITE_NOISE_DIST(W,dt,rng)
+function REAL_WHITE_NOISE_DIST(W,dt,u,p,t,rng)
   if typeof(W.dW) <: AbstractArray
     return @fastmath sqrt(abs(dt))*randn(rng,size(W.dW))
   else
     return @fastmath sqrt(abs(dt))*randn(rng)
   end
 end
-function REAL_WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,rng)
+function REAL_WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,u,p,t,rng)
   if typeof(W.dW) <: AbstractArray
     return @fastmath sqrt((1-q)*q*abs(h))*randn(rng,size(W.dW))+q*Wh
   else
@@ -70,13 +70,13 @@ function REAL_WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,rng)
 end
 RealWienerProcess(t0,W0,Z0=nothing;kwargs...) = NoiseProcess{false}(t0,W0,Z0,REAL_WHITE_NOISE_DIST,REAL_WHITE_NOISE_BRIDGE;kwargs...)
 
-function REAL_INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt,rng)
+function REAL_INPLACE_WHITE_NOISE_DIST(rand_vec,W,dt,u,p,t,rng)
   sqabsdt = @fastmath sqrt(abs(dt))
   wiener_randn!(rng,rand_vec)
   sqabsdt = sqrt(abs(dt))
   @.. rand_vec *= sqabsdt
 end
-function REAL_INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,rng)
+function REAL_INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,u,p,t,rng)
   wiener_randn!(rng,rand_vec)
   @.. rand_vec = @fastmath sqrt((1-q)*q*abs(h))*rand_vec+q*Wh
 end

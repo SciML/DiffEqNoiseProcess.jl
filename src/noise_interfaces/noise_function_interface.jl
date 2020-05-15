@@ -31,7 +31,7 @@ function calculate_step!(W::NoiseFunction,dt)
   W.dt = dt
 end
 
-function accept_step!(W::NoiseFunction,dt,setup_next=true)
+function accept_step!(W::NoiseFunction,dt,u,p,setup_next=true)
   if isinplace(W)
     W.curW .+= W.dW
   else
@@ -52,10 +52,10 @@ function accept_step!(W::NoiseFunction,dt,setup_next=true)
   end
 end
 
-function reject_step!(W::NoiseFunction,dtnew)
+function reject_step!(W::NoiseFunction,dtnew,u,p)
   calculate_step!(W,dtnew)
 end
 
-function setup_next_step!(W::NoiseFunction)
+function setup_next_step!(W::NoiseFunction,u,p)
   calculate_step!(W,W.dt)
 end

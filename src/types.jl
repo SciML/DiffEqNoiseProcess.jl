@@ -59,8 +59,10 @@ mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} 
   end
 
 end
-(W::NoiseProcess)(t) = interpolate!(W,t)
-(W::NoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,t)
+(W::NoiseProcess)(t) = interpolate!(W,nothing,nothing,t)
+(W::NoiseProcess)(u,p,t) = interpolate!(W,u,p,t)
+(W::NoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,nothing,nothing,t)
+(W::NoiseProcess)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t)
 adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 
 function NoiseProcess(t0,W0,Z0,dist,bridge;kwargs...)
@@ -117,8 +119,10 @@ mutable struct SimpleNoiseProcess{T,N,Tt,T2,T3,ZType,F,inplace,RNGType} <: Abstr
   end
 
 end
-(W::SimpleNoiseProcess)(t) = interpolate!(W,t)
-(W::SimpleNoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,t)
+(W::SimpleNoiseProcess)(t) = interpolate!(W,nothing,nothing,t)
+(W::SimpleNoiseProcess)(u,p,t) = interpolate!(W,u,p,t)
+(W::SimpleNoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,nothing,nothing,t)
+(W::SimpleNoiseProcess)(out1,out2,u,p,t) = interpolate!(out1,out2,W,nothing,nothing,t)
 
 function SimpleNoiseProcess(t0,W0,Z0,dist,bridge;kwargs...)
   iip=DiffEqBase.isinplace(dist,4)
@@ -157,6 +161,8 @@ function NoiseWrapper(source::AbstractNoiseProcess{T,N,Vector{T2},inplace};
 end
 
 (W::NoiseWrapper)(t) = interpolate!(W,t)
+(W::NoiseWrapper)(u,p,t) = interpolate!(W,t)
+(W::NoiseWrapper)(out1,out2,nothing,nothing,t) = interpolate!(out1,out2,W,t)
 (W::NoiseWrapper)(out1,out2,t) = interpolate!(out1,out2,W,t)
 adaptive_alg(W::NoiseWrapper) = adaptive_alg(W.source)
 
@@ -254,7 +260,9 @@ function NoiseGrid(t,W,Z=nothing;reset=true)
 end
 
 (W::NoiseGrid)(t) = interpolate!(W,t)
+(W::NoiseGrid)(u,p,t) = interpolate!(W,t)
 (W::NoiseGrid)(out1,out2,t) = interpolate!(out1,out2,W,t)
+(W::NoiseGrid)(out1,out2,u,p,t) = interpolate!(out1,out2,W,t)
 
 mutable struct NoiseApproximation{T,N,Tt,T2,T3,S1,S2,ZType,inplace} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
   t::Vector{Tt}
@@ -301,4 +309,6 @@ function NoiseApproximation(source1::DEIntegrator,source2::Union{DEIntegrator,No
 end
 
 (W::NoiseApproximation)(t) = interpolate!(W,t)
+(W::NoiseApproximation)(u,p,t) = interpolate!(W,t)
 (W::NoiseApproximation)(out1,out2,t) = interpolate!(out1,out2,W,t)
+(W::NoiseApproximation)(out1,out2,u,p,t) = interpolate!(out1,out2,W,t)
