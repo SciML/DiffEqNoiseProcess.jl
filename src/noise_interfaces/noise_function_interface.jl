@@ -6,23 +6,23 @@ Base.show(io::IO, A::NoiseFunction) =
            invoke(show, Tuple{typeof(io), Any}, io, A)
 Base.show(io::IO, ::MIME"text/plain", A::NoiseFunction) = show(io, A)
 
-function interpolate!(W::NoiseFunction,t)
-  W.W(t)
+function interpolate!(W::NoiseFunction,u,p,t)
+  W.W(u,p,t)
 end
 
-function interpolate!(out1,out2,W::NoiseFunction,t)
-  W.W(out1,out2,t)
+function interpolate!(out1,out2,W::NoiseFunction,u,p,t)
+  W.W(out1,out2,u,p,t)
 end
 
 function calculate_step!(W::NoiseFunction,dt,u,p)
   if isinplace(W)
-    W(W.dW,W.dZ,W.curt+dt)
+    W(W.dW,W.dZ,u,p,W.curt+dt)
     W.dW .-= W.curW
     if W.Z != nothing
       W.dZ .-= W.curZ
     end
   else
-    new_W, new_Z = W(W.curt+dt)
+    new_W, new_Z = W(u,p,W.curt+dt)
     W.dW = new_W - W.curW
     if W.Z != nothing
       W.dZ = new_Z - W.curZ

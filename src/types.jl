@@ -175,7 +175,7 @@ mutable struct NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseP
   reset::Bool
 
   function NoiseFunction{iip}(t0,W,Z=nothing;
-                         noise_prototype=W(t0),reset=true) where iip
+                         noise_prototype=W(nothing,nothing,t0),reset=true) where iip
     curt = t0
     dt = t0
     curW = copy(noise_prototype)
@@ -199,28 +199,28 @@ function (W::NoiseFunction)(u,p,t)
   if W.Z != nothing
     if isinplace(W)
       out2 = similar(W.dZ)
-      W.Z(out2,t)
+      W.Z(out2,u,p,t)
     else
-      out2 = W.Z(t)
+      out2 = W.Z(u,p,t)
     end
   else
     out2 = nothing
   end
   if isinplace(W)
     out1 = similar(W.dW)
-    W.W(out1,t)
+    W.W(out1,u,p,t)
   else
-    out1 = W.W(t)
+    out1 = W.W(u,p,t)
   end
   out1,out2
 end
 function (W::NoiseFunction)(out1,out2,u,p,t)
-  W.W(out1,t)
-  W.Z != nothing && W.Z(out2,t)
+  W.W(out1,u,p,t)
+  W.Z != nothing && W.Z(out2,u,p,t)
 end
 
 function NoiseFunction(t0,W,Z=nothing;kwargs...)
-  iip=DiffEqBase.isinplace(W,2)
+  iip=DiffEqBase.isinplace(W,4)
   NoiseFunction{iip}(t0,W,Z;kwargs...)
 end
 

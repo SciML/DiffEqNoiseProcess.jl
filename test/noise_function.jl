@@ -1,7 +1,7 @@
 @testset "NoiseFunction" begin
 
 using DiffEqNoiseProcess, DiffEqBase, Test
-f = (t) -> exp(t)
+f = (u,p,t) -> exp(t)
 
 W = NoiseFunction(0.0,f)
 
@@ -19,7 +19,7 @@ sol = solve(prob;dt=0.1)
 
 @test sol(W.curt + W.dt)[1] - W.curW == W.dW
 
-f = (out,t) -> (out.=exp(t))
+f = (out,u,p,t) -> (out.=exp(t))
 W = NoiseFunction(0.0,f,noise_prototype=rand(4))
 prob = NoiseProblem(W,(0.0,1.0))
 sol = solve(prob;dt=0.1)
