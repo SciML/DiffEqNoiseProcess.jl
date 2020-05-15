@@ -373,20 +373,39 @@ end
       if isinplace(W)
         new_curW = similar(W.dW)
         W.bridge(new_curW,W,W0,Wh,q,h,u,p,t,W.rng)
-        new_curW .+= (1-q)*W0
+        if iscontinuous(W)
+          @. new_curW += (1-q)*W0
+        else
+          @. new_curW += W0
+        end
         if W.Z != nothing
           new_curZ = similar(W.dZ)
           W.bridge(new_curZ,W,Z0,Zh,q,h,u,p,t,W.rng)
-          new_curZ .+= (1-q)*Z0
+          if iscontinuous(W)
+            @. new_curZ += (1-q)*Z0
+          else
+            @. new_curZ += Z0
+          end
         else
           new_curZ = nothing
         end
       else
         new_curW = W.bridge(W,W0,Wh,q,h,u,p,t,W.rng)
-        new_curW += (1-q)*W0
+        if iscontinuous(W)
+          # This should actually be based on the function for computing the mean
+          # flow of the noise process, but for now we'll just handle Wiener and
+          # Poisson
+          new_curW += (1-q)*W0
+        else
+          new_curW += W0
+        end
         if W.Z != nothing
           new_curZ = W.bridge(W,Z0,Zh,q,h,u,p,t,W.rng)
-          new_curZ += (1-q)*Z0
+          if iscontinuous(W)
+            new_curZ += (1-q)*Z0
+          else
+            new_curZ += Z0
+          end
         else
           new_curZ = nothing
         end
@@ -480,3 +499,5 @@ function addat_stack!(W::NoiseProcess,i)
   end
 end
 =#
+
+iscontinuous(W::NoiseProcess) = W.continuous

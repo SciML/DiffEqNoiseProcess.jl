@@ -28,4 +28,25 @@ prob = NoiseProblem(W,(0.0,1.0))
 ensemble_prob = EnsembleProblem(prob)
 @time sol = solve(ensemble_prob,dt=0.1,trajectories=100)
 
+Random.seed!(100)
+const r = 100 # should be independent of the rate, so make it crazy
+rate(u,p,t) = r
+W = CompoundPoissonBridge(rate,0.0,1.0,0.0,1.0,0.0,0.0)
+prob = NoiseProblem(W,(0.0,1.0))
+ensemble_prob = EnsembleProblem(prob)
+@time sol = solve(ensemble_prob,dt=0.1,trajectories=100000)
+
+# Spot check the mean and the variance
+qs = 0:0.1:1
+for i in 2:10
+  q = qs[i]
+  # Mean and variance of binomial matches that of the Brownian bridge!
+  @test ≈(timestep_mean(sol,i),q,atol=1e-2)
+  @test ≈(timestep_meanvar(sol,i)[2],(1-q)*q,atol=1e-2)
+end
+@test ≈(timestep_mean(sol,1)[1],0.0,atol=1e-16)
+@test ≈(timestep_meanvar(sol,1)[2],0.0,atol=1e-16)
+@test ≈(timestep_mean(sol,11)[1],1.0,atol=1e-16)
+@test ≈(timestep_meanvar(sol,11)[2],0.0,atol=1e-16)
+
 end

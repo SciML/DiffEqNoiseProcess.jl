@@ -27,11 +27,12 @@ mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} 
   rng::RNGType
   reset::Bool
   reseed::Bool
+  continuous::Bool
 
   function NoiseProcess{iip}(t0,W0,Z0,dist,bridge;
                          rswm = RSWM(),save_everystep=true,
                          rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
-                         reset = true, reseed = true) where iip
+                         reset = true, reseed = true, continuous = true) where iip
     S₁ = DataStructures.Stack{Tuple{typeof(t0),typeof(W0),typeof(Z0)}}()
     S₂ = ResettableStacks.ResettableStack{iip}(
                           Tuple{typeof(t0),typeof(W0),typeof(Z0)})
@@ -55,7 +56,7 @@ mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} 
                   iip,typeof(S₁),typeof(S₂),typeof(rswm),typeof(rng)}(
                   dist,bridge,[t0],W,W,Z,t0,
                   copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
-                  S₁,S₂,rswm,0,0,save_everystep,0,rng,reset,reseed)
+                  S₁,S₂,rswm,0,0,save_everystep,0,rng,reset,reseed,continuous)
   end
 
 end
