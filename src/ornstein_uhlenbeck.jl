@@ -4,14 +4,14 @@ struct OrnsteinUhlenbeck{T1,T2,T3}
   σ::T3
 end
 # http://www.math.ku.dk/~susanne/StatDiff/Overheads1b.pdf
-function (p::OrnsteinUhlenbeck)(W,dt,u,p,t,rng) #dist
+function (X::OrnsteinUhlenbeck)(W,dt,u,p,t,rng) #dist
   if typeof(W.dW) <: AbstractArray
     rand_val = wiener_randn(rng,W.dW)
   else
     rand_val = wiener_randn(rng,typeof(W.dW))
   end
-  drift = p.μ .+ (W[end] .- p.μ) .* exp.(-p.Θ*dt)
-  diffusion = p.σ .* sqrt.((1 .- exp.(-2p.Θ*dt))./(2p.Θ))
+  drift = X.μ .+ (W[end] .- X.μ) .* exp.(-X.Θ*dt)
+  diffusion = X.σ .* sqrt.((1 .- exp.(-2X.Θ*dt))./(2X.Θ))
   drift .+ rand_val .* diffusion .- W[end]
 end
 
@@ -40,9 +40,9 @@ struct OrnsteinUhlenbeck!{T1,T2,T3}
   σ::T3
 end
 
-function (p::OrnsteinUhlenbeck!)(rand_vec,W,dt,u,p,t,rng) #dist!
+function (X::OrnsteinUhlenbeck!)(rand_vec,W,dt,u,p,t,rng) #dist!
   wiener_randn!(rng,rand_vec)
-  @.. rand_vec = p.μ+(W[end]-p.μ)*exp(-p.Θ*dt) + rand_vec*p.σ*sqrt((1-exp.(-2*p.Θ.*dt))/(2*p.Θ)) - W[end]
+  @.. rand_vec = X.μ+(W[end]-X.μ)*exp(-X.Θ*dt) + rand_vec*X.σ*sqrt((1-exp.(-2*X.Θ.*dt))/(2*X.Θ)) - W[end]
 end
 function OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
   ou = OrnsteinUhlenbeck!(Θ,μ,σ)

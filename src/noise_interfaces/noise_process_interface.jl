@@ -410,10 +410,10 @@ end
 @inline function interpolate!(out1,out2,W::NoiseProcess,u,p,t)
   if t > W.t[end] # Steps past W
     dt = t - W.t[end]
-    W.dist(W.dW,W,dt,W.rng)
+    W.dist(W.dW,W,dt,u,p,t,W.rng)
     out1 .+= W.dW
     if W.Z != nothing
-      W.dist(W.dZ,W,dt,W.rng)
+      W.dist(W.dZ,W,dt,u,p,t,W.rng)
       out2 .+= W.dZ
     end
     if W.save_everystep

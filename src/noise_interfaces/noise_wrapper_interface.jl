@@ -2,23 +2,23 @@ function save_noise!(W::NoiseWrapper)
 
 end
 
-function interpolate!(W::NoiseWrapper,t)
-  W.source(t)
+function interpolate!(W::NoiseWrapper,u,p,t)
+  W.source(u,p,t)
 end
 
-function interpolate!(out1,out2,W::NoiseWrapper,t)
-  W.source(out1,out2,t)
+function interpolate!(out1,out2,W::NoiseWrapper,u,p,t)
+  W.source(out1,out2,u,p,t)
 end
 
-function calculate_step!(W::NoiseWrapper,dt)
+function calculate_step!(W::NoiseWrapper,dt,u,p)
   if isinplace(W)
-    W(W.dW,W.dZ,W.curt+dt)
+    W(W.dW,W.dZ,u,p,W.curt+dt)
     W.dW .-= W.curW
     if W.Z != nothing
       W.dZ .-= W.curZ
     end
   else
-    new_W, new_Z = W(W.curt+dt)
+    new_W, new_Z = W(u,p,W.curt+dt)
     W.dW = new_W - W.curW
     if W.Z != nothing
       W.dZ = new_Z - W.curZ
@@ -48,7 +48,7 @@ function accept_step!(W::NoiseWrapper,dt,u,p,setup_next=true)
 
   W.dt = dt #dtpropose
   if setup_next
-    calculate_step!(W,dt)
+    calculate_step!(W,dt,u,p)
   end
 end
 

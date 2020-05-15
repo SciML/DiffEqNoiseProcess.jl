@@ -7,10 +7,10 @@ grid = exp.(t)
 W = NoiseGrid(t,grid)
 
 dt = 0.1
-calculate_step!(W,dt)
+calculate_step!(W,dt,nothing,nothing)
 
 for i in 1:10
-  accept_step!(W,dt)
+  accept_step!(W,dt,nothing,nothing)
 end
 
 W = NoiseGrid(t,grid)
@@ -18,7 +18,7 @@ prob = NoiseProblem(W,(0.0,1.0))
 sol = solve(prob;dt=0.1)
 
 @test !sol.step_setup
-@test_throws ErrorException accept_step!(sol,dt)
+@test_throws ErrorException accept_step!(sol,dt,nothing,nothing)
 
 t = 0:0.001:1
 grid = [[exp.(ti) for i in 1:8] for ti in t]

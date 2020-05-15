@@ -11,7 +11,7 @@ function interpolate!(out1,out2,W::NoiseApproximation,t)
   W.source1.sol(out1,t), W.source2.sol(out2,t)
 end
 
-function calculate_step!(W::NoiseApproximation,dt)
+function calculate_step!(W::NoiseApproximation,dt,u,p)
   W.dt = dt
   t = W.curt+dt
 
@@ -52,7 +52,7 @@ function accept_step!(W::NoiseApproximation,dt,u,p,setup_next=true)
 
   W.dt = dt #dtpropose
   if setup_next
-    calculate_step!(W,dt)
+    calculate_step!(W,dt,u,p)
   end
 end
 
@@ -74,5 +74,5 @@ function reject_step!(W::NoiseApproximation,dtnew,u,p)
 end
 
 function setup_next_step!(W::NoiseApproximation,u,p)
-  calculate_step!(W,W.dt)
+  calculate_step!(W,W.dt,u,p)
 end

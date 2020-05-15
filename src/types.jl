@@ -61,7 +61,6 @@ mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} 
 end
 (W::NoiseProcess)(t) = interpolate!(W,nothing,nothing,t)
 (W::NoiseProcess)(u,p,t) = interpolate!(W,u,p,t)
-(W::NoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,nothing,nothing,t)
 (W::NoiseProcess)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t)
 adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 
@@ -121,8 +120,7 @@ mutable struct SimpleNoiseProcess{T,N,Tt,T2,T3,ZType,F,inplace,RNGType} <: Abstr
 end
 (W::SimpleNoiseProcess)(t) = interpolate!(W,nothing,nothing,t)
 (W::SimpleNoiseProcess)(u,p,t) = interpolate!(W,u,p,t)
-(W::SimpleNoiseProcess)(out1,out2,t) = interpolate!(out1,out2,W,nothing,nothing,t)
-(W::SimpleNoiseProcess)(out1,out2,u,p,t) = interpolate!(out1,out2,W,nothing,nothing,t)
+(W::SimpleNoiseProcess)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t)
 
 function SimpleNoiseProcess(t0,W0,Z0,dist,bridge;kwargs...)
   iip=DiffEqBase.isinplace(dist,4)
@@ -160,10 +158,9 @@ function NoiseWrapper(source::AbstractNoiseProcess{T,N,Vector{T2},inplace};
                 [source.t[1]],W,W,Z,source.t[1],copy(source.W[1]),curZ,source.t[1],copy(source.W[1]),dZ,source,reset)
 end
 
-(W::NoiseWrapper)(t) = interpolate!(W,t)
-(W::NoiseWrapper)(u,p,t) = interpolate!(W,t)
-(W::NoiseWrapper)(out1,out2,nothing,nothing,t) = interpolate!(out1,out2,W,t)
-(W::NoiseWrapper)(out1,out2,t) = interpolate!(out1,out2,W,t)
+(W::NoiseWrapper)(t) = interpolate!(W,nothing,nothing,t)
+(W::NoiseWrapper)(u,p,t) = interpolate!(W,u,p,t)
+(W::NoiseWrapper)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t)
 adaptive_alg(W::NoiseWrapper) = adaptive_alg(W.source)
 
 mutable struct NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseProcess{T,N,nothing,inplace}
@@ -197,7 +194,8 @@ mutable struct NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseP
 
 end
 
-function (W::NoiseFunction)(t)
+(W::NoiseFunction)(t) = W(nothing,nothing,t)
+function (W::NoiseFunction)(u,p,t)
   if W.Z != nothing
     if isinplace(W)
       out2 = similar(W.dZ)
@@ -216,7 +214,7 @@ function (W::NoiseFunction)(t)
   end
   out1,out2
 end
-function (W::NoiseFunction)(out1,out2,t)
+function (W::NoiseFunction)(out1,out2,u,p,t)
   W.W(out1,t)
   W.Z != nothing && W.Z(out2,t)
 end
@@ -261,7 +259,6 @@ end
 
 (W::NoiseGrid)(t) = interpolate!(W,t)
 (W::NoiseGrid)(u,p,t) = interpolate!(W,t)
-(W::NoiseGrid)(out1,out2,t) = interpolate!(out1,out2,W,t)
 (W::NoiseGrid)(out1,out2,u,p,t) = interpolate!(out1,out2,W,t)
 
 mutable struct NoiseApproximation{T,N,Tt,T2,T3,S1,S2,ZType,inplace} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
@@ -310,5 +307,4 @@ end
 
 (W::NoiseApproximation)(t) = interpolate!(W,t)
 (W::NoiseApproximation)(u,p,t) = interpolate!(W,t)
-(W::NoiseApproximation)(out1,out2,t) = interpolate!(out1,out2,W,t)
 (W::NoiseApproximation)(out1,out2,u,p,t) = interpolate!(out1,out2,W,t)

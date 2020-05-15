@@ -14,7 +14,7 @@ function interpolate!(out1,out2,W::NoiseFunction,t)
   W.W(out1,out2,t)
 end
 
-function calculate_step!(W::NoiseFunction,dt)
+function calculate_step!(W::NoiseFunction,dt,u,p)
   if isinplace(W)
     W(W.dW,W.dZ,W.curt+dt)
     W.dW .-= W.curW
@@ -48,14 +48,14 @@ function accept_step!(W::NoiseFunction,dt,u,p,setup_next=true)
 
   W.dt = dt #dtpropose
   if setup_next
-    calculate_step!(W,dt)
+    calculate_step!(W,dt,u,p)
   end
 end
 
 function reject_step!(W::NoiseFunction,dtnew,u,p)
-  calculate_step!(W,dtnew)
+  calculate_step!(W,dtnew,u,p)
 end
 
 function setup_next_step!(W::NoiseFunction,u,p)
-  calculate_step!(W,W.dt)
+  calculate_step!(W,W.dt,u,p)
 end
