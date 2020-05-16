@@ -50,28 +50,18 @@ function GeometricBrownianBridge!(μ,σ,t0,tend,W0,Wh,Z0=nothing,Zh=nothing;kwar
   W
 end
 
-function CompoundPoissonBridge(rate,t0,tend,W0,Wend,Z0=nothing,Zend=nothing;kwargs...)
-  W = CompoundPoissonProcess(rate,t0,W0,Z0;kwargs...)
+function CompoundPoissonBridge(rate,t0,tend,W0,Wend;kwargs...)
+  W = CompoundPoissonProcess(rate,t0,W0;kwargs...)
   h = tend-t0
   Wh = Wend-W0
-  if Z0 != nothing
-    Zh = Zend - Z0
-  else
-    Zh = nothing
-  end
-  push!(W.S₁,(h,Wh,Zh))
+  push!(W.S₁,(h,Wh,nothing))
   W
 end
 
-function CompoundPoissonBridge!(rate,t0,tend,W0,Wh,Z0=nothing,Zh=nothing;kwargs...)
-  W = CompoundPoissonProcess!(rate,t0,W0,Z0;kwargs...)
+function CompoundPoissonBridge!(rate,t0,tend,W0,Wh;kwargs...)
+  W = CompoundPoissonProcess!(rate,t0,W0;kwargs...)
   h = tend-t0
   Wh .-= W0
-  if Z0 != nothing
-    Zh .-= Z0
-  else
-    Zh = nothing
-  end
-  push!(W.S₁,(h,Wh,Zh))
+  push!(W.S₁,(h,Wh,nothing))
   W
 end

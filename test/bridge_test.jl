@@ -29,9 +29,9 @@ ensemble_prob = EnsembleProblem(prob)
 @time sol = solve(ensemble_prob,dt=0.1,trajectories=100)
 
 Random.seed!(100)
-const r = 100 # should be independent of the rate, so make it crazy
+r = 100 # should be independent of the rate, so make it crazy
 rate(u,p,t) = r
-W = CompoundPoissonBridge(rate,0.0,1.0,0.0,1.0,0.0,0.0)
+W = CompoundPoissonBridge(rate,0.0,1.0,0.0,1.0)
 prob = NoiseProblem(W,(0.0,1.0))
 ensemble_prob = EnsembleProblem(prob)
 @time sol = solve(ensemble_prob,dt=0.1,trajectories=100000)
