@@ -1,6 +1,6 @@
 isinplace(W::AbstractNoiseProcess{T,N,S,inplace}) where {T,N,S,inplace} = inplace
 
-mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
+mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,C,RNGType} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
   dist::F
   bridge::F2
   t::Vector{Tt}
@@ -28,11 +28,13 @@ mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} 
   reset::Bool
   reseed::Bool
   continuous::Bool
+  cache::C
 
   function NoiseProcess{iip}(t0,W0,Z0,dist,bridge;
                          rswm = RSWM(),save_everystep=true,
                          rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
-                         reset = true, reseed = true, continuous = true) where iip
+                         reset = true, reseed = true, continuous = true,
+                         cache = nothing) where iip
     S₁ = DataStructures.Stack{Tuple{typeof(t0),typeof(W0),typeof(Z0)}}()
     S₂ = ResettableStacks.ResettableStack{iip}(
                           Tuple{typeof(t0),typeof(W0),typeof(Z0)})
@@ -53,10 +55,10 @@ mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,RNGType} 
     N = length((size(W0)..., length(W)))
     new{eltype(eltype(W0)),N,typeof(t0),typeof(W0),typeof(dZ),typeof(Z),
                   typeof(dist),typeof(bridge),
-                  iip,typeof(S₁),typeof(S₂),typeof(rswm),typeof(rng)}(
+                  iip,typeof(S₁),typeof(S₂),typeof(rswm),typeof(cache),typeof(rng)}(
                   dist,bridge,[t0],W,W,Z,t0,
                   copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
-                  S₁,S₂,rswm,0,0,save_everystep,0,rng,reset,reseed,continuous)
+                  S₁,S₂,rswm,0,0,save_everystep,0,rng,reset,reseed,continuous,cache)
   end
 
 end
