@@ -16,4 +16,5 @@ using Test
   include("ornstein.jl")
   include("bridge_test.jl")
   include("sde_adaptivedistribution_tests.jl")
+  include("reversal_test.jl")
 end
