@@ -314,7 +314,7 @@ end
 end
 
 @inline function interpolate!(W::NoiseProcess,u,p,t)
-  if t > W.t[end] # Steps past W
+  if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
     dt = t - W.t[end]
     if isinplace(W)
       W.dist(W.dW,W,dt,u,p,t,W.rng)
@@ -427,7 +427,7 @@ end
 end
 
 @inline function interpolate!(out1,out2,W::NoiseProcess,u,p,t)
-  if t > W.t[end] # Steps past W
+  if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
     dt = t - W.t[end]
     W.dist(W.dW,W,dt,u,p,t,W.rng)
     out1 .+= W.dW
