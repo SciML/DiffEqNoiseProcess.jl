@@ -72,8 +72,9 @@ function NoiseProcess(t0,W0,Z0,dist,bridge;kwargs...)
   NoiseProcess{iip}(t0,W0,Z0,dist,bridge;kwargs...)
 end
 
-mutable struct SimpleNoiseProcess{T,N,Tt,T2,T3,ZType,F,inplace,RNGType} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
+mutable struct SimpleNoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,RNGType} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
   dist::F
+  bridge::F2
   t::Vector{Tt}
   u::Vector{T2} # Aliased pointer to W for the AbstractVectorOfArray interface
   W::Vector{T2}
@@ -94,7 +95,7 @@ mutable struct SimpleNoiseProcess{T,N,Tt,T2,T3,ZType,F,inplace,RNGType} <: Abstr
   reset::Bool
   reseed::Bool
 
-  function SimpleNoiseProcess{iip}(t0,W0,Z0,dist;
+  function SimpleNoiseProcess{iip}(t0,W0,Z0,dist,bridge;
                          save_everystep=true,
                          rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
                          reset = true, reseed = true) where iip
@@ -114,8 +115,8 @@ mutable struct SimpleNoiseProcess{T,N,Tt,T2,T3,ZType,F,inplace,RNGType} <: Abstr
     W = [copy(W0)]
     N = length((size(W0)..., length(W)))
     new{eltype(eltype(W0)),N,typeof(t0),typeof(W0),typeof(dZ),typeof(Z),
-                  typeof(dist),iip,typeof(rng)}(
-                  dist,[t0],W,W,Z,t0,
+                  typeof(dist),typeof(bridge),iip,typeof(rng)}(
+                  dist,bridge,[t0],W,W,Z,t0,
                   copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
                   save_everystep,0,rng,reset,reseed)
   end

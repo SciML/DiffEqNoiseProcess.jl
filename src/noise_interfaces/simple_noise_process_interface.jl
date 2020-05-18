@@ -63,7 +63,7 @@ end
   error("SimpleNoiseProcess cannot be used with adaptivity rejections")
 end
 
-@inline function interpolate!(W::SimpleNoiseProcess,t)
+@inline function interpolate!(W::SimpleNoiseProcess,u,p,t)
   if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
     dt = t - W.t[end]
     if isinplace(W)
@@ -96,11 +96,87 @@ end
     end
     return out1,out2
   else # Bridge
-    error("SimpleNoiseProcess cannot interpolate")
+    i = searchsortedfirst(W.t,t)
+    if t == W.t[i]
+      if isinplace(W)
+        W.curW .= W.W[i]
+      else
+        W.curW = W.W[i]
+      end
+      if W.Z != nothing
+        if isinplace(W)
+          W.curZ .= W.Z[i]
+        else
+          W.curZ = W.Z[i]
+        end
+        return copy(W.curW),copy(W.curZ)
+      else
+        return copy(W.curW),nothing
+      end
+    else
+      W0,Wh = W.W[i-1],W.W[i]
+      if W.Z != nothing
+        Z0,Zh = W.Z[i-1],W.Z[i]
+      end
+      h = W.t[i]-W.t[i-1]
+      q = (t-W.t[i-1])/h
+      if isinplace(W)
+        new_curW = similar(W.dW)
+        W.bridge(new_curW,W,W0,Wh,q,h,u,p,t,W.rng)
+        if iscontinuous(W)
+          @. new_curW += (1-q)*W0
+        else
+          @. new_curW += W0
+        end
+        if W.Z != nothing
+          new_curZ = similar(W.dZ)
+          W.bridge(new_curZ,W,Z0,Zh,q,h,u,p,t,W.rng)
+          if iscontinuous(W)
+            @. new_curZ += (1-q)*Z0
+          else
+            @. new_curZ += Z0
+          end
+        else
+          new_curZ = nothing
+        end
+      else
+        new_curW = W.bridge(W,W0,Wh,q,h,u,p,t,W.rng)
+        if iscontinuous(W)
+          # This should actually be based on the function for computing the mean
+          # flow of the noise process, but for now we'll just handle Wiener and
+          # Poisson
+          new_curW += (1-q)*W0
+        else
+          new_curW += W0
+        end
+        if W.Z != nothing
+          new_curZ = W.bridge(W,Z0,Zh,q,h,u,p,t,W.rng)
+          if iscontinuous(W)
+            new_curZ += (1-q)*Z0
+          else
+            new_curZ += Z0
+          end
+        else
+          new_curZ = nothing
+        end
+      end
+      W.curW = new_curW
+      if W.save_everystep
+        insert!(W.W,i,new_curW)
+        insert!(W.t,i,t)
+      end
+      if W.Z != nothing
+        W.curZ = new_curZ
+        if W.save_everystep
+          insert!(W.Z,i,new_curZ)
+        end
+      end
+      return new_curW,new_curZ
+    end
   end
 end
 
-@inline function interpolate!(out1,out2,W::SimpleNoiseProcess,t)
+@inline function interpolate!(out1,out2,W::SimpleNoiseProcess,u,p,t)
   if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
     dt = t - W.t[end]
     W.dist(W.dW,W,dt,u,p,t,W.rng)
@@ -117,6 +193,36 @@ end
       end
     end
   else # Bridge
-    error("SimpleNoiseProcess cannot interpolate")
+    i = searchsortedfirst(W.t,t)
+    if t == W.t[i]
+      out1 .= W.W[i]
+      if W.Z != nothing
+        out2 .= W.Z[i]
+      end
+    else
+      W0,Wh = W.W[i-1],W.W[i]
+      if W.Z != nothing
+        Z0,Zh = W.Z[i-1],W.Z[i]
+      end
+      h = W.t[i]-W.t[i-1]
+      q = (t-W.t[i-1])/h
+      W.bridge(out1,W,W0,Wh,q,h,u,p,t,W.rng)
+      out1 .+= (1-q)*W0
+      if W.Z != nothing
+        W.bridge(out2,W,Z0,Zh,q,h,u,p,t,W.rng)
+        out2 .+= (1-q)*Z0
+      end
+      W.curW .= out1
+      if W.save_everystep
+        insert!(W.W,i,copy(out1))
+        insert!(W.t,i,t)
+      end
+      if W.Z != nothing
+        W.curZ .= out2
+        if W.save_everystep
+          insert!(W.Z,i,copy(out2))
+        end
+      end
+    end
   end
 end
