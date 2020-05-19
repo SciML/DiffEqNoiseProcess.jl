@@ -63,7 +63,7 @@ function calculate_step!(W::NoiseGrid,dt,u,p)
     t = W.t[end]
   end
   if isinplace(W)
-    W(W.dW,W.dZ,t)
+    interpolate!(W.dW,W.dZ,W,t)
     W.dW .-= W.curW
     if W.Z != nothing
       W.dZ .-= W.curZ
