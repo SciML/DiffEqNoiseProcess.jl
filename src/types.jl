@@ -145,22 +145,30 @@ mutable struct NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProce
   dZ::T3
   source::T4
   reset::Bool
+  reverse::Bool
 end
 
 function NoiseWrapper(source::AbstractNoiseProcess{T,N,Vector{T2},inplace};
-                      reset=true) where {T,N,T2,inplace}
+                      reset=true,reverse=false) where {T,N,T2,inplace}
+
+  if reverse
+    indx = length(source.t)
+  else
+    indx = 1
+  end
   if source.Z==nothing
     Z=nothing
     curZ = nothing
     dZ = nothing
   else
-    Z=[copy(source.Z[1])]
-    curZ = copy(source.Z[1])
-    dZ = copy(source.Z[1])
+    Z=[copy(source.Z[indx])]
+    curZ = copy(source.Z[indx])
+    dZ = copy(source.Z[indx])
   end
-  W = [copy(source.W[1])]
+  W = [copy(source.W[indx])]
+  
   NoiseWrapper{T,N,typeof(source.t[1]),typeof(source.W[1]),typeof(dZ),typeof(source),typeof(Z),inplace}(
-                [source.t[1]],W,W,Z,source.t[1],copy(source.W[1]),curZ,source.t[1],copy(source.W[1]),dZ,source,reset)
+                [source.t[indx]],W,W,Z,source.t[indx],copy(source.W[indx]),curZ,source.t[indx],copy(source.W[indx]),dZ,source,reset,reverse)
 end
 
 (W::NoiseWrapper)(t) = interpolate!(W,nothing,nothing,t)
