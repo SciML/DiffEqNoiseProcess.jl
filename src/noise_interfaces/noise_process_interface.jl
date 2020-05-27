@@ -313,7 +313,7 @@ end
   end
 end
 
-@inline function interpolate!(W::NoiseProcess,u,p,t)
+@inline function interpolate!(W::NoiseProcess,u,p,t; reverse=false)
   if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
     dt = t - W.t[end]
     if isinplace(W)
@@ -346,7 +346,11 @@ end
     end
     return out1,out2
   else # Bridge
-    i = searchsortedfirst(W.t,t)
+    if reverse
+      i = searchsortedlast(W.t,t)
+    else
+      i = searchsortedfirst(W.t,t)
+    end
     if t == W.t[i]
       if isinplace(W)
         W.curW .= W.W[i]
@@ -426,7 +430,7 @@ end
   end
 end
 
-@inline function interpolate!(out1,out2,W::NoiseProcess,u,p,t)
+@inline function interpolate!(out1,out2,W::NoiseProcess,u,p,t; reverse=false)
   if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
     dt = t - W.t[end]
     W.dist(W.dW,W,dt,u,p,t,W.rng)
@@ -443,7 +447,11 @@ end
       end
     end
   else # Bridge
-    i = searchsortedfirst(W.t,t)
+    if reverse
+      i = searchsortedlast(W.t,t)
+    else
+      i = searchsortedfirst(W.t,t)
+    end
     if t == W.t[i]
       out1 .= W.W[i]
       if W.Z != nothing

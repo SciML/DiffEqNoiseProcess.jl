@@ -1,9 +1,9 @@
 using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
 Random.seed!(100)
-α=1
-β=1
+α=1.01
+β=0.87
 
-dt = 1e-3
+dt = 1e-4
 tspan = (0.0,1.0)
 u₀=1/2
 
@@ -24,9 +24,17 @@ W2 = NoiseWrapper(_sol.W, reverse=true)
 prob2 = SDEProblem(f!,g!,sol[end],reverse(tspan),noise=W2)
 sol2 = solve(prob2,EulerHeun(),dt=dt)
 
-@test sol.u ≈ reverse(sol1.u) atol=1e-2
-@test sol.u ≈ reverse(sol2.u) atol=1e-2
-@test sol1.u ≈ sol2.u atol=1e-5
+
+
+@test sol.u ≈ reverse(sol1.u) rtol=1e-2
+@test sol.u ≈ reverse(sol2.u) rtol=1e-2
+@test sol1.u ≈ sol2.u rtol=1e-6
+
+# using Plots
+# diff = [s[1] for s in sol.u-reverse(sol2.u)]
+# diffrev = [s[1] for s in sol1.u-sol2.u]
+# plot(sol.t, diff)
+# plot(sol2.t, diffrev)
 
 # diagonal noise
 

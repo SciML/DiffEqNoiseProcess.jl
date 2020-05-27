@@ -166,14 +166,14 @@ function NoiseWrapper(source::AbstractNoiseProcess{T,N,Vector{T2},inplace};
     dZ = copy(source.Z[indx])
   end
   W = [copy(source.W[indx])]
-  
+
   NoiseWrapper{T,N,typeof(source.t[1]),typeof(source.W[1]),typeof(dZ),typeof(source),typeof(Z),inplace}(
                 [source.t[indx]],W,W,Z,source.t[indx],copy(source.W[indx]),curZ,source.t[indx],copy(source.W[indx]),dZ,source,reset,reverse)
 end
 
 (W::NoiseWrapper)(t) = interpolate!(W,nothing,nothing,t)
 (W::NoiseWrapper)(u,p,t) = interpolate!(W,u,p,t)
-(W::NoiseWrapper)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t)
+(W::NoiseWrapper)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t,reverse=W.reverse)
 adaptive_alg(W::NoiseWrapper) = adaptive_alg(W.source)
 
 mutable struct NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseProcess{T,N,nothing,inplace}
