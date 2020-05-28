@@ -314,8 +314,12 @@ end
 end
 
 @inline function interpolate!(W::NoiseProcess,u,p,t; reverse=false)
-  if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
-    dt = t - W.t[end]
+  if sign(W.dt)*t > sign(W.dt)*W.t[end] || (sign(W.dt)*t < sign(W.dt)*W.t[1] && reverse) # Steps past W (forward time || backward time)
+    if reverse
+      dt = t - W.t[1]
+    else
+      dt = t - W.t[end]
+    end
     if isinplace(W)
       W.dist(W.dW,W,dt,u,p,t,W.rng)
       W.curW .+= W.dW
@@ -346,12 +350,8 @@ end
     end
     return out1,out2
   else # Bridge
-    if reverse
-      i = searchsortedlast(W.t,t)
-    else
-      i = searchsortedfirst(W.t,t)
-    end
-    if t == W.t[i]
+    i = searchsortedfirst(W.t,t)
+    if isapprox(t, W.t[i]; rtol = 1e-8)
       if isinplace(W)
         W.curW .= W.W[i]
       else
@@ -368,12 +368,22 @@ end
         return copy(W.curW),nothing
       end
     else
-      W0,Wh = W.W[i-1],W.W[i]
-      if W.Z != nothing
-        Z0,Zh = W.Z[i-1],W.Z[i]
+      if reverse
+        W0,Wh = W.W[i],W.W[i-1]
+        if W.Z != nothing
+          Z0,Zh = W.Z[i+1],W.Z[i]
+        end
+        h = W.t[i-1]-W.t[i]
+        q = (t-W.t[i])/h
+      else
+        W0,Wh = W.W[i-1],W.W[i]
+        if W.Z != nothing
+          Z0,Zh = W.Z[i-1],W.Z[i]
+        end
+        h = W.t[i]-W.t[i-1]
+        q = (t-W.t[i-1])/h
       end
-      h = W.t[i]-W.t[i-1]
-      q = (t-W.t[i-1])/h
+
       if isinplace(W)
         new_curW = similar(W.dW)
         W.bridge(new_curW,W,W0,Wh,q,h,u,p,t,W.rng)
@@ -431,8 +441,12 @@ end
 end
 
 @inline function interpolate!(out1,out2,W::NoiseProcess,u,p,t; reverse=false)
-  if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
-    dt = t - W.t[end]
+  if (sign(W.dt)*t > sign(W.dt)*W.t[end] && !reverse) || (sign(W.dt)*t < sign(W.dt)*W.t[1] && reverse) # Steps past W (forward time || backward time)
+    if reverse
+      dt = t - W.t[1]
+    else
+      dt = t - W.t[end]
+    end
     W.dist(W.dW,W,dt,u,p,t,W.rng)
     out1 .+= W.dW
     if W.Z != nothing
@@ -447,25 +461,34 @@ end
       end
     end
   else # Bridge
-    if reverse
-      i = searchsortedlast(W.t,t)
-    else
-      i = searchsortedfirst(W.t,t)
-    end
-    if t == W.t[i]
+    i = searchsortedfirst(W.t,t)
+
+    if isapprox(t, W.t[i]; rtol = 1e-8)
       out1 .= W.W[i]
       if W.Z != nothing
         out2 .= W.Z[i]
       end
     else
-      W0,Wh = W.W[i-1],W.W[i]
-      if W.Z != nothing
-        Z0,Zh = W.Z[i-1],W.Z[i]
+      if reverse
+        W0,Wh = W.W[i],W.W[i-1]
+        if W.Z != nothing
+          Z0,Zh = W.Z[i+1],W.Z[i]
+        end
+        h = W.t[i-1]-W.t[i]
+        q = (t-W.t[i])/h
+      else
+        W0,Wh = W.W[i-1],W.W[i]
+        if W.Z != nothing
+          Z0,Zh = W.Z[i-1],W.Z[i]
+        end
+        h = W.t[i]-W.t[i-1]
+        q = (t-W.t[i-1])/h
       end
-      h = W.t[i]-W.t[i-1]
-      q = (t-W.t[i-1])/h
+
       W.bridge(out1,W,W0,Wh,q,h,u,p,t,W.rng)
+
       out1 .+= (1-q)*W0
+
       if W.Z != nothing
         W.bridge(out2,W,Z0,Zh,q,h,u,p,t,W.rng)
         out2 .+= (1-q)*Z0

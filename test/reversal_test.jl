@@ -3,16 +3,18 @@ Random.seed!(100)
 α=1.01
 β=0.87
 
-dt = 1e-4
+dt = 1e-3
 tspan = (0.0,1.0)
 u₀=1/2
+
+tarray =  collect(tspan[1]:dt:tspan[2])
 
 f!(du,u,p,t) = du .= α*u
 g!(du,u,p,t) = du .= β*u
 
 
 prob = SDEProblem(f!,g!,[u₀],tspan)
-sol =solve(prob,EulerHeun(),dt=dt,save_noise=true)
+sol =solve(prob,EulerHeun(),dt=dt,save_noise=true, adaptive=false)
 
 _sol = deepcopy(sol) # to make sure the plot is correct
 W1 = NoiseGrid(reverse!(_sol.t),reverse!(_sol.W.W))
@@ -22,19 +24,29 @@ sol1 = solve(prob1,EulerHeun(),dt=dt)
 _sol = deepcopy(sol)
 W2 = NoiseWrapper(_sol.W, reverse=true)
 prob2 = SDEProblem(f!,g!,sol[end],reverse(tspan),noise=W2)
-sol2 = solve(prob2,EulerHeun(),dt=dt)
+sol2 = solve(prob2,EulerHeun(),dt=dt, save_noise=false)
 
+# same time steps
 
+@test sol.u ≈ reverse(sol1.u) atol=1e-2
+@test sol.u ≈ reverse(sol2.u) atol=1e-2
+@test sol1.u ≈ sol2.u atol=1e-5
 
-@test sol.u ≈ reverse(sol1.u) rtol=1e-2
-@test sol.u ≈ reverse(sol2.u) rtol=1e-2
-@test sol1.u ≈ sol2.u rtol=1e-6
+# 1/10 size time steps
 
-# using Plots
-# diff = [s[1] for s in sol.u-reverse(sol2.u)]
-# diffrev = [s[1] for s in sol1.u-sol2.u]
-# plot(sol.t, diff)
-# plot(sol2.t, diffrev)
+_sol = deepcopy(sol) # to make sure the plot is correct
+W1 = NoiseGrid(reverse!(_sol.t),reverse!(_sol.W.W))
+prob1 = SDEProblem(f!,g!,sol[end],reverse(tspan),noise=W1)
+sol1 = solve(prob1,EulerHeun(),dt=0.1*dt)
+
+_sol = deepcopy(sol)
+W2 = NoiseWrapper(_sol.W, reverse=true)
+prob2 = SDEProblem(f!,g!,sol[end],reverse(tspan),noise=W2)
+sol2 = solve(prob2,EulerHeun(),dt=0.1*dt, save_noise=false)
+
+@test sol.u ≈ sol1(tarray).u atol=1e-2
+@test sol.u ≈ sol2(tarray).u atol=1e-2
+
 
 # diagonal noise
 
@@ -51,8 +63,8 @@ W2 = NoiseWrapper(_sol.W, reverse=true)
 prob2 = SDEProblem(f!,g!,sol[end],reverse(tspan),noise=W2)
 sol2 = solve(prob2,EulerHeun(),dt=dt)
 
-@test sol.u ≈ reverse(sol1.u) atol=1e-1
-@test sol.u ≈ reverse(sol2.u) atol=1e-1
+@test sol.u ≈ reverse(sol1.u) atol=5e-2
+@test sol.u ≈ reverse(sol2.u) atol=5e-2
 @test sol1.u ≈ sol2.u atol=1e-5
 
 
@@ -81,8 +93,8 @@ W2 = NoiseWrapper(_sol.W, reverse=true)
 prob2 = SDEProblem(f!,gnd!,sol[end],reverse(tspan),noise=W2, noise_rate_prototype=zeros(2,4))
 sol2 = solve(prob2,EulerHeun(),dt=dt)
 
-@test sol.u ≈ reverse(sol1.u) atol=2e-1
-@test sol.u ≈ reverse(sol2.u) atol=2e-1
+@test sol.u ≈ reverse(sol1.u) atol=5e-1
+@test sol.u ≈ reverse(sol2.u) atol=5e-1
 @test sol1.u ≈ sol2.u atol=1e-5
 
 ###
@@ -105,8 +117,8 @@ W2 = NoiseWrapper(_sol.W, reverse=true)
 prob2 = SDEProblem(f,g,sol[end],reverse(tspan),noise=W2)
 sol2 = solve(prob2,EulerHeun(),dt=dt)
 
-@test sol.u ≈ reverse(sol1.u) atol=1e-1
-@test sol.u ≈ reverse(sol2.u) atol=1e-1
+@test sol.u ≈ reverse(sol1.u) atol=2e-2
+@test sol.u ≈ reverse(sol2.u) atol=2e-2
 @test sol1.u ≈ sol2.u atol=1e-5
 
 # diagonal noise
@@ -124,6 +136,6 @@ W2 = NoiseWrapper(_sol.W, reverse=true)
 prob2 = SDEProblem(f,g,sol[end],reverse(tspan),noise=W2)
 sol2 = solve(prob2,EulerHeun(),dt=dt)
 
-@test sol.u ≈ reverse(sol1.u) atol=1e-1
-@test sol.u ≈ reverse(sol2.u) atol=1e-1
+@test sol.u ≈ reverse(sol1.u) atol=5e-2
+@test sol.u ≈ reverse(sol2.u) atol=5e-2
 @test sol1.u ≈ sol2.u atol=1e-5
