@@ -1,3 +1,5 @@
+@testset "SDE Reversal Tests" begin
+
 using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
 Random.seed!(100)
 α=1.01
@@ -139,3 +141,5 @@ sol2 = solve(prob2,EulerHeun(),dt=dt)
 @test sol.u ≈ reverse(sol1.u) atol=5e-2
 @test sol.u ≈ reverse(sol2.u) atol=5e-2
 @test sol1.u ≈ sol2.u atol=1e-5
+
+end

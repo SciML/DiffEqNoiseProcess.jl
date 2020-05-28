@@ -351,7 +351,23 @@ end
     return out1,out2
   else # Bridge
     i = searchsortedfirst(W.t,t)
-    if isapprox(t, W.t[i]; rtol = 1e-8)
+    if t isa Union{Rational,Integer} && t ==  W.t[i]
+      if isinplace(W)
+        W.curW .= W.W[i]
+      else
+        W.curW = W.W[i]
+      end
+      if W.Z != nothing
+        if isinplace(W)
+          W.curZ .= W.Z[i]
+        else
+          W.curZ = W.Z[i]
+        end
+        return copy(W.curW),copy(W.curZ)
+      else
+        return copy(W.curW),nothing
+      end
+    elseif !(t isa Union{Rational,Integer}) && isapprox(t, W.t[i]; atol = 100eps(typeof(t)), rtol = 100eps(t))
       if isinplace(W)
         W.curW .= W.W[i]
       else
@@ -462,8 +478,12 @@ end
     end
   else # Bridge
     i = searchsortedfirst(W.t,t)
-
-    if isapprox(t, W.t[i]; rtol = 1e-8)
+    if t isa Union{Rational,Integer} && t ==  W.t[i]
+      out1 .= W.W[i]
+      if W.Z != nothing
+        out2 .= W.Z[i]
+      end
+    elseif !(t isa Union{Rational,Integer}) && isapprox(t, W.t[i]; atol = 100eps(typeof(t)), rtol = 100eps(t))
       out1 .= W.W[i]
       if W.Z != nothing
         out2 .= W.Z[i]
