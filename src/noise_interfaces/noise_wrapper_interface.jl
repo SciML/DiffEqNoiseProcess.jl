@@ -2,12 +2,20 @@ function save_noise!(W::NoiseWrapper)
 
 end
 
-function interpolate!(W::NoiseWrapper,u,p,t)
-  W.source(u,p,t)
+function interpolate!(W::NoiseWrapper,u,p,t; reverse=false)
+  if reverse
+    interpolate!(W,u,p,t,reverse=reverse)
+  else
+    W.source(u,p,t)
+  end
 end
 
-function interpolate!(out1,out2,W::NoiseWrapper,u,p,t)
-  W.source(out1,out2,u,p,t)
+function interpolate!(out1,out2,W::NoiseWrapper,u,p,t; reverse=false)
+  if reverse
+    interpolate!(out1,out2,W.source,u,p,t,reverse=reverse)
+  else
+    W.source(out1,out2,u,p,t)
+  end
 end
 
 function calculate_step!(W::NoiseWrapper,dt,u,p)
