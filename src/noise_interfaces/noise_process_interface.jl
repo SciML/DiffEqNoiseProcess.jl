@@ -147,7 +147,7 @@ end
       else
         W.dWtilde = W.dist(W,dtleft,u,p,W.curt,W.rng)
         if W.Z != nothing
-          W.dZtilde = W.dist(W,dtleft,u,p,W.curt,W.rng)
+          W.dZtilde = W.dist(W.dZ,W,dtleft,u,p,W.curt,W.rng)
         end
       end
       if isinplace(W)
@@ -181,7 +181,7 @@ end
   else
     W.dW = W.dist(W,dt,u,p,W.curt,W.rng)
     if W.Z != nothing
-      W.dZ = W.dist(W,dt,u,p,W.curt,W.rng)
+      W.dZ = W.dist(W.dZ,W,dt,u,p,W.curt,W.rng)
     end
   end
   W.dt = dt
@@ -198,7 +198,7 @@ end
     else
       W.dWtilde = W.bridge(W,0,W.dW,q,dtnew,u,p,W.curt,W.rng)
       if W.Z != nothing
-        W.dZtilde=  W.bridge(W,0,W.dZ,q,dtnew,u,p,W.curt,W.rng)
+        W.dZtilde=  W.bridge(W.dZ,W,0,W.dZ,q,dtnew,u,p,W.curt,W.rng)
       end
     end
     cutLength = W.dt-dtnew
@@ -331,7 +331,7 @@ end
       W.dW = W.dist(W,dt,u,p,t,W.rng)
       W.curW += W.dW
       if W.Z != nothing
-        W.dZ = W.dist(W,dt,u,p,t,W.rng)
+        W.dZ = W.dist(W.dZ,W,dt,u,p,t,W.rng)
         W.curZ += W.dZ
       end
     end
