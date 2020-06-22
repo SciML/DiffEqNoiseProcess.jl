@@ -147,7 +147,11 @@ end
       else
         W.dWtilde = W.dist(W,dtleft,u,p,W.curt,W.rng)
         if W.Z != nothing
-          W.dZtilde = W.dist(W.dZ,W,dtleft,u,p,W.curt,W.rng)
+          if size(W.dZ) != size(W.dW)
+            W.dZtilde = W.dist(W.dZ,W,dtleft,u,p,W.curt,W.rng)
+          else
+            W.dZtilde = W.dist(W,dtleft,u,p,W.curt,W.rng)
+          end
         end
       end
       if isinplace(W)
@@ -181,7 +185,11 @@ end
   else
     W.dW = W.dist(W,dt,u,p,W.curt,W.rng)
     if W.Z != nothing
-      W.dZ = W.dist(W.dZ,W,dt,u,p,W.curt,W.rng)
+      if size(W.dZ) != size(W.dW)
+        W.dZ = W.dist(W.dZ,W,dt,u,p,W.curt,W.rng)
+      else
+        W.dZ = W.dist(W,dt,u,p,W.curt,W.rng)
+      end
     end
   end
   W.dt = dt
