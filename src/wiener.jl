@@ -19,27 +19,11 @@ end
   end
 end
 
-@inline function WHITE_NOISE_DIST(W,dt,u,p,t,rng)
-  if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
-    return @fastmath sqrt(abs(dt))*wiener_randn(rng,W.dW)
-  else
-    return @fastmath sqrt(abs(dt))*wiener_randn(rng,typeof(W.dW))
-  end
-end
-
 @inline function WHITE_NOISE_DIST(dW,W,dt,u,p,t,rng)
   if typeof(dW) <: AbstractArray && !(typeof(dW) <: SArray)
     return @fastmath sqrt(abs(dt))*wiener_randn(rng,dW)
   else
     return @fastmath sqrt(abs(dt))*wiener_randn(rng,typeof(dW))
-  end
-end
-
-function WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,u,p,t,rng)
-  if typeof(W.dW) <: AbstractArray
-    return @fastmath sqrt((1-q)*q*abs(h))*wiener_randn(rng,W.dW)+q*Wh
-  else
-    return @fastmath sqrt((1-q)*q*abs(h))*wiener_randn(rng,typeof(W.dW))+q*Wh
   end
 end
 
