@@ -3,12 +3,12 @@ struct GeometricBrownianMotion{T1,T2}
   σ::T2
 end
 
-function (X::GeometricBrownianMotion)(W,dt,u,p,t,rng) #dist
+function (X::GeometricBrownianMotion)(dW,W,dt,u,p,t,rng) #dist
   drift = X.μ-(1/2)*X.σ^2
-  if typeof(W.dW) <: AbstractArray
-    rand_val = wiener_randn(rng,W.dW)
+  if typeof(dW) <: AbstractArray
+    rand_val = wiener_randn(rng,dW)
   else
-    rand_val = wiener_randn(rng,typeof(W.dW))
+    rand_val = wiener_randn(rng,typeof(dW))
   end
   new_val = @.. exp(drift*dt + X.σ*sqrt(dt)*rand_val)
   return W[end]*(new_val-1)
@@ -25,11 +25,11 @@ u - s = q*h
 https://math.stackexchange.com/questions/412470/conditional-distribution-in-brownian-motion
 
 =#
-function gbm_bridge(gbm,W,W0,Wh,q,h,u,p,t,rng)
-  if typeof(W.dW) <: AbstractArray
-    return gbm.σ*sqrt((1-q)*q*abs(h))*wiener_randn(rng,W.dW)+q*Wh
+function gbm_bridge(dW,gbm,W,W0,Wh,q,h,u,p,t,rng)
+  if typeof(dW) <: AbstractArray
+    return gbm.σ*sqrt((1-q)*q*abs(h))*wiener_randn(rng,dW)+q*Wh
   else
-    return gbm.σ*sqrt((1-q)*q*abs(h))*wiener_randn(rng,typeof(W.dW))+q*Wh
+    return gbm.σ*sqrt((1-q)*q*abs(h))*wiener_randn(rng,typeof(dW))+q*Wh
   end
 end
 function gbm_bridge!(rand_vec,gbm,W,W0,Wh,q,h,u,p,t,rng)
@@ -39,7 +39,7 @@ end
 
 function GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0=nothing;kwargs...)
   gbm = GeometricBrownianMotion(μ,σ)
-  NoiseProcess(t0,W0,Z0,gbm,(W,W0,Wh,q,h,u,p,t,rng)->gbm_bridge(gbm,W,W0,Wh,q,h,u,p,t,rng);kwargs...)
+  NoiseProcess{false}(t0,W0,Z0,gbm,(dW,W,W0,Wh,q,h,u,p,t,rng)->gbm_bridge(dW,gbm,W,W0,Wh,q,h,u,p,t,rng);kwargs...)
 end
 
 struct GeometricBrownianMotion!{T1,T2}
@@ -52,5 +52,5 @@ function (X::GeometricBrownianMotion!)(rand_vec,W,dt,u,p,t,rng) #dist!
 end
 function GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
   gbm = GeometricBrownianMotion!(μ,σ)
-  NoiseProcess(t0,W0,Z0,gbm,(rand_vec,W,W0,Wh,q,h,u,p,t,rng)->gbm_bridge!(rand_vec,gbm,W,W0,Wh,q,h,u,p,t,rng);kwargs...)
+  NoiseProcess{true}(t0,W0,Z0,gbm,(rand_vec,W,W0,Wh,q,h,u,p,t,rng)->gbm_bridge!(rand_vec,gbm,W,W0,Wh,q,h,u,p,t,rng);kwargs...)
 end

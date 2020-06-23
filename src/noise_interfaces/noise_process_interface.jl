@@ -92,9 +92,9 @@ end
             W.bridge(W.dZtilde,W,W.curZ,L₃,qtmp,L₁,u,p,W.curt,W.rng)
           end
         else
-          W.dWtilde = W.bridge(W,W.curW,L₂,qtmp,L₁,u,p,W.curt,W.rng)
+          W.dWtilde = W.bridge(W.dW,W,W.curW,L₂,qtmp,L₁,u,p,W.curt,W.rng)
           if W.Z != nothing
-            W.dZtilde = W.bridge(W,W.curZ,L₃,qtmp,L₁,u,p,W.curt,W.rng)
+            W.dZtilde = W.bridge(W.dZ,W,W.curZ,L₃,qtmp,L₁,u,p,W.curt,W.rng)
           end
         end
         if isinplace(W)
@@ -145,9 +145,9 @@ end
           W.dist(W.dZtilde,W,dtleft,u,p,W.curt,W.rng)
         end
       else
-        W.dWtilde = W.dist(W,dtleft,u,p,W.curt,W.rng)
+        W.dWtilde = W.dist(W.dW,W,dtleft,u,p,W.curt,W.rng)
         if W.Z != nothing
-          W.dZtilde = W.dist(W,dtleft,u,p,W.curt,W.rng)
+          W.dZtilde = W.dist(W.dZ,W,dtleft,u,p,W.curt,W.rng)
         end
       end
       if isinplace(W)
@@ -179,9 +179,9 @@ end
       W.dist(W.dZ,W,dt,u,p,W.curt,W.rng)
     end
   else
-    W.dW = W.dist(W,dt,u,p,W.curt,W.rng)
+    W.dW = W.dist(W.dW,W,dt,u,p,W.curt,W.rng)
     if W.Z != nothing
-      W.dZ = W.dist(W,dt,u,p,W.curt,W.rng)
+      W.dZ = W.dist(W.dZ,W,dt,u,p,W.curt,W.rng)
     end
   end
   W.dt = dt
@@ -196,9 +196,9 @@ end
         W.bridge(W.dZtilde,W,0,W.dZ,q,dtnew,u,p,W.curt,W.rng)
       end
     else
-      W.dWtilde = W.bridge(W,0,W.dW,q,dtnew,u,p,W.curt,W.rng)
+      W.dWtilde = W.bridge(W.dW,W,0,W.dW,q,dtnew,u,p,W.curt,W.rng)
       if W.Z != nothing
-        W.dZtilde=  W.bridge(W,0,W.dZ,q,dtnew,u,p,W.curt,W.rng)
+        W.dZtilde=  W.bridge(W.dZ,W,0,W.dZ,q,dtnew,u,p,W.curt,W.rng)
       end
     end
     cutLength = W.dt-dtnew
@@ -281,9 +281,9 @@ end
         #W.dZtilde .-= W.curZ
       end
     else
-      W.dWtilde = W.bridge(W,0,W.dWtmp,qK,dtK,u,p,W.curt,W.rng)# - W.curW
+      W.dWtilde = W.bridge(W.dW,W,0,W.dWtmp,qK,dtK,u,p,W.curt,W.rng)# - W.curW
       if W.Z != nothing
-        W.dZtilde = W.bridge(W,0,W.dZtmp,qK,dtK,u,p,W.curt,W.rng)# - W.curZ
+        W.dZtilde = W.bridge(W.dZ,W,0,W.dZtmp,qK,dtK,u,p,W.curt,W.rng)# - W.curZ
       end
     end
     # This is a control variable so do not diff through it
@@ -328,10 +328,10 @@ end
         W.curZ .+= W.dZ
       end
     else
-      W.dW = W.dist(W,dt,u,p,t,W.rng)
+      W.dW = W.dist(W.dW,W,dt,u,p,t,W.rng)
       W.curW += W.dW
       if W.Z != nothing
-        W.dZ = W.dist(W,dt,u,p,t,W.rng)
+        W.dZ = W.dist(W.dZ,W,dt,u,p,t,W.rng)
         W.curZ += W.dZ
       end
     end
@@ -420,7 +420,7 @@ end
           new_curZ = nothing
         end
       else
-        new_curW = W.bridge(W,W0,Wh,q,h,u,p,t,W.rng)
+        new_curW = W.bridge(W.dW,W,W0,Wh,q,h,u,p,t,W.rng)
         if iscontinuous(W)
           # This should actually be based on the function for computing the mean
           # flow of the noise process, but for now we'll just handle Wiener and
@@ -430,7 +430,7 @@ end
           new_curW += W0
         end
         if W.Z != nothing
-          new_curZ = W.bridge(W,Z0,Zh,q,h,u,p,t,W.rng)
+          new_curZ = W.bridge(W.dZ,W,Z0,Zh,q,h,u,p,t,W.rng)
           if iscontinuous(W)
             new_curZ += (1-q)*Z0
           else
