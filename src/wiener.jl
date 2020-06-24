@@ -54,16 +54,16 @@ SimpleWienerProcess!(t0,W0,Z0=nothing;kwargs...) = SimpleNoiseProcess{true}(t0,W
 
 
 #### Real Valued Wiener Process. Ignores complex and the like
-function REAL_WHITE_NOISE_DIST(W,dt,u,p,t,rng)
-  if typeof(W.dW) <: AbstractArray
-    return @fastmath sqrt(abs(dt))*randn(rng,size(W.dW))
+function REAL_WHITE_NOISE_DIST(dW,W,dt,u,p,t,rng)
+  if typeof(dW) <: AbstractArray
+    return @fastmath sqrt(abs(dt))*randn(rng,size(dW))
   else
     return @fastmath sqrt(abs(dt))*randn(rng)
   end
 end
-function REAL_WHITE_NOISE_BRIDGE(W,W0,Wh,q,h,u,p,t,rng)
-  if typeof(W.dW) <: AbstractArray
-    return @fastmath sqrt((1-q)*q*abs(h))*randn(rng,size(W.dW))+q*Wh
+function REAL_WHITE_NOISE_BRIDGE(dW,W,W0,Wh,q,h,u,p,t,rng)
+  if typeof(dW) <: AbstractArray
+    return @fastmath sqrt((1-q)*q*abs(h))*randn(rng,size(dW))+q*Wh
   else
     return @fastmath sqrt((1-q)*q*abs(h))*randn(rng)+q*Wh
   end
