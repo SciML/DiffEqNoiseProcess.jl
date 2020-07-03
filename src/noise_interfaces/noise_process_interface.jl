@@ -354,7 +354,7 @@ end
       i = searchsortedfirst(W.t,t)
     else
       i = searchsortedfirst(W.t,t-eps(typeof(t)))
-    end  
+    end
     if t isa Union{Rational,Integer} && t ==  W.t[i]
       if isinplace(W)
         W.curW .= W.W[i]

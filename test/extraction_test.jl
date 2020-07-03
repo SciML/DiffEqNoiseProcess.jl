@@ -1,4 +1,5 @@
 @testset "Noise Extraction Test" begin
+
   using Random, DiffEqNoiseProcess, DiffEqBase, Test
   seed = 100
   Random.seed!(seed)
@@ -15,6 +16,7 @@
   sol = solve(prob, dt=dt)
 
   _sol = deepcopy(sol)
+  _sol.save_everystep = false
   sol.save_everystep = false
   for i in 1:1:length(tarray)
     t = tarray[i]
@@ -36,4 +38,20 @@
 
   @test length(sol2.W) == length(tarray)
   @test minimum(_sol .== sol2)
+
+
+  W3 = NoiseGrid(reverse(_sol.t),reverse(_sol.W))
+  prob3 = NoiseProblem(W3,reverse(trange))
+  sol3 = solve(prob3, dt=-dt)
+
+  @test minimum(reverse(sol3.W) .== _sol)
+
+  W4 = NoiseWrapper(_sol, reverse=true)
+  for i in 1:1:length(tarray)
+    t = tarray[end-i+1]
+    tmp = DiffEqNoiseProcess.interpolate!(W4,nothing,nothing,t)
+    @test _sol.W[end-i+1] ≈ tmp[1]
+    @test _sol.Z[end-i+1] ≈ tmp[2]
+  end
+
 end
