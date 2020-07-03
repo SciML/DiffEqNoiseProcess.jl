@@ -350,7 +350,7 @@ end
     end
     return out1,out2
   else # Bridge
-    i = searchsortedfirst(W.t,t)
+    i = searchsortedfirst(W.t,t-eps(typeof(t)))
     if t isa Union{Rational,Integer} && t ==  W.t[i]
       if isinplace(W)
         W.curW .= W.W[i]

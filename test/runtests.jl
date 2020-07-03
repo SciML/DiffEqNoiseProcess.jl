@@ -18,4 +18,5 @@ using Test
   include("sde_adaptivedistribution_tests.jl")
   include("reversal_test.jl")
   include("two_processes.jl")
+  include("extraction_test.jl")
 end
