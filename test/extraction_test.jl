@@ -1,16 +1,14 @@
 @testset "Noise Extraction Test" begin
-
   using Random, DiffEqNoiseProcess, DiffEqBase, Test
   seed = 100
   Random.seed!(seed)
 
   tstart = 0.0
   tend = 1.0
-  dt = 0.1
+  dt = 0.001
   trange = (tstart, tend)
-  t = tstart:dt:tend
-  tarray = collect(t)
 
+  Random.seed!(seed)
   W = WienerProcess(0.0,0.0,0.0)
   prob = NoiseProblem(W,trange)
   sol = solve(prob, dt=dt)
@@ -18,9 +16,11 @@
   _sol = deepcopy(sol)
   _sol.save_everystep = false
   sol.save_everystep = false
-  for i in 1:1:length(tarray)
+  tarray = [tstart]
+  for i = 1:1000
     t = tarray[i]
     sol(t)
+    push!(tarray,t+dt)
   end
   @test length(_sol) == length(sol.W) == length(tarray)
   @test _sol == sol
