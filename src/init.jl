@@ -6,7 +6,7 @@ function __init__()
     end
     
     @require CUDA="052768ef-5323-5732-b1bb-66c8b64840ba" begin
-        wiener_randn!(rng::AbstractRNG,rand_vec::CuArrays.CuArray) = randn!(rand_vec)
+        wiener_randn!(rng::AbstractRNG,rand_vec::CUDA.CuArray) = randn!(rand_vec)
     end
 
     @require ReverseDiff="37e2e3b7-166d-5795-8a7a-e32c996b4267" begin
