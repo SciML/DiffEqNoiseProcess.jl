@@ -149,13 +149,16 @@ mutable struct NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProce
 end
 
 function NoiseWrapper(source::AbstractNoiseProcess{T,N,Vector{T2},inplace};
-                      reset=true,reverse=false) where {T,N,T2,inplace}
+                      reset=true,reverse=false,indx=nothing) where {T,N,T2,inplace}
 
-  if reverse
-    indx = length(source.t)
-  else
-    indx = 1
+  if indx === nothing
+    if reverse
+      indx = length(source.t)
+    else
+      indx = 1
+    end
   end
+
   if source.Z==nothing
     Z=nothing
     curZ = nothing
