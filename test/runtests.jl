@@ -19,4 +19,5 @@ using Test
   include("reversal_test.jl")
   include("two_processes.jl")
   include("extraction_test.jl")
+  include("restart_test.jl")
 end
