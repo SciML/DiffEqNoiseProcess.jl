@@ -480,8 +480,17 @@ end
         push!(W.Z,copy(out2))
       end
     end
+    out1 .= W.curW + W.dW
+    if W.Z != nothing
+      out2 .= W.curZ + W.dZ
+    end
   else # Bridge
-    i = searchsortedfirst(W.t,t)
+    if t isa Union{Rational,Integer}
+      i = searchsortedfirst(W.t,t)
+    else
+      i = searchsortedfirst(W.t,t-eps(typeof(t)))
+    end
+
     if t isa Union{Rational,Integer} && t ==  W.t[i]
       out1 .= W.W[i]
       if W.Z != nothing
@@ -530,6 +539,7 @@ end
       end
     end
   end
+  return nothing
 end
 
 function resize_stack!(W::NoiseProcess,i)
