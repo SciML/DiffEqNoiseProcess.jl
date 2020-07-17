@@ -482,7 +482,7 @@ end
     end
     @. out1 = W.curW + W.dW
     if W.Z != nothing
-      out2 .= W.curZ + W.dZ
+      @. out2 = W.curZ + W.dZ
     end
   else # Bridge
     if t isa Union{Rational,Integer}
