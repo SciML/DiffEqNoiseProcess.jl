@@ -1,91 +1,180 @@
 @testset "NoiseWrapper" begin
+  using DiffEqNoiseProcess, Test, Random
 
-using DiffEqNoiseProcess, Test, Random
+  _W = WienerProcess(0.0,0.0,0.0)
 
-_W = WienerProcess(0.0,0.0,0.0)
+  dt = 0.1
+  calculate_step!(_W,dt,nothing,nothing)
 
-dt = 0.1
-calculate_step!(_W,dt,nothing,nothing)
+  for i in 1:10
+    accept_step!(_W,dt,nothing,nothing)
+  end
 
-for i in 1:10
-  accept_step!(_W,dt,nothing,nothing)
+  W2 = NoiseWrapper(_W)
+
+  dt = 0.1
+  calculate_step!(W2,dt,nothing,nothing)
+
+  for i in 1:10
+    accept_step!(W2,dt,nothing,nothing)
+  end
+
+
+  _W = WienerProcess(0.0,0.0,0.0)
+
+  dt = 0.1
+  calculate_step!(_W,dt,nothing,nothing)
+
+  for i in 1:10
+    accept_step!(_W,dt,nothing,nothing)
+  end
+
+  old_W = copy(_W.W)
+
+  W2 = NoiseWrapper(_W)
+  lspace =range(_W.t[1], stop=_W.t[end], length=1000)
+  dt = lspace[2]-lspace[1]
+  calculate_step!(W2,dt,nothing,nothing)
+  for t in lspace
+    accept_step!(W2,dt,nothing,nothing)
+  end
+
+  @test W2.W[end] ≈ _W(W2.t[end])[1]
+  @test W2.Z[end] ≈ _W(W2.t[end])[2]
+
+
+  # Inplace
+
+  _W = WienerProcess!(0.0,zeros(4),zeros(4))
+
+  dt = 0.1
+  calculate_step!(_W,dt,nothing,nothing)
+
+  for i in 1:10
+    accept_step!(_W,dt,nothing,nothing)
+  end
+
+  W2 = NoiseWrapper(_W)
+
+  dt = 0.1
+  calculate_step!(W2,dt,nothing,nothing)
+
+  for i in 1:10
+    accept_step!(W2,dt,nothing,nothing)
+  end
+
+
+  _W = WienerProcess!(0.0,zeros(4),zeros(4))
+
+  dt = 0.1
+  calculate_step!(_W,dt,nothing,nothing)
+
+  for i in 1:10
+    accept_step!(_W,dt,nothing,nothing)
+  end
+
+  W2 = NoiseWrapper(_W)
+  lspace =range(_W.t[1], stop=_W.t[end], length=20)
+  dt = lspace[2]-lspace[1]
+  calculate_step!(W2,dt,nothing,nothing)
+  for t in lspace
+    accept_step!(W2,dt,nothing,nothing)
+  end
+
+  @test W2.W[end]≈ _W(W2.t[end])[1]
+  @test W2.Z[end]≈ _W(W2.t[end])[2]
+
+  @test W2.W[end] ≈ _W.W[end-1]
 end
 
-W2 = NoiseWrapper(_W)
+@testset "NoiseWrapper restart tests to interpolate" begin
 
-dt = 0.1
-calculate_step!(W2,dt,nothing,nothing)
+  using StochasticDiffEq, LinearAlgebra
+  seed = 100
+  u₀ = [0.75,0.5]
+  p = [-1.5,0.05,0.2, 0.01]
+  trange = (0.0,0.1)
+  dtmix = trange[2]/1e3
 
-for i in 1:10
-  accept_step!(W2,dt,nothing,nothing)
-end
+  function f_mixing!(du,u,p,t)
+    du[1] = p[1]*u[1] + p[2]*u[2]
+    du[2] = p[2]*u[1] + p[1]*u[2]
+    nothing
+  end
 
+  function g_mixing!(du,u,p,t)
+    du[1] = p[3]*u[1] + p[4]*u[2]
+    du[2] = p[3]*u[1] + p[4]*u[2]
+    nothing
+  end
 
-_W = WienerProcess(0.0,0.0,0.0)
+  function f_mixing(u,p,t)
+    dx = p[1]*u[1] + p[2]*u[2]
+    dy = p[2]*u[1] + p[1]*u[2]
+    [dx,dy]
+  end
 
-dt = 0.1
-calculate_step!(_W,dt,nothing,nothing)
+  function g_mixing(u,p,t)
+    dx = p[3]*u[1] + p[4]*u[2]
+    dy = p[3]*u[1] + p[4]*u[2]
+    [dx,dy]
+  end
 
-for i in 1:10
-  accept_step!(_W,dt,nothing,nothing)
-end
+  Random.seed!(seed)
+  prob = SDEProblem(f_mixing!,g_mixing!,u₀,trange,p)
 
-old_W = copy(_W.W)
+  soltsave = collect(trange[1]:dtmix:trange[2])
+  sol = solve(prob, EulerHeun(), dt=dtmix, save_noise=true, saveat=soltsave )
 
-W2 = NoiseWrapper(_W)
-lspace =range(_W.t[1], stop=_W.t[end], length=1000)
-dt = lspace[2]-lspace[1]
-calculate_step!(W2,dt,nothing,nothing)
-for t in lspace
-  accept_step!(W2,dt,nothing,nothing)
-end
+  Random.seed!(seed)
+  proboop = SDEProblem(f_mixing,g_mixing,u₀,trange,p)
+  soloop = solve(proboop,EulerHeun(), dt=dtmix, save_noise=true, saveat=soltsave)
 
-@test W2.W[end] ≈ _W(W2.t[end])[1]
-@test W2.Z[end] ≈ _W(W2.t[end])[2]
+  @test soloop.u ≈ sol.u
 
+  interval = (sol.t[end-1], sol.t[end])
 
-# Inplace
+  # oop
 
+  _sol = deepcopy(soloop)
+  soloop.W.save_everystep = false
+  _sol.W.save_everystep = false
 
-_W = WienerProcess!(0.0,zeros(4),zeros(4))
+  forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx=1000)
+  checkWrapper = solve(remake(_sol.prob, tspan=interval, u0=_sol(interval[1]), noise=forwardnoise), _sol.alg, save_noise=false; dt=abs(_sol.W.dt))
 
-dt = 0.1
-calculate_step!(_W,dt,nothing,nothing)
+  @test checkWrapper.u[end-1] ≈ soloop.u[end] rtol=1e-10
+  @test checkWrapper.W.W[end] ≈ soloop.W.W[end] rtol=1e-16
 
-for i in 1:10
-  accept_step!(_W,dt,nothing,nothing)
-end
+  @show checkWrapper.u[end] - soloop.u[end]
 
-W2 = NoiseWrapper(_W)
+  forwardnoise = DiffEqNoiseProcess.NoiseGrid(_sol.W.t[1000:1001], _sol.W.W[1000:1001])
+  checkGrid = solve(remake(_sol.prob, tspan=interval, u0=_sol(interval[1]), noise=forwardnoise), _sol.alg, save_noise=false; dt=abs(_sol.W.dt))
 
-dt = 0.1
-calculate_step!(W2,dt,nothing,nothing)
+  @test checkGrid.u[end-1] ≈ soloop.u[end] rtol=1e-10
+  @test checkGrid.W.W[end] ≈ soloop.W.W[end] rtol=1e-16
 
-for i in 1:10
-  accept_step!(W2,dt,nothing,nothing)
-end
+  @show checkGrid.u[end] - soloop.u[end]
 
+  # inplace
 
-_W = WienerProcess!(0.0,zeros(4),zeros(4))
+  _sol = deepcopy(sol)
+  sol.W.save_everystep = false
+  _sol.W.save_everystep = false
 
-dt = 0.1
-calculate_step!(_W,dt,nothing,nothing)
+  forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx=1000)
+  checkWrapper = solve(remake(_sol.prob, tspan=interval, u0=_sol(interval[1]), noise=forwardnoise), _sol.alg, save_noise=false; dt=abs(_sol.W.dt))
 
-for i in 1:10
-  accept_step!(_W,dt,nothing,nothing)
-end
+  @test checkWrapper.u[end-1] ≈ sol.u[end] rtol=1e-10
+  @test checkWrapper.W.W[end] ≈ sol.W.W[end] rtol=1e-16
 
-W2 = NoiseWrapper(_W)
-lspace =range(_W.t[1], stop=_W.t[end], length=20)
-dt = lspace[2]-lspace[1]
-calculate_step!(W2,dt,nothing,nothing)
-for t in lspace
-  accept_step!(W2,dt,nothing,nothing)
-end
+  @show checkWrapper.u[end] - sol.u[end]
 
-@test W2.W[end]≈ _W(W2.t[end])[1]
-@test W2.Z[end]≈ _W(W2.t[end])[2]
+  forwardnoise = DiffEqNoiseProcess.NoiseGrid(_sol.W.t[1000:1001], _sol.W.W[1000:1001])
+  checkGrid = solve(remake(_sol.prob, tspan=interval, u0=_sol(interval[1]), noise=forwardnoise), _sol.alg, save_noise=false; dt=abs(_sol.W.dt))
 
-@test W2.W[end] ≈ _W.W[end-1]
+  @test checkGrid.u[end-1] ≈ sol.u[end] rtol=1e-10
+  @test checkGrid.W.W[end] ≈ sol.W.W[end] rtol=1e-16
 
+  @show checkGrid.u[end] - sol.u[end]
 end
