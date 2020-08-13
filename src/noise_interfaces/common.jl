@@ -40,6 +40,7 @@ function DiffEqBase.reinit!(W::Union{NoiseProcess,NoiseApproximation},dt;
     ResettableStacks.reset!(W.S₂)
   end
   setup_next && setup_next_step!(W)
+  return nothing
 end
 
 function DiffEqBase.reinit!(W::AbstractNoiseProcess,dt;
@@ -63,4 +64,5 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess,dt;
     W.step_setup = true
   end
   setup_next && setup_next_step!(W)
+  return nothing
 end

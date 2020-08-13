@@ -33,6 +33,7 @@ function calculate_step!(W::NoiseApproximation,dt,u,p)
       W.dZ = W.source2.u - W.curZ
     end
   end
+  return nothing
 end
 
 function accept_step!(W::NoiseApproximation,dt,u,p,setup_next=true)
@@ -54,6 +55,7 @@ function accept_step!(W::NoiseApproximation,dt,u,p,setup_next=true)
   if setup_next
     calculate_step!(W,dt,u,p)
   end
+  return nothing
 end
 
 function reject_step!(W::NoiseApproximation,dtnew,u,p)
@@ -71,8 +73,10 @@ function reject_step!(W::NoiseApproximation,dtnew,u,p)
       W.dZ = W.source2(W.curt+dtnew) - W.curZ
     end
   end
+  return nothing
 end
 
 function setup_next_step!(W::NoiseApproximation,u,p)
   calculate_step!(W,W.dt,u,p)
+  return nothing
 end

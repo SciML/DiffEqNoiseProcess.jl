@@ -6,6 +6,7 @@
       push!(W.Z,copy(W.curZ))
     end
   end
+  return nothing
 end
 
 @inline function accept_step!(W::SimpleNoiseProcess,dt,u,p,setup_next=true)
@@ -38,10 +39,12 @@ end
   if setup_next
     setup_next_step!(W::SimpleNoiseProcess,u,p)
   end
+  return nothing
 end
 
 @inline function setup_next_step!(W::SimpleNoiseProcess,u,p)
   calculate_step!(W,W.dt,u,p)
+  return nothing
 end
 
 @inline function calculate_step!(W::SimpleNoiseProcess,dt,u,p)
@@ -57,6 +60,7 @@ end
     end
   end
   W.dt = dt
+  return nothing
 end
 
 @inline function reject_step!(W::SimpleNoiseProcess,dtnew,u,p)

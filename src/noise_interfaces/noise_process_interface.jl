@@ -6,6 +6,7 @@
       push!(W.Z,copy(W.curZ))
     end
   end
+  return nothing
 end
 
 @inline function accept_step!(W::NoiseProcess,dt,u,p,setup_next=true)
@@ -38,6 +39,7 @@ end
   if setup_next
     setup_next_step!(W::NoiseProcess,u,p)
   end
+  return nothing
 end
 
 @inline function setup_next_step!(W::NoiseProcess,u,p)
@@ -170,6 +172,7 @@ end
       end
     end
   end # End RSwM2 and RSwM3
+  return nothing
 end
 
 @inline function calculate_step!(W::NoiseProcess,dt,u,p)
@@ -185,6 +188,7 @@ end
     end
   end
   W.dt = dt
+  return nothing
 end
 
 @inline function reject_step!(W::NoiseProcess,dtnew,u,p)
@@ -311,6 +315,7 @@ end
       end
     end
   end
+  return nothing
 end
 
 @inline function interpolate!(W::NoiseProcess,u,p,t; reverse=false)
@@ -550,6 +555,7 @@ function resize_stack!(W::NoiseProcess,i)
     resize!(W.S₂.data[j][2],i)
     W.S₂.data[j][3] != nothing && resize!(W.S₂.data[j][3],i)
   end
+  return nothing
 end
 
 function deleteat_stack!(W::NoiseProcess,i)
@@ -557,6 +563,7 @@ function deleteat_stack!(W::NoiseProcess,i)
     deleteat!(W.S₂.data[j][2],i)
     W.S₂.data[j][3] != nothing && deleteat!(W.S₂.data[j][3],i)
   end
+  return nothing
 end
 
 #=
