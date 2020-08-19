@@ -1,6 +1,6 @@
 module DiffEqNoiseProcess
 
-using DataStructures, ResettableStacks, DiffEqBase, RecipesBase
+using ResettableStacks, DiffEqBase, RecipesBase
 using RecursiveArrayTools, StaticArrays, Random, Statistics
 using LinearAlgebra, Requires
 

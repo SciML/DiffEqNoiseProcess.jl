@@ -1,6 +1,6 @@
 @testset "Brownian Bridge" begin
 
-using DiffEqNoiseProcess, DiffEqBase, Test, DataStructures, Random, DiffEqBase.EnsembleAnalysis
+using DiffEqNoiseProcess, DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis
 
 Random.seed!(100)
 W = BrownianBridge(0.0,1.0,0.0,1.0,0.0,0.0)
