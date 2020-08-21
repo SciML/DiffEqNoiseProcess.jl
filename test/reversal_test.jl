@@ -212,7 +212,7 @@ end
   prob1 = SDEProblem(b,σ,x0,(0.0,2.0-1e-11),noise=W1)
   sol1 = solve(prob1,EM(false),dt=dt,adaptive=false)
 
-  @test isapprox(xs, sol1.u, atol=1e-9)
+  @test isapprox(xs, sol1.u, atol=1e-8)
 
 
   W1rev = NoiseGrid(reverse(ts),reverse(W))
