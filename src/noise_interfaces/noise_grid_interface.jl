@@ -21,8 +21,14 @@ function interpolate!(W::NoiseGrid,t)
   sign(W.dt)*t > sign(W.dt)*ts[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Build a longer NoiseGrid to cover the integration.")
   sign(W.dt)*t < sign(W.dt)*ts[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Build a longer NoiseGrid to cover the integration.")
   tdir = sign(ts[end]-ts[1])
-  @inbounds i = searchsortedfirst(ts,t,rev=tdir<0) # It's in the interval ts[i-1] to ts[i]
-  @inbounds if ts[i] == t
+
+  if t isa Union{Rational,Integer}
+    @inbounds i = searchsortedfirst(ts,t,rev=tdir<0) # It's in the interval ts[i-1] to ts[i]
+  else
+    @inbounds i = searchsortedfirst(ts,t-tdir*10eps(typeof(t)),rev=tdir<0)
+  end
+
+  @inbounds if (t isa Union{Rational,Integer} && ts[i] == t) || (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
     val1 = timeseries[i]
     timeseries2 != nothing ? val2 = timeseries2[i] : val2 = nothing
   elseif ts[i-1] == t # Can happen if it's the first value!
