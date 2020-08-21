@@ -144,7 +144,7 @@ using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
 end
 
 
-@testset "SDE Ito Reversal Tests" begin
+@testset "SDE Ito Basic Reversal Tests" begin
 
   n = 100000
   T = 2.0
@@ -170,7 +170,7 @@ end
   t = 0.0
   ts = [0.0]
   for i in 1:n
-    global t, x
+    t, x
     #@show x, dt, (W[i+1] - W[i]), x+b(x,p,t)*dt, σ(x,p,t)*(W[i+1] - W[i])
     x += b(x,p,t)*dt + σ(x,p,t)*(W[i+1] - W[i]) # this is an ito integral
     t += dt
@@ -192,7 +192,7 @@ end
   t = T
   cs = [0.0]
   for i in n:-1:1
-    global t, z
+    t, z
     cor =  1/2*dσ_dx(z,p,t)*σ(z,p,t)
     z -= (b(z,p,t)-0*2*cor)*dt + σ(z,p,t)*(W[i+1] - W[i]) # reverse ito integral
     t -= dt
@@ -248,67 +248,70 @@ end
 """
 Some more Ito reversals
 """
+@testset "SDE Ito Reversal Tests" begin
+  Random.seed!(100)
+  α=1.0
+  β=0.3
 
-Random.seed!(100)
-α=1.0
-β=2.0
+  dt = 1e-3
+  tspan = (0.0,1.0)
+  u₀=1/2
 
-dt = 1e-3
-tspan = (0.0,1.0)
-u₀=1/2
+  tarray =  collect(tspan[1]:dt:tspan[2])
 
-tarray =  collect(tspan[1]:dt:tspan[2])
-
-f!(du,u,p,t) = du .= α*u
-g!(du,u,p,t) = du .= β*u
-
-
-prob = SDEProblem(f!,g!,[u₀],tspan)
-sol = solve(prob,SOSRI(),dt=dt,save_noise=true, adaptive=false)
-
-_sol = deepcopy(sol) # to make sure the plot is correct
-W1 = NoiseGrid(reverse!(_sol.t),reverse!(_sol.W.W)
-  ,reverse!(_sol.W.Z)
-  )
-prob1 = SDEProblem(f!,g!,sol[end],reverse(tspan),noise=W1)
-sol1 = solve(prob1,SOSRI(),dt=dt, adaptive=false)
-
-_sol = deepcopy(sol)
-W2 = NoiseWrapper(_sol.W, reverse=true)
-prob2 = SDEProblem(f!,g!,sol[end],reverse(tspan),noise=W2)
-sol2 = solve(prob2,SOSRI(),dt=dt, save_noise=false, adaptive=false)
-
-# same time steps
-
-@test sol.u ≈ reverse(sol1.u) atol=1e-2
-@test sol.u ≈ reverse(sol2.u) atol=1e-2
-@test sol1.u ≈ sol2.u atol=1e-4
-
-using Plots; plt = plot(sol)
-plot!(reverse(sol1.t),reverse(sol1[1,:]))
-plot(vcat(sol.u - reverse(sol1.u) ...))
-
-plot(vcat(sol1.u - sol2.u ...))
+  f!(du,u,p,t) = du .= α*u
+  g!(du,u,p,t) = du .= β*u
 
 
-f(u,p,t) = α*u
-g(u,p,t) = β*u
+  prob = SDEProblem(f!,g!,[u₀],tspan)
+  sol = solve(prob,EM(),dt=dt,save_noise=true, adaptive=false)
 
-prob = SDEProblem(f,g,u₀,tspan)
-sol =solve(prob,SOSRI(),dt=dt,save_noise=true, adaptive=false)
+  fcorrected!(du,u,p,t) = du .= (α-β^2)*u
 
-_sol = deepcopy(sol) # to make sure the plot is correct
-W1 = NoiseGrid(reverse!(_sol.t),reverse!(_sol.W.W)
-   ,reverse!(_sol.W.Z)
+  _sol = deepcopy(sol) # to make sure the plot is correct
+  W1 = NoiseGrid(reverse(_sol.t),reverse(_sol.W.W)
+   # ,reverse(_sol.W.Z)
+    )
+  prob1 = SDEProblem(fcorrected!,g!,sol[end],reverse(tspan),noise=W1)
+  sol1 = solve(prob1,EM(),dt=dt, adaptive=false)
+
+  _sol = deepcopy(sol)
+  W2 = NoiseWrapper(_sol.W, reverse=true)
+  prob2 = SDEProblem(fcorrected!,g!,sol[end],reverse(tspan),noise=W2)
+  sol2 = solve(prob2,EM(),dt=dt, save_noise=false, adaptive=false)
+
+  # same time steps
+
+  @test sol.u ≈ reverse(sol1.u) rtol=1e-2
+  @test sol.u ≈ reverse(sol2.u) rtol=1e-2
+  @test sol1.u ≈ sol2.u atol=1e-8
+
+
+  f(u,p,t) = α*u
+  g(u,p,t) = β*u
+
+  prob = SDEProblem(f,g,u₀,tspan)
+  sol = solve(prob,EM(),dt=dt,save_noise=true, adaptive=false)
+
+  fcorrected(u,p,t) = (α-β^2)*u
+
+  _sol = deepcopy(sol) # to make sure the plot is correct
+  W1 = NoiseGrid(reverse(_sol.t),reverse(_sol.W.W)
+    # ,reverse(_sol.W.Z)
    )
-prob1 = SDEProblem(f,g,sol[end],reverse(tspan),noise=W1)
-sol1 = solve(prob1,SOSRI(),dt=dt, adaptive=false)
+  prob1 = SDEProblem(fcorrected,g,sol[end],reverse(tspan),noise=W1)
+  sol1 = solve(prob1,EM(),dt=dt, adaptive=false)
 
-_sol = deepcopy(sol)
-W2 = NoiseWrapper(_sol.W, reverse=true)
-prob2 = SDEProblem(f,g,sol[end],reverse(tspan),noise=W2)
-sol2 = solve(prob2,SOSRI(),dt=dt, adaptive=false)
+  _sol = deepcopy(sol)
+  W2 = NoiseWrapper(_sol.W, reverse=true)
+  prob2 = SDEProblem(fcorrected,g,sol[end],reverse(tspan),noise=W2)
+  sol2 = solve(prob2,EM(),dt=dt, adaptive=false)
 
-@test sol.u ≈ reverse(sol1.u) atol=5e-2
-@test sol.u ≈ reverse(sol2.u) atol=5e-2
-@test sol1.u ≈ sol2.u atol=1e-5
+  @test sol.u ≈ reverse(sol1.u) rtol=1e-2
+  @test sol.u ≈ reverse(sol2.u) rtol=1e-2
+  @test sol1.u ≈ sol2.u atol=1e-7
+
+  # using Plots; plt = plot(sol)
+  # plot!(reverse(sol1.t),reverse(sol1[1,:]))
+  # plot(vcat(sol.u - reverse(sol1.u) ...))
+end
