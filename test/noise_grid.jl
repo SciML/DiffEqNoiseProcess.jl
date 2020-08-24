@@ -37,4 +37,10 @@
   W = NoiseGrid(t,brownian_values2)
   prob = NoiseProblem(W,(0.0,1.0))
   sol = solve(prob;dt=0.1)
+
+  dt = 1//1000
+  t = 0:dt:1
+  W = NoiseGrid(t,brownian_values)
+  prob_rational = NoiseProblem(W,(0,1))
+  sol = solve(prob_rational; dt=1//10)
 end
