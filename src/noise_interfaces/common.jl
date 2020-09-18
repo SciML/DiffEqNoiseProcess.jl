@@ -68,7 +68,7 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess,dt;
 end
 
 
-function DiffEqBase.reverse(W::AbstractNoiseProcess)
+function Base.reverse(W::AbstractNoiseProcess)
   if typeof(W) <: NoiseGrid
     backwardnoise = NoiseGrid(reverse(W.t),reverse(W.W))
   else
