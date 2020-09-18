@@ -45,8 +45,8 @@ end
 
 function interpolate!(out1,out2,W::NoiseGrid,t)
   ts,timeseries,timeseries2 = W.t,W.W,W.Z
-  sign(W.dt)*t > sign(W.dt)*ts[end] && error("Solution interpolation cannot extrapolate past the final timepoint. Build a longer NoiseGrid to cover the integration.")
-  sign(W.dt)*t < sign(W.dt)*ts[1] && error("Solution interpolation cannot extrapolate before the first timepoint. Build a longer NoiseGrid to cover the integration.")
+  sign(W.dt)*t > sign(W.dt)*(ts[end]+10eps(typeof(t))) && error("Solution interpolation cannot extrapolate past the final timepoint. Build a longer NoiseGrid to cover the integration.")
+  sign(W.dt)*t < sign(W.dt)*(ts[1]-10eps(typeof(t))) && error("Solution interpolation cannot extrapolate before the first timepoint. Build a longer NoiseGrid to cover the integration.")
   tdir = sign(ts[end]-ts[1])
 
 
@@ -109,7 +109,7 @@ function accept_step!(W::NoiseGrid,dt,u,p,setup_next=true)
   end
 
   W.dt = dt #dtpropose
-  if sign(W.dt)*(W.curt + W.dt) > sign(W.dt)*W.t[end]
+  if sign(W.dt)*(W.curt + W.dt) > sign(W.dt)*(W.t[end]+sign(W.dt)*10eps(typeof(dt)))
     setup_next = false
     W.step_setup = false
   end

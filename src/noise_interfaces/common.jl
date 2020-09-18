@@ -66,3 +66,14 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess,dt;
   setup_next && setup_next_step!(W)
   return nothing
 end
+
+
+function DiffEqBase.reverse(W::AbstractNoiseProcess)
+  if typeof(W) <: NoiseGrid
+    backwardnoise = NoiseGrid(reverse(W.t),reverse(W.W))
+  else
+    W.save_everystep = false
+    backwardnoise = NoiseWrapper(W, reverse=true)
+  end
+  return backwardnoise
+end
