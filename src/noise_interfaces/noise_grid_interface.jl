@@ -109,9 +109,16 @@ function accept_step!(W::NoiseGrid,dt,u,p,setup_next=true)
   end
 
   W.dt = dt #dtpropose
-  if sign(W.dt)*(W.curt + W.dt) > sign(W.dt)*(W.t[end]+sign(W.dt)*10eps(typeof(dt)))
-    setup_next = false
-    W.step_setup = false
+  if (W.dt isa Union{Rational,Integer})
+    if sign(W.dt)*(W.curt + W.dt) > sign(W.dt)*W.t[end]
+      setup_next = false
+      W.step_setup = false
+    end
+  else
+    if sign(W.dt)*(W.curt + W.dt) > sign(W.dt)*(W.t[end]+sign(W.dt)*10eps(typeof(dt)))
+      setup_next = false
+      W.step_setup = false
+    end  
   end
 
   if setup_next
