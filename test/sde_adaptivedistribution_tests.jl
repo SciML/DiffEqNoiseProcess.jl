@@ -25,7 +25,7 @@ end
 for j = 1:M
   Wends = Vector{Float64}(undef,N)
   for i = 1:N
-    sol =solve(prob,SRI(),dt=1/2^(4),abstol=1e-2,reltol=0,adaptivealg=:RSwM2)
+    sol = solve(prob,SRI(),dt=1/2^(4),abstol=1e-2,reltol=0,adaptivealg=:RSwM2)
     Wends[i] = sol.W.W[end]
   end
   kssol = ApproximateOneSampleKSTest(Wends/sqrt(T), Normal())

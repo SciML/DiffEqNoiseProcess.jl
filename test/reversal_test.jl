@@ -1,5 +1,5 @@
 using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
-@testset "SDE Reversal Tests" begin
+@testset "SDE Stratonovich Reversal Tests" begin
   Random.seed!(100)
   α=1.01
   β=0.87
@@ -15,7 +15,7 @@ using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
 
 
   prob = SDEProblem(f!,g!,[u₀],tspan)
-  sol =solve(prob,EulerHeun(),dt=dt,save_noise=true, adaptive=false)
+  sol = solve(prob,EulerHeun(),dt=dt,save_noise=true, adaptive=false)
 
   _sol = deepcopy(sol) # to make sure the plot is correct
   W1 = NoiseGrid(reverse!(_sol.t),reverse!(_sol.W.W))
@@ -140,6 +140,57 @@ using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
   @test sol.u ≈ reverse(sol1.u) atol=5e-2
   @test sol.u ≈ reverse(sol2.u) atol=5e-2
   @test sol1.u ≈ sol2.u atol=1e-5
+
+end
+
+
+@testset "Reverse a given NoiseProcess " begin
+  # Noise Wrapper
+  _W = WienerProcess(0.0,0.0,0.0)
+
+  dt = 0.1
+  calculate_step!(_W,dt,nothing,nothing)
+
+  for i in 1:100
+    accept_step!(_W,dt,nothing,nothing)
+  end
+
+  W1 = NoiseWrapper(_W, reverse=true)
+  dt = -0.1
+  calculate_step!(W1,dt,nothing,nothing)
+  for i in 1:99
+    accept_step!(W1,dt,nothing,nothing)
+  end
+
+  W2 = reverse(_W)
+  dt = -0.1
+  calculate_step!(W2,dt,nothing,nothing)
+  for i in 1:99
+    accept_step!(W2,dt,nothing,nothing)
+  end
+
+  @test isapprox(_W.W[2:end], reverse(W1.W), atol=1e-16)
+  @test isapprox(_W.W[2:end], reverse(W2.W), atol=1e-16)
+
+  # Noise Grid
+  dt = 0.001
+  t = 0:dt:1
+  brownian_values = cumsum([0;[sqrt(dt)*randn() for i in 1:length(t)-1]])
+  _W = NoiseGrid(t,brownian_values)
+
+  prob = NoiseProblem(_W,(0.0,1.0))
+  sol = solve(prob;dt=dt)
+
+  W1 = NoiseGrid(reverse(sol.t),reverse(sol.W))
+  prob = NoiseProblem(W1,(1.0,0.0))
+  sol1 = solve(prob;dt=-dt)
+
+  W2 = reverse(_W)
+  prob = NoiseProblem(W2,(1.0,0.0))
+  sol2 = solve(prob;dt=-dt)
+
+  @test isapprox(sol.W, reverse(sol1.W), atol=1e-16)
+  @test isapprox(sol.W, reverse(sol2.W), atol=1e-16)
 
 end
 
