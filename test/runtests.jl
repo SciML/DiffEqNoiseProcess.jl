@@ -7,6 +7,7 @@ using Test
   include("RSwM3_test.jl")
   include("noise_wrapper.jl")
   include("noise_function.jl")
+  include("VBT_test.jl")
   include("noise_grid.jl")
   include("noise_approximation.jl")
   include("sde_noise_wrapper.jl")
