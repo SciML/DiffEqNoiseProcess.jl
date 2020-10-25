@@ -326,7 +326,7 @@ end
 (W::NoiseApproximation)(out1,out2,u,p,t) = interpolate!(out1,out2,W,t)
 
 
-mutable struct VirtualBrownianTree{T,N,F,F2,Tt,T2,T3,seedType,tolType,RNGType,inplace} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
+mutable struct VirtualBrownianTree{T,N,F,F2,Tt,T2,T3,T2tmp,T3tmp,seedType,tolType,RNGType,inplace} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
   dist::F
   bridge::F2
   t::Vector{Tt} # tstart::Tt to tend::Tt
@@ -339,6 +339,10 @@ mutable struct VirtualBrownianTree{T,N,F,F2,Tt,T2,T3,seedType,tolType,RNGType,in
   dt::Tt
   dW::T2
   dZ::T3
+  W0tmp::T2tmp
+  W1tmp::T2tmp
+  Z0tmp::T3tmp
+  Z1tmp::T3tmp
   seeds::Vector{seedType}
   atol::tolType
   rng::RNGType
@@ -392,11 +396,22 @@ function VirtualBrownianTree{iip}(t0,W0,Z0,dist,bridge;
 
   t, W, Z, seeds = create_VBT_cache(bridge,t0,W0,Z0,tend,Wend,Zend,rng,tree_depth,search_depth)
 
+  if iip
+    W0tmp, W1tmp = copy(W0), copy(Wend)
+    if Z0!=nothing
+      Z0tmp,Z1tmp = copy(Z0), copy(Zend)
+    else
+      Z0tmp,Z1tmp = nothing, nothing
+    end
+  else
+    W0tmp,W1tmp,Z0tmp,Z1tmp = nothing,nothing,nothing,nothing
+  end
+
   VirtualBrownianTree{
    typeof(W0),ndims(W0),
    typeof(dist),typeof(bridge),typeof(curt),typeof(curW),typeof(curZ),
-   typeof(seeds[1]),typeof(atol),typeof(rng),
-   iip}(dist,bridge,t,W,W,Z,curt,curW,curZ,dt,dW,dZ,seeds,atol,rng,tree_depth,
+   typeof(W0tmp),typeof(Z0tmp),typeof(seeds[1]),typeof(atol),typeof(rng),
+   iip}(dist,bridge,t,W,W,Z,curt,curW,curZ,dt,dW,dZ,W0tmp,W1tmp,Z0tmp,Z1tmp,seeds,atol,rng,tree_depth,
    search_depth,true,reset)
 end
 

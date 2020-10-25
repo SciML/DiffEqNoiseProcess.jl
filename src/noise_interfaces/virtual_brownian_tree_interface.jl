@@ -282,32 +282,34 @@ function search_VBT!(out1,out2,t,seed,t0,t1,W0,W1,Z0,Z1,W::VirtualBrownianTree,r
   q = 1//2
 
   # create a buffer
-  W0tmp, W1tmp = copy(W0), copy(W1)
+  copyto!(W.W0tmp,W0)
+  copyto!(W.W1tmp,W1)
   if Z0 != nothing
-    Z0tmp, Z1tmp = copy(Z0), copy(Z1)
+    copyto!(W.Z0tmp,Z0)
+    copyto!(W.Z1tmp,Z1)
   end
 
-  W.bridge(out1,W.dW,nothing,W0tmp,W1tmp,q,h,nothing,nothing,nothing,rng)
+  W.bridge(out1,W.dW,nothing,W.W0tmp,W.W1tmp,q,h,nothing,nothing,nothing,rng)
 
   if Z0 != nothing
-    W.bridge(out2,W.dW,nothing,Z0tmp,Z1tmp,q,h,nothing,nothing,nothing,rng)
+    W.bridge(out2,W.dW,nothing,W.Z0tmp,W.Z1tmp,q,h,nothing,nothing,nothing,rng)
   end
 
   while (abs(t-tmid) > W.atol && depth<W.search_depth)
     depth += 1
     if t < tmid
       t1 = tmid
-      W1tmp .= out1
+      copyto!(W.W1tmp,out1)
       seed_v = seed_l
       if Z0 != nothing
-        Z1tmp .= out2
+        copyto!(W.Z1tmp,out2)
       end
     else
       t0 = tmid
-      W0tmp .= out1
+      copyto!(W.W0tmp,out1)
       seed_v = seed_r
       if Z0 != nothing
-        Z0tmp .= out2
+        copyto!(W.Z0tmp,out2)
       end
     end
 
@@ -315,9 +317,9 @@ function search_VBT!(out1,out2,t,seed,t0,t1,W0,W1,Z0,Z1,W::VirtualBrownianTree,r
     tmid = (t0 + t1) / 2
     h = t1-t0
 
-    W.bridge(out1,W.dW,nothing,W0tmp,W1tmp,q,h,nothing,nothing,nothing,rng)
+    W.bridge(out1,W.dW,nothing,W.W0tmp,W.W1tmp,q,h,nothing,nothing,nothing,rng)
     if Z0 != nothing
-      W.bridge(out2,W.dW,nothing,Z0tmp,Z1tmp,q,h,nothing,nothing,nothing,rng)
+      W.bridge(out2,W.dW,nothing,W.Z0tmp,W.Z1tmp,q,h,nothing,nothing,nothing,rng)
     end
   end
 
