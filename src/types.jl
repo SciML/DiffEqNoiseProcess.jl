@@ -324,3 +324,105 @@ end
 (W::NoiseApproximation)(t) = interpolate!(W,t)
 (W::NoiseApproximation)(u,p,t) = interpolate!(W,t)
 (W::NoiseApproximation)(out1,out2,u,p,t) = interpolate!(out1,out2,W,t)
+
+
+mutable struct VirtualBrownianTree{T,N,F,F2,Tt,T2,T3,T2tmp,T3tmp,seedType,tolType,RNGType,inplace} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
+  dist::F
+  bridge::F2
+  t::Vector{Tt} # tstart::Tt to tend::Tt
+  u::Vector{T2}
+  W::Vector{T2}
+  Z::Vector{T3}
+  curt::Tt
+  curW::T2
+  curZ::T3
+  dt::Tt
+  dW::T2
+  dZ::T3
+  W0tmp::T2tmp
+  W1tmp::T2tmp
+  Z0tmp::T3tmp
+  Z1tmp::T3tmp
+  seeds::Vector{seedType}
+  atol::tolType
+  rng::RNGType
+  tree_depth::Int
+  search_depth::Int
+  step_setup::Bool
+  reset::Bool
+end
+
+function VirtualBrownianTree{iip}(t0,W0,Z0,dist,bridge;
+                      tend=nothing,Wend=nothing,Zend=nothing,
+                      atol=1e-10,tree_depth::Int=4,
+                      search_depth=nothing,
+                      rng = RandomNumbers.Random123.Threefry4x(),
+                      reset=true) where iip
+
+  if search_depth==nothing
+    if atol<1e-10
+      search_depth = 50 # maximum search depth
+    else
+      search_depth = floor(Int,(-log2(atol)+2))
+    end
+  end
+
+  (tree_depth >= search_depth) && error("search depth of the VBT must be greater than the depth of the cached tree")
+
+  curt = t0
+  dt = t0
+  curW = copy(W0)
+  dW = copy(W0)
+  if Z0==nothing
+    curZ = nothing
+    dZ = nothing
+  else
+    curZ = copy(Z0)
+    dZ = copy(Z0)
+  end
+
+  # assign final time and state
+  if tend==nothing
+    tend = t0 + one(t0)
+  end
+
+  if Wend==nothing
+     Wend = curW + dist(dW,nothing,tend-t0,nothing,nothing,nothing,rng)
+  end
+
+  if Zend==nothing && Z0!=nothing
+     Zend = curW + bridge(dZ,nothing,tend-t0,nothing,nothing,nothing,rng)
+  end
+
+  t, W, Z, seeds = create_VBT_cache(bridge,t0,W0,Z0,tend,Wend,Zend,rng,tree_depth,search_depth)
+
+  if iip
+    W0tmp, W1tmp = copy(W0), copy(Wend)
+    if Z0!=nothing
+      Z0tmp,Z1tmp = copy(Z0), copy(Zend)
+    else
+      Z0tmp,Z1tmp = nothing, nothing
+    end
+  else
+    W0tmp,W1tmp,Z0tmp,Z1tmp = nothing,nothing,nothing,nothing
+  end
+
+  VirtualBrownianTree{
+   typeof(W0),ndims(W0),
+   typeof(dist),typeof(bridge),typeof(curt),typeof(curW),typeof(curZ),
+   typeof(W0tmp),typeof(Z0tmp),typeof(seeds[1]),typeof(atol),typeof(rng),
+   iip}(dist,bridge,t,W,W,Z,curt,curW,curZ,dt,dW,dZ,W0tmp,W1tmp,Z0tmp,Z1tmp,seeds,atol,rng,tree_depth,
+   search_depth,true,reset)
+end
+
+(W::VirtualBrownianTree)(t) = interpolate!(W,nothing, nothing, t)
+(W::VirtualBrownianTree)(u,p,t) = interpolate!(W,u,p,t)
+(W::VirtualBrownianTree)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t)
+
+function VirtualBrownianTree(t0,W0,Z0=nothing,dist=WHITE_NOISE_DIST,bridge=VBT_BRIDGE;kwargs...)
+  VirtualBrownianTree{false}(t0,W0,Z0,dist,bridge;kwargs...)
+end
+
+function VirtualBrownianTree!(t0,W0,Z0=nothing,dist=INPLACE_WHITE_NOISE_DIST,bridge=INPLACE_VBT_BRIDGE;kwargs...)
+  VirtualBrownianTree{true}(t0,W0,Z0,dist,bridge;kwargs...)
+end

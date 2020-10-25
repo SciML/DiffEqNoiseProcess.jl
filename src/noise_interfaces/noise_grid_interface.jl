@@ -118,7 +118,7 @@ function accept_step!(W::NoiseGrid,dt,u,p,setup_next=true)
     if sign(W.dt)*(W.curt + W.dt) > sign(W.dt)*(W.t[end]+sign(W.dt)*10eps(typeof(dt)))
       setup_next = false
       W.step_setup = false
-    end  
+    end
   end
 
   if setup_next

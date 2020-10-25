@@ -35,6 +35,14 @@ function WHITE_NOISE_BRIDGE(dW,W,W0,Wh,q,h,u,p,t,rng)
   end
 end
 
+function VBT_BRIDGE(dW,W,W0,Wh,q,h,u,p,t,rng)
+  if typeof(dW) <: AbstractArray
+    return @fastmath sqrt((1-q)*q*abs(h))*wiener_randn(rng,dW)+q*(Wh+W0)
+  else
+    return @fastmath sqrt((1-q)*q*abs(h))*wiener_randn(rng,typeof(dW))+q*(Wh+W0)
+  end
+end
+
 WienerProcess(t0,W0,Z0=nothing;kwargs...) = NoiseProcess{false}(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE;kwargs...)
 SimpleWienerProcess(t0,W0,Z0=nothing;kwargs...) = SimpleNoiseProcess{false}(t0,W0,Z0,WHITE_NOISE_DIST,WHITE_NOISE_BRIDGE;kwargs...)
 
@@ -48,6 +56,13 @@ function INPLACE_WHITE_NOISE_BRIDGE(rand_vec,W,W0,Wh,q,h,u,p,t,rng)
   #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
   sqrtcoeff = @fastmath sqrt((1-q)*q*abs(h))
   @.. rand_vec = sqrtcoeff*rand_vec+q*Wh
+end
+
+function INPLACE_VBT_BRIDGE(rand_vec,W,W0,Wh,q,h,u,p,t,rng)
+  wiener_randn!(rng,rand_vec)
+  #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
+  sqrtcoeff = @fastmath sqrt((1-q)*q*abs(h))
+  @.. rand_vec = sqrtcoeff*rand_vec+q*(W0+Wh)
 end
 WienerProcess!(t0,W0,Z0=nothing;kwargs...) = NoiseProcess{true}(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE;kwargs...)
 SimpleWienerProcess!(t0,W0,Z0=nothing;kwargs...) = SimpleNoiseProcess{true}(t0,W0,Z0,INPLACE_WHITE_NOISE_DIST,INPLACE_WHITE_NOISE_BRIDGE;kwargs...)
