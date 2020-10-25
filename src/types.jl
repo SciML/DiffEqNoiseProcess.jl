@@ -419,10 +419,10 @@ end
 (W::VirtualBrownianTree)(u,p,t) = interpolate!(W,u,p,t)
 (W::VirtualBrownianTree)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t)
 
-function VirtualBrownianTree(t0,W0,Z0=nothing,dist=WHITE_NOISE_DIST,bridge=WHITE_NOISE_BRIDGE;kwargs...)
+function VirtualBrownianTree(t0,W0,Z0=nothing,dist=WHITE_NOISE_DIST,bridge=VBT_BRIDGE;kwargs...)
   VirtualBrownianTree{false}(t0,W0,Z0,dist,bridge;kwargs...)
 end
 
-function VirtualBrownianTree!(t0,W0,Z0=nothing,dist=INPLACE_WHITE_NOISE_DIST,bridge=INPLACE_WHITE_NOISE_BRIDGE;kwargs...)
+function VirtualBrownianTree!(t0,W0,Z0=nothing,dist=INPLACE_WHITE_NOISE_DIST,bridge=INPLACE_VBT_BRIDGE;kwargs...)
   VirtualBrownianTree{true}(t0,W0,Z0,dist,bridge;kwargs...)
 end

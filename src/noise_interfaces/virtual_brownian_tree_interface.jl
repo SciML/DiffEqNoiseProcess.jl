@@ -166,7 +166,10 @@ function create_VBT_cache(bridge,t0,W0,Z0,tend,Wend,Zend,rng::Random123.Abstract
 
   seeds = [convert(typeof(rng.ctr1), rng.ctr1+(Nt+1)/2)]
 
+  q = 1//2
+
   for level in 1:Int(tree_depth)
+
     new_ts = Vector{typeof(t0)}(undef, 0)
     new_Ws = Vector{typeof(W0)}(undef, 0)
     if Z0 != nothing
@@ -180,22 +183,22 @@ function create_VBT_cache(bridge,t0,W0,Z0,tend,Wend,Zend,rng::Random123.Abstract
       append!(new_seeds,[seed_l, seed_r])
 
       t0, t1 = ts[i], ts[i+1]
-      W0, W1 = Ws[i], Ws[i+1]
+      W0tmp, W1tmp = Ws[i], Ws[i+1]
       t = (t0 + t1) / 2
 
       h = t1-t0
-      q = (t-t0)/h # == 1//2
+      #q = (t-t0)/h # == 1//2 defined above
 
-      w = bridge(dW,nothing,W0,W1,q,h,nothing,nothing,nothing,rng)
+      w = bridge(dW,nothing,W0tmp,W1tmp,q,h,nothing,nothing,nothing,rng)
       if Z0 != nothing
-        Z0, Z1 = Zs[i], Zs[i+1]
-        z = bridge(dW,nothing,Z0,Z1,q,h,nothing,nothing,nothing,rng)
+        Z0tmp, Z1tmp = Zs[i], Zs[i+1]
+        z = bridge(dW,nothing,Z0tmp,Z1tmp,q,h,nothing,nothing,nothing,rng)
         append!(new_Zs,Z0)
         append!(new_Zs,z)
       end
 
       append!(new_ts,[t0,t])
-      append!(new_Ws,[W0,w])
+      append!(new_Ws,[W0tmp,w])
     end
     push!(new_ts,tend)
     push!(new_Ws,Wend)
