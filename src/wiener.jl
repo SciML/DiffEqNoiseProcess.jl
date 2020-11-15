@@ -3,6 +3,9 @@ const one_over_sqrt2 = 1/sqrt(2)
 @inline function wiener_randn(rng::AbstractRNG,proto::Array{T}) where T
   randn(rng,size(proto))
 end
+@inline function wiener_randn(rng::AbstractRNG,proto::T) where {T <: SArray}
+  randn(rng,T)
+end
 @inline function wiener_randn(rng::AbstractRNG,proto)
   convert(typeof(proto),randn(rng,size(proto)))
 end
