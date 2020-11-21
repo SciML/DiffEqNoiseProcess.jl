@@ -13,5 +13,8 @@ function __init__()
         @inline function DiffEqNoiseProcess.wiener_randn(rng::Random.AbstractRNG,proto::ReverseDiff.TrackedArray)
           ReverseDiff.track(convert.(eltype(proto.value),randn(rng,size(proto))))
         end
+        @inline function DiffEqNoiseProcess.wiener_randn(rng::Random.AbstractRNG,proto::AbstractArray{<:TrackedReal})
+          ReverseDiff.track.(randn.(rng,eltype(DiffEqBase.value.(proto))))
+        end
     end
 end
