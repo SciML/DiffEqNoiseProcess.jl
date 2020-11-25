@@ -1,7 +1,6 @@
 function construct_correlated_noisefunc(Γ)
   γ = svd(Γ)
   A = γ.U*Diagonal(sqrt.(γ.S))
-  b = Vector{eltype(Γ)}(undef,size(Γ,1))
   dist = function (W,dt,rng)
     if typeof(W.dW) <: AbstractArray
       return A*sqrt.(abs(dt))*wiener_randn(rng,size(W.dW))
