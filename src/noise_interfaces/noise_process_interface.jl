@@ -193,7 +193,7 @@ end
 
 @inline function reject_step!(W::NoiseProcess,dtnew,u,p)
   q = dtnew/W.dt
-  if adaptive_alg(W)==:RSwM1 || adaptive_alg(W)==:RSwM2
+  if adaptive_alg(W)==:RSwM1 || adaptive_alg(W)==:RSwM2 || (adaptive_alg(W)==:RSwM3 && isempty(W.S₂))
     if isinplace(W)
       W.bridge(W.dWtilde,W,0,W.dW,q,dtnew,u,p,W.curt,W.rng)
       if W.Z != nothing
@@ -216,6 +216,19 @@ end
     if length(W.S₁) > W.maxstacksize
         W.maxstacksize = length(W.S₁)
     end
+    if adaptive_alg(W)==:RSwM3
+      cutLength = dtnew
+      if cutLength > W.rswm.discard_length
+        if W.Z == nothing
+            push!(W.S₂,(cutLength,W.dWtilde,nothing))
+        else
+            push!(W.S₂,(cutLength,W.dWtilde,W.dZtilde))
+        end
+      end
+      if length(W.S₂) > W.maxstacksize2
+        W.maxstacksize = length(W.S₂)
+      end
+    end
     if isinplace(W)
       copyto!(W.dW,W.dWtilde)
       if W.Z!=nothing
@@ -227,8 +240,7 @@ end
         W.dZ = W.dZtilde
       end
     end
-    W.dt = dtnew
-  else # RSwM3
+  else # RSwM3 and W.S₂ not empty
     if !isinplace(W)
       dttmp = zero(W.dt); W.dWtmp = zero(W.dW)
       if W.Z != nothing
@@ -245,76 +257,72 @@ end
     end
     while !isempty(W.S₂)
       L₁,L₂,L₃ = pop!(W.S₂)
-      if dttmp + L₁ < (1-q)*W.dt #while the backwards movement is less than chop off
-        dttmp += L₁
-        if isinplace(W)
-          @.. W.dWtmp += L₂
-          if W.Z != nothing
-            @.. W.dZtmp += L₃
-          end
-        else
-          W.dWtmp += L₂
-          if W.Z != nothing
-            W.dZtmp += L₃
-          end
+      dttmp += L₁
+      if isinplace(W)
+        @.. W.dWtmp += L₂
+        if W.Z != nothing
+          @.. W.dZtmp += L₃
         end
+      else
+        W.dWtmp += L₂
+        if W.Z != nothing
+          W.dZtmp += L₃
+        end
+      end
+      if dttmp < (1-q)*W.dt #while the backwards movement is less than chop off
         push!(W.S₁,(L₁,L₂,L₃))
       else
-        push!(W.S₂,(L₁,L₂,L₃))
+        dtM = (q-1)*W.dt + dttmp
+        qM = dtM/L₁
+        if isinplace(W)
+          W.bridge(W.dWtilde,W,0,L₂,qM,dtM,u,p,W.curt,W.rng)
+          if W.Z != nothing
+            W.bridge(W.dZtilde,W,0,L₃,qM,dtM,u,p,W.curt,W.rng)
+          end
+        else
+          W.dWtilde = W.bridge(W.dW,W,0,L₂,qM,dtM,u,p,W.curt,W.rng)
+          if W.Z != nothing
+            W.dZtilde = W.bridge(W.dZ,W,0,L₃,qM,dtM,u,p,W.curt,W.rng)
+          end
+        end
+        cutLength = L₁-dtM
+        if cutLength > W.rswm.discard_length
+          if W.Z == nothing
+            push!(W.S₁,(cutLength,L₂-W.dWtilde,nothing))
+          else
+            push!(W.S₁,(cutLength,L₂-W.dWtilde,L₃-W.dZtilde))
+          end
+        end
+        if length(W.S₁) > W.maxstacksize
+          W.maxstacksize = length(W.S₁)
+        end
+        cutLength = dtM
+        if cutLength > W.rswm.discard_length
+          if W.Z == nothing
+            push!(W.S₂,(cutLength,W.dWtilde,nothing))
+          else
+            push!(W.S₂,(cutLength,W.dWtilde,W.dZtilde))
+          end
+        end
+        if length(W.S₂) > W.maxstacksize2
+          W.maxstacksize = length(W.S₂)
+        end
         break
       end
     end # end while
-    dtK = W.dt - dttmp
-    qK = q*W.dt/dtK
     if isinplace(W)
-      @.. W.dWtmp = W.dW - W.dWtmp
+      @.. W.dW += W.dWtilde - W.dWtmp
       if W.Z != nothing
-        @.. W.dZtmp = W.dZ - W.dZtmp
+        @.. W.dZ += W.dZtilde - W.dZtmp
       end
     else
-      W.dWtmp = W.dW - W.dWtmp
+      W.dW += W.dWtilde - W.dWtmp
       if W.Z != nothing
-        W.dZtmp = W.dZ - W.dZtmp
-      end
-    end
-    if isinplace(W)
-      W.bridge(W.dWtilde,W,0,W.dWtmp,qK,dtK,u,p,W.curt,W.rng)
-      #W.dWtilde .-= W.curW
-      if W.Z != nothing
-        W.bridge(W.dZtilde,W,0,W.dZtmp,qK,dtK,u,p,W.curt,W.rng)
-        #W.dZtilde .-= W.curZ
-      end
-    else
-      W.dWtilde = W.bridge(W.dW,W,0,W.dWtmp,qK,dtK,u,p,W.curt,W.rng)# - W.curW
-      if W.Z != nothing
-        W.dZtilde = W.bridge(W.dZ,W,0,W.dZtmp,qK,dtK,u,p,W.curt,W.rng)# - W.curZ
-      end
-    end
-    # This is a control variable so do not diff through it
-    cutLength = DiffEqBase.ODE_DEFAULT_NORM((1-qK)*dtK,W.curt)
-    if cutLength > W.rswm.discard_length
-      if W.Z == nothing
-        push!(W.S₁,(cutLength,W.dWtmp-W.dWtilde,nothing))
-      else
-        push!(W.S₁,(cutLength,W.dWtmp-W.dWtilde,W.dZtmp-W.dZtilde))
-      end
-    end
-    if length(W.S₁) > W.maxstacksize
-        W.maxstacksize = length(W.S₁)
-    end
-    W.dt = dtnew
-    if isinplace(W)
-      copyto!(W.dW,W.dWtilde)
-      if W.Z != nothing
-        copyto!(W.dZ,W.dZtilde)
-      end
-    else
-      W.dW = W.dWtilde
-      if W.Z != nothing
-        W.dZ = W.dZtilde
+        W.dZ += W.dZtilde - W.dZtmp
       end
     end
   end
+  W.dt = dtnew
   return nothing
 end
 
