@@ -272,7 +272,7 @@ end
       if dttmp < (1-q)*W.dt #while the backwards movement is less than chop off
         push!(W.S₁,(L₁,L₂,L₃))
       else
-        dtM = (q-1)*W.dt + dttmp + L₁
+        dtM = (q-1)*W.dt + dttmp
         qM = dtM/L₁
         if isinplace(W)
           W.bridge(W.dWtilde,W,0,L₂,qM,dtM,u,p,W.curt,W.rng)
