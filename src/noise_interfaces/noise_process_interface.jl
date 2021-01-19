@@ -193,7 +193,7 @@ end
 
 @inline function reject_step!(W::NoiseProcess,dtnew,u,p)
   q = dtnew/W.dt
-  if adaptive_alg(W)==:RSwM1 || adaptive_alg(W)==:RSwM2
+  if adaptive_alg(W)==:RSwM1 || adaptive_alg(W)==:RSwM2 || (adaptive_alg(W)==:RSwM3 && isempty(W.S₂))
     if isinplace(W)
       W.bridge(W.dWtilde,W,0,W.dW,q,dtnew,u,p,W.curt,W.rng)
       if W.Z != nothing
@@ -216,6 +216,19 @@ end
     if length(W.S₁) > W.maxstacksize
         W.maxstacksize = length(W.S₁)
     end
+    if adaptive_alg(W)==:RSwM3
+      cutLength = dtnew
+      if cutLength > W.rswm.discard_length
+        if W.Z == nothing
+            push!(W.S₂,(cutLength,W.dWtilde,nothing))
+        else
+            push!(W.S₂,(cutLength,W.dWtilde,W.dZtilde))
+        end
+      end
+      if length(W.S₂) > W.maxstacksize2
+        W.maxstacksize = length(W.S₂)
+      end
+    end
     if isinplace(W)
       copyto!(W.dW,W.dWtilde)
       if W.Z!=nothing
@@ -227,8 +240,7 @@ end
         W.dZ = W.dZtilde
       end
     end
-    W.dt = dtnew
-  else # RSwM3
+  else # RSwM3 and W.S₂ not empty
     if !isinplace(W)
       dttmp = zero(W.dt); W.dWtmp = zero(W.dW)
       if W.Z != nothing
@@ -273,8 +285,7 @@ end
             W.dZtilde = W.bridge(W.dZ,W,0,L₃,qM,dtM,u,p,W.curt,W.rng)
           end
         end
-        # This is a control variable so do not diff through it
-        cutLength = DiffEqBase.ODE_DEFAULT_NORM((1-qM)*dtM,W.curt)
+        cutLength = L₁-dtM
         if cutLength > W.rswm.discard_length
           if W.Z == nothing
             push!(W.S₁,(cutLength,L₂-W.dWtilde,nothing))
@@ -285,7 +296,7 @@ end
         if length(W.S₁) > W.maxstacksize
           W.maxstacksize = length(W.S₁)
         end
-        cutLength = DiffEqBase.ODE_DEFAULT_NORM(qM*dtM,W.curt)
+        cutLength = dtM
         if cutLength > W.rswm.discard_length
           if W.Z == nothing
             push!(W.S₂,(cutLength,W.dWtilde,nothing))
@@ -294,7 +305,7 @@ end
           end
         end
         if length(W.S₂) > W.maxstacksize2
-            W.maxstacksize = length(W.S₂)
+          W.maxstacksize = length(W.S₂)
         end
         break
       end
@@ -310,8 +321,8 @@ end
         W.dZ += W.dZtilde - W.dZtmp
       end
     end
-    W.dt = dtnew
   end
+  W.dt = dtnew
   return nothing
 end
 
