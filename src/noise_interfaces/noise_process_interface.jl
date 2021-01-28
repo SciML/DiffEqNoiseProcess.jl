@@ -275,14 +275,14 @@ end
         dtM = (q-1)*W.dt + dttmp
         qM = dtM/L₁
         if isinplace(W)
-          W.bridge(W.dWtilde,W,0,L₂,qM,dtM,u,p,W.curt,W.rng)
+          W.bridge(W.dWtilde,W,0,L₂,qM,L₁,u,p,W.curt,W.rng)
           if W.Z != nothing
-            W.bridge(W.dZtilde,W,0,L₃,qM,dtM,u,p,W.curt,W.rng)
+            W.bridge(W.dZtilde,W,0,L₃,qM,L₁,u,p,W.curt,W.rng)
           end
         else
-          W.dWtilde = W.bridge(W.dW,W,0,L₂,qM,dtM,u,p,W.curt,W.rng)
+          W.dWtilde = W.bridge(W.dW,W,0,L₂,qM,L₁,u,p,W.curt,W.rng)
           if W.Z != nothing
-            W.dZtilde = W.bridge(W.dZ,W,0,L₃,qM,dtM,u,p,W.curt,W.rng)
+            W.dZtilde = W.bridge(W.dZ,W,0,L₃,qM,L₁,u,p,W.curt,W.rng)
           end
         end
         cutLength = L₁-dtM
