@@ -1,11 +1,11 @@
 function construct_correlated_noisefunc(Γ)
   γ = svd(Γ)
   A = γ.U*Diagonal(sqrt.(γ.S))
-  dist = function (W,dt,rng)
-    if typeof(W.dW) <: AbstractArray
-      return A*sqrt.(abs(dt))*wiener_randn(rng,size(W.dW))
+  dist = function (dW,W,dt,u,p,t,rng)
+    if typeof(dW) <: AbstractArray
+      return A*sqrt.(abs(dt))*wiener_randn(rng,dW)
     else
-      return A*sqrt.(abs(dt))*wiener_randn(rng,typeof(W.dW))
+      return A*sqrt.(abs(dt))*wiener_randn(rng,typeof(dW))
     end
   end
   bridge = function (W,W0,Wh,q,h,u,p,t,rng)
@@ -13,7 +13,7 @@ function construct_correlated_noisefunc(Γ)
   end
   dist,bridge
 end
-CorrelatedWienerProcess(Γ,t0,W0,Z0=nothing;rng = Xorshifts.Xoroshiro128Plus(rand(UInt64))) = NoiseProcess(t0,W0,Z0,construct_correlated_noisefunc(Γ)...,rswm=RSWM(),rng=rng)
+CorrelatedWienerProcess(Γ,t0,W0,Z0=nothing;rng = Xorshifts.Xoroshiro128Plus(rand(UInt64))) = NoiseProcess{false}(t0,W0,Z0,construct_correlated_noisefunc(Γ)...,rswm=RSWM(),rng=rng)
 
 function construct_correlated_noisefunc!(Γ)
   γ = svd(Γ)
@@ -30,5 +30,5 @@ function construct_correlated_noisefunc!(Γ)
   dist,bridge
 end
 CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;rng = Xorshifts.Xoroshiro128Plus(rand(UInt64))) =
-                         NoiseProcess(t0,W0,Z0,construct_correlated_noisefunc!(Γ)...,
+                         NoiseProcess{true}(t0,W0,Z0,construct_correlated_noisefunc!(Γ)...,
                          rswm=RSWM(),rng = rng)
