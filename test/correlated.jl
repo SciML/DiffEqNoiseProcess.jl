@@ -1,6 +1,7 @@
+using StaticArrays
 @testset "Correlated Wiener Process" begin
 
-using DiffEqNoiseProcess, DiffEqBase, Test, Statistics, StaticArrays
+using DiffEqNoiseProcess, DiffEqBase, Test, Statistics
 
 # oop
 ρ = 0.3
@@ -30,7 +31,7 @@ sol = solve(prob;dt=0.01)
 
 output_func = (sol,i) -> (sol.dW,false)
 ensemble_prob = EnsembleProblem(prob,output_func=output_func)
-@time sol = Array(solve(ensemble_prob,dt=dt,trajectories=100_000))
+@time sol = Array(solve(ensemble_prob,dt=dt,trajectories=1_000_000))
 
 @test zero(mean(sol,dims=2)[:]) ≈ mean(sol,dims=2)[:] atol=1e-2
 @test Γ ≈ cov(sol,dims=2)/dt rtol=1e-2
