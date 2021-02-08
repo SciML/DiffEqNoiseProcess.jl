@@ -169,8 +169,8 @@ end
     accept_step!(W2,dt,nothing,nothing)
   end
 
-  @test isapprox(_W.W[2:end], reverse(W1.W), atol=1e-16)
-  @test isapprox(_W.W[2:end], reverse(W2.W), atol=1e-16)
+  @test isapprox(_W.W[2:end], reverse(W1.W), atol=1e-12)
+  @test isapprox(_W.W[2:end], reverse(W2.W), atol=1e-12)
 
   # Noise Grid
   dt = 0.001
@@ -189,8 +189,8 @@ end
   prob = NoiseProblem(W2,(1.0,0.0))
   sol2 = solve(prob;dt=-dt)
 
-  @test isapprox(sol.W, reverse(sol1.W), atol=1e-16)
-  @test isapprox(sol.W, reverse(sol2.W), atol=1e-16)
+  @test isapprox(sol.W, reverse(sol1.W), atol=1e-12)
+  @test isapprox(sol.W, reverse(sol2.W), atol=1e-12)
 
 end
 

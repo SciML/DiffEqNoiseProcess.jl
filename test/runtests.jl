@@ -5,6 +5,7 @@ using Test
   include("RSwM1_test.jl")
   include("RSwM2_test.jl")
   include("RSwM3_test.jl")
+  include("correlated.jl")
   include("noise_wrapper.jl")
   include("noise_function.jl")
   include("VBT_test.jl")
