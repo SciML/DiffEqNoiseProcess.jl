@@ -7,7 +7,9 @@ version = "5.5.2"
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 PoissonRandom = "e409e4f3-bfea-5376-8464-e040bb5c01ab"
+QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Random123 = "74087812-796a-5b5d-8853-05524746bad3"
 RandomNumbers = "e6cf234a-135c-5ec9-84dd-332b85af5143"
@@ -32,6 +34,7 @@ StaticArrays = "0.10, 0.11, 0.12, 1.0"
 julia = "1.3"
 
 [extras]
+Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
 DiffEqProblemLibrary = "a077e3f3-b75c-5d7f-a0c6-6bc4c8ec64a9"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 HypothesisTests = "09f84164-cd44-5f33-b23f-e6b0d136a0d5"
@@ -41,4 +44,4 @@ StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "DiffEqProblemLibrary", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests"]
+test = ["Test", "DiffEqProblemLibrary", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature"]

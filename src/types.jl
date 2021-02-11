@@ -426,3 +426,138 @@ end
 function VirtualBrownianTree!(t0,W0,Z0=nothing,dist=INPLACE_WHITE_NOISE_DIST,bridge=INPLACE_VBT_BRIDGE;kwargs...)
   VirtualBrownianTree{true}(t0,W0,Z0,dist,bridge;kwargs...)
 end
+
+
+mutable struct BoxWedgeTail{T,N,Tt,T2,T3,ZType,F,F2,inplace,RNGType,tolType,
+  spacingType,jpdfType,boxType,wedgeType,tailType,distBWTType} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
+  dist::F
+  bridge::F2
+  t::Vector{Tt}
+  u::Vector{T2} # Aliased pointer to W for the AbstractVectorOfArray interface
+  W::Vector{T2}
+  Z::ZType
+  curt::Tt
+  curW::T2
+  curZ::T3
+  dt::Tt
+  dW::T2
+  dZ::T3
+  dWtilde::T2
+  dZtilde::T3
+  dWtmp::T2
+  dZtmp::T3
+  save_everystep::Bool
+  iter::Int
+  rng::RNGType
+  reset::Bool
+  reseed::Bool
+  rtol::tolType
+  Δr::spacingType
+  Δa::spacingType
+  Δz::spacingType
+  rM::spacingType
+  aM::spacingType
+  jpdf::jpdfType
+  boxes::boxType
+  wedges::wedgeType
+  sqeezing::Bool
+  tails::tailType
+  distBWT::distBWTType
+end
+
+function BoxWedgeTail{iip}(t0,W0,Z0,dist,bridge;
+                      rtol=1e-8,nr=4,na=4,nz=10,
+                      box_grouping = :MinEntropy,
+                      sqeezing = true,
+                      save_everystep=true,
+                      rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+                      reset=true, reseed=true) where iip
+
+  if Z0===nothing
+    Z = nothing
+    curZ = nothing
+    dZ = nothing
+    dZtilde = nothing
+    dZtmp = nothing
+  else
+    Z = [copy(Z0)]
+    curZ = copy(Z0)
+    dZ = copy(Z0)
+    dZtilde = copy(Z0)
+    dZtmp = copy(Z0)
+  end
+  W = [copy(W0)]
+  N = length((size(W0)..., length(W)))
+
+  N!=2 && error("The BoxWedgeTail algorithms can only be used for 2d Brownian processes.")
+
+  jpdf = (r,a) -> joint_density_function(r,a,rtol)
+
+  # grid in a
+  aM = 4*one(eltype(W0))
+  Δa = convert(typeof(aM), 2)^(-na)
+
+  # grid in r
+  rM = 4*one(eltype(W0))
+  Δr = convert(typeof(rM), 2)^(-nr)
+
+  # smallest z value
+  Δz = convert(typeof(rM), 2)^(-nz)
+
+  # generate boxes
+  if box_grouping == :MinEntropy
+    box, probability, offset = generate_boxes2(jpdf, Δr, Δa, Δz, one(Δr), one(Δa), one(Δz)/64, rM, aM)
+    dist_box = Distributions.Categorical(probability/sum(probability))
+    boxes = BoxGeneration2{typeof(box),typeof(probability),typeof(offset),
+       typeof(dist_box)}(box, probability, offset, dist_box)
+  elseif box_grouping == :Columns
+    box, probability, offset = generate_boxes1(jpdf, Δr, Δa, Δz, rM, aM)
+    val1 = sum(probability)
+    dist_box = Distributions.Categorical(probability/val1)
+    boxes = BoxGeneration1{typeof(box),typeof(probability),typeof(offset),
+       typeof(dist_box)}(box, probability, offset, dist_box)
+  elseif box_grouping == :none
+    box, probability, offset = generate_boxes3(jpdf, Δr, Δa, Δz, rM, aM)
+    val1 = sum(probability)
+    dist_box = Distributions.Categorical(probability/val1)
+    boxes = BoxGeneration3{typeof(box),typeof(probability),typeof(offset),
+       typeof(dist_box)}(box, probability, offset, dist_box)
+  else
+    error("Available options for box grouping are :MinEntropy, :Columns, and :none.")
+  end
+
+  # generate wedges
+  box, probability, offset = generate_wedges(jpdf, Δr, Δa, Δz, rM, aM, offset, sqeezing)
+  dist_box = Distributions.Categorical(probability/sum(probability))
+  wedges = Wedges{typeof(box),typeof(probability),typeof(offset),
+     typeof(dist_box)}(box, probability, offset, dist_box)
+
+  # set up tail approximation
+  tails = TailApproxs(rM, aM)
+
+  # distribution to decide if sample should be drawn from boxes, wedges or tail
+  if nr==4 && na==4 && nz==10
+    distBWT = Distributions.Categorical([0.9118576049804688,0.08546645498798722,0.002675940031544033])
+  else
+    error("Cubature not implemented but needed for a different discretization. Please report this error.")
+  end
+
+  BoxWedgeTail{eltype(eltype(W0)),N,typeof(t0),typeof(W0),typeof(dZ),typeof(Z),
+                typeof(dist),typeof(bridge),iip,typeof(rng),typeof(Δr),typeof(rtol),
+                typeof(jpdf),typeof(boxes),typeof(wedges),typeof(tails),typeof(distBWT)}(
+                dist,bridge,[t0],W,W,Z,t0,
+                copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
+                save_everystep,0,rng,reset,reseed,rtol,Δr,Δa,Δz,rM,aM,jpdf,boxes,wedges,sqeezing,tails,distBWT)
+end
+
+(W::BoxWedgeTail)(t) = interpolate!(W,nothing, nothing, t)
+(W::BoxWedgeTail)(u,p,t) = interpolate!(W,u,p,t)
+(W::BoxWedgeTail)(out1,out2,u,p,t) = interpolate!(out1,out2,W,u,p,t)
+
+function BoxWedgeTail(t0,W0,Z0=nothing,dist=WHITE_NOISE_DIST,bridge=WHITE_NOISE_BRIDGE;kwargs...)
+  BoxWedgeTail{false}(t0,W0,Z0,dist,bridge;kwargs...)
+end
+
+function BoxWedgeTail!(t0,W0,Z0=nothing,dist=INPLACE_WHITE_NOISE_DIST,bridge=INPLACE_WHITE_NOISE_BRIDGE;kwargs...)
+  BoxWedgeTail{true}(t0,W0,Z0,dist,bridge;kwargs...)
+end

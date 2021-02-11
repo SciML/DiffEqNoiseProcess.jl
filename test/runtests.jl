@@ -22,4 +22,5 @@ using Test
   include("two_processes.jl")
   include("extraction_test.jl")
   include("restart_test.jl")
+  include("BWT_test.jl")
 end
