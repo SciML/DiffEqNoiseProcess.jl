@@ -13,6 +13,8 @@ import DiffEqBase: isinplace, solve, AbstractNoiseProcess,
 
 import PoissonRandom, Distributions
 
+import QuadGK, Optim
+
 using DiffEqBase: @..
 
 include("init.jl")
@@ -31,6 +33,7 @@ include("noise_interfaces/virtual_brownian_tree_interface.jl")
 include("noise_interfaces/noise_grid_interface.jl")
 include("noise_interfaces/noise_approximation_interface.jl")
 include("noise_interfaces/noise_wrapper_interface.jl")
+include("noise_interfaces/box_wedge_tail_interface.jl")
 include("noise_interfaces/common.jl")
 include("correlated_noisefunc.jl")
 
@@ -57,6 +60,8 @@ export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!
 export NoiseWrapper, NoiseFunction, NoiseGrid, NoiseApproximation
 
 export VirtualBrownianTree, VirtualBrownianTree!
+
+export BoxWedgeTail, BoxWedgeTail!
 
 export accept_step!, reject_step!, calculate_step!, setup_next_step!, save_noise!
 
