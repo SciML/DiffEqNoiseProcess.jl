@@ -1,4 +1,4 @@
-#@testset "BoxWedgeTail tests" begin
+@testset "BoxWedgeTail tests" begin
 
 using DiffEqNoiseProcess, Test, Random
 import Distributions
@@ -246,4 +246,4 @@ end
 prob = NoiseProblem(W,(0.0,1.0));
 sol = solve(prob;dt=0.1)
 
-#end
+end
