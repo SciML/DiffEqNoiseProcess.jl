@@ -51,7 +51,7 @@ end
 
 @inline function calculate_step!(W::BoxWedgeTail,dt,u,p)
   if isinplace(W)
-    sample_distribution(W.dW,W.curA,W,dt,u,p,W.curt,W.rng)
+    sample_distribution(W.dW,W,dt,u,p,W.curt,W.rng)
     if W.Z != nothing
       W.dist(W.dZ,W,dt,u,p,W.curt,W.rng)
     end
@@ -73,14 +73,14 @@ end
   if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
     dt = t - W.t[end]
     if isinplace(W)
-      sample_distribution(W.dW,W.curA,W,dt,u,p,t,W.rng)
+      sample_distribution(W.dW,W,dt,u,p,t,W.rng)
       W.curW .+= W.dW
       if W.Z != nothing
         W.dist(W.dZ,W,dt,u,p,t,W.rng)
         W.curZ .+= W.dZ
       end
     else
-      W.dW = sample_distribution(W.curA,W,dt,u,p,t,W.rng)
+      W.dW, W.curA = sample_distribution(W,dt,u,p,t,W.rng)
       W.curW += W.dW
       if W.Z != nothing
         W.dZ = W.dist(W,dt,u,p,t,W.rng)
@@ -185,7 +185,7 @@ end
 @inline function interpolate!(out1,out2,W::BoxWedgeTail,u,p,t)
   if sign(W.dt)*t > sign(W.dt)*W.t[end] # Steps past W
     dt = t - W.t[end]
-    sample_distribution(W.dW,W.curA,W,dt,u,p,t,W.rng)
+    sample_distribution(W.dW,W,dt,u,p,t,W.rng)
     out1 .+= W.dW
     if W.Z != nothing
       W.dist(W.dZ,W,dt,u,p,t,W.rng)
@@ -293,11 +293,7 @@ function generate_boxes1(densf, Δr, Δa, Δz, rM, aM, offset=nothing, scale=1)
       z -= Δz
       # store position of top corner of box and width
       if counter != 0
-        if offset !== nothing
-          push!(boxes, [r, a, z, offset[indx1,indx2]])
-        else
-          push!(boxes, [r, a, z, zero(z)])
-        end
+        push!(boxes, [r, a, Δr, Δa])
         push!(probability, counter*2*Δr*Δa*Δz)
       end
 
@@ -357,7 +353,7 @@ function generate_boxes3(densf, Δr, Δa, Δz, rM, aM, offset=nothing, scale=1)
       # check for complete inclusion of box in volume
       while (z <= densf(r,a) && z <= densf(r+Δr,a) && z <= densf(r,a+Δa) && z <= densf(r+Δr,a+Δa))
         # store position of top corner of box and width
-        push!(boxes, [r, a, z, z-Δz])
+        push!(boxes, [r, a, Δr, Δa])
         # probability = 2*Δr*Δa*Δz for all small boxes, push!(probability, 1)
         push!(probability, 2*Δr*Δa*Δz)
 
@@ -384,9 +380,9 @@ end
 # sampling from boxes
 function sample_box(W::BoxWedgeTail, Boxes::AbstractBoxGeneration)
   indx = rand(W.rng, Boxes.dist)
-  # boxes store r, a, z, offset[indx1,indx2]
-  ri, ai, _, _ = Boxes.boxes[indx]
-  DU = Distributions.Product(Distributions.Uniform.([ri,ai],[ri+W.Δr,ai+W.Δa]))
+  # boxes store r, a, Δr, Δa 
+  ri, ai, Δr, Δa = Boxes.boxes[indx]
+  DU = Distributions.Product(Distributions.Uniform.([ri,ai],[ri+Δr,ai+Δa]))
 
   r, a = rand(W.rng, DU)
   return r,a
@@ -453,7 +449,7 @@ function generate_wedges(densf, Δr, Δa, Δz, rM, aM, offset, sqeezing)
 end
 
 
-# sampling from wedges (TODO inplace)
+# sampling from wedges
 function sample_wedge(W::BoxWedgeTail, wedges::Wedges)
   indx = rand(W.rng, wedges.dist)
   # wedges store f̃ij, hij, ϵijmin, ϵijmax, r, a, Δr
@@ -708,21 +704,21 @@ end
 function sample_tail(W::BoxWedgeTail, tails::TailApproxs)
   indx = rand(W.rng, tails.dist)
   # decide from which tail region to sample
-  if index == 1
+  if indx == 1
     T = tails.tail1
-  elseif index == 2
+  elseif indx == 2
     T = tails.tail2
-  elseif index == 3
+  elseif indx == 3
     T = tails.tail3
-  elseif index == 4
+  elseif indx == 4
     T = tails.tail4
-  elseif index == 5
+  elseif indx == 5
     T = tails.tail5
-  elseif index == 6
+  elseif indx == 6
     T = tails.tail6
-  elseif index == 7
+  elseif indx == 7
     T = tails.tail7
-  elseif index == 8
+  elseif indx == 8
     T = tails.tail8
   else
     T = tails.tail9
@@ -768,26 +764,50 @@ function sample_tail(rng, densf, T)
 end
 
 
-function sample_distribution(dW,curA,W::BoxWedgeTail,dt,u,p,t,rng)
+function sample_distribution(dW,W::BoxWedgeTail,dt,u,p,t,rng)
   # decide if sample should come from boxes, wedges, or tails
+  indx = rand(rng, W.distBWT)
 
-  # get (r,a) pair
+  # draw (r,a) pair
+  if indx == 1
+    r, a = DiffEqNoiseProcess.sample_box(W, W.boxes)
+  elseif indx == 2
+    r, a = DiffEqNoiseProcess.sample_wedge(W, W.wedges)
+  else
+    r, a = DiffEqNoiseProcess.sample_tail(W, W.tails)
+  end
 
-  # get dWs from r
+  # get dWs from r and scale by sqrt(dt)
+  θ = rand(rng, W.distΠ)
+  sqabsdt = @fastmath sqrt(abs(dt))
+  @. dW = sqabsdt*r*[cos(θ), sin(θ)]
 
-  # scale by dt
+  # random sign for A and scale by dt
+  W.curA = rand(rng, (-1, 1))*a*dt
 
   return nothing
 end
 
 function sample_distribution(W::BoxWedgeTail,dt,u,p,t,rng)
   # decide if sample should come from boxes, wedges, or tails
+  indx = rand(rng, W.distBWT)
 
-  # get (r,a) pair
+  # draw (r,a) pair
+  if indx == 1
+    r, a = DiffEqNoiseProcess.sample_box(W, W.boxes)
+  elseif indx == 2
+    r, a = DiffEqNoiseProcess.sample_wedge(W, W.wedges)
+  else
+    r, a = DiffEqNoiseProcess.sample_tail(W, W.tails)
+  end
 
-  # get dWs from r
+  # get dWs from r and scale by sqrt(dt)
+  θ = rand(rng, W.distΠ)
+  sqabsdt = @fastmath sqrt(abs(dt))
+  dW = sqabsdt*r*[cos(θ), sin(θ)]
 
-  # scale by dt
+  # random sign for A and scale by dt
+  A = rand(rng, (-1, 1))*a*dt
 
   return dW, A
 end

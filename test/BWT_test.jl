@@ -4,6 +4,7 @@ using DiffEqNoiseProcess, Test, Random
 import Distributions
 using Cubature
 using Statistics
+using DiffEqBase
 
 # Test generation of boxes
 W = BoxWedgeTail(0.0,zeros(2), box_grouping = :Columns)
@@ -88,76 +89,161 @@ val9, _ = hcubature(x->W.jpdf(x[1],x[2]), [2*one(W.rM),8*one(W.aM)], [5*one(W.rM
 # test remainder
 @test 1.0-(2*(val+val1+val2+val3+val4+val5+val6+val7+val8+val9)) ≈ 3.81e-7 atol=1e-3
 
+@test W.distBWT.p[1] ≈ 0.911857 rtol=1e-5
+@test W.distBWT.p[2] ≈ 0.0855 rtol=1e-3
+@test W.distBWT.p[3] ≈ 0.0027 rtol=1e-2
 # tests if sampling works (samples from expected domain)
 
 # boxes
-samples = [DiffEqNoiseProcess.sample_box(W, W.boxes) for i=1:100_000]
+#W = BoxWedgeTail(0.0,zeros(2), box_grouping = :MinEntropy)
+samples = [DiffEqNoiseProcess.sample_box(W, W.boxes) for i=1:1000]
 @test minimum(getindex.(samples, 1)) > 0
 @test minimum(getindex.(samples, 2)) > 0
 @test maximum(getindex.(samples, 1)) < W.rM
 @test maximum(getindex.(samples, 2)) < W.aM
+
+# using KernelDensity, StatsPlots, Plots
+# r = getindex.(samples,1)
+# a = getindex.(samples,2)
+# BKDE = kde((r, a), boundary=((0,4),(0,4)))
+# @test one(eltype(r)) ≈ sum(BKDE.density)*BKDE.x[2]*BKDE.y[2] rtol=1e-3
+# pl1 = heatmap(BKDE)
+# pl2 = marginalhist(r, a, fc = :plasma,  xlabel="r",  ylabel="a", bins=(64,64))
+# pl3 = plot(0:W.Δr:4,0:W.Δa:4,W.jpdf,st =:contourf, xlabel="r", ylabel="a", title="f(r,a)")
+# pl = plot(pl1, pl2, pl3, layout = (1, 3), legend = false, size=(800,250))
+# savefig(pl, "boxes.png")
 
 # wedges
-samples = [DiffEqNoiseProcess.sample_wedge(W, W.wedges) for i=1:100_000]
+samples = [DiffEqNoiseProcess.sample_wedge(W, W.wedges) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 0
 @test minimum(getindex.(samples, 2)) > 0
 @test maximum(getindex.(samples, 1)) < W.rM
 @test maximum(getindex.(samples, 2)) < W.aM
 
+# r = getindex.(samples,1)
+# a = getindex.(samples,2)
+# BKDE = kde((r, a), boundary=((0,4),(0,4)))
+# @test one(eltype(r)) ≈ sum(BKDE.density)*BKDE.x[2]*BKDE.y[2] rtol=1e-3
+# pl1 = heatmap(BKDE)
+# pl2 = marginalhist(r, a, fc = :plasma,  xlabel="r",  ylabel="a", bins=(64,64))
+# pl3 = plot(0:W.Δr:4,0:W.Δa:4,W.jpdf,st =:contourf, xlabel="r", ylabel="a", title="f(r,a)")
+# pl = plot(pl1, pl2, pl3, layout = (1, 3), legend = false, size=(800,250))
+# savefig(pl, "wedges.png")
+
 # tails
-samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail1) for i=1:100_000]
+# samples = [DiffEqNoiseProcess.sample_tail(W, W.tails) for i=1:100_000]
+# r = getindex.(samples,1)
+# a = getindex.(samples,2)
+# BKDE = kde((r, a), boundary=((0,12),(0,10)))
+# @test one(eltype(r)) ≈ sum(BKDE.density)*BKDE.x[2]*BKDE.y[2] rtol=1e-3
+# pl1 = heatmap(BKDE)
+# pl2 = marginalhist(r, a, fc = :plasma,  xlabel="r",  ylabel="a", bins=(64,64))
+# pl3 = plot(0:W.Δr:12,0:W.Δa:10,W.jpdf,st =:contourf, xlabel="r", ylabel="a", title="f(r,a)")
+# pl = plot(pl1, pl2, pl3, layout = (1, 3), legend = false, size=(800,250))
+# savefig(pl, "tails.png")
+
+
+samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail1) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 4
 @test minimum(getindex.(samples, 2)) > 0
 @test maximum(getindex.(samples, 1)) < 12
 @test maximum(getindex.(samples, 2)) < 4
 
-samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail2) for i=1:100_000]
+samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail2) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 4
 @test minimum(getindex.(samples, 2)) > 4
 @test maximum(getindex.(samples, 1)) < 8
 @test maximum(getindex.(samples, 2)) < 8
 
-samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail3) for i=1:100_000]
+samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail3) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 2
 @test minimum(getindex.(samples, 2)) > 4
 @test maximum(getindex.(samples, 1)) < 4
 @test maximum(getindex.(samples, 2)) < 8
 
-samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail4) for i=1:100_000]
+samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail4) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 0
 @test minimum(getindex.(samples, 2)) > 4
 @test maximum(getindex.(samples, 1)) < 0.5
 @test maximum(getindex.(samples, 2)) < 6
 
-samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail5) for i=1:100_000]
+samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail5) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 0.5
 @test minimum(getindex.(samples, 2)) > 4
 @test maximum(getindex.(samples, 1)) < 1
 @test maximum(getindex.(samples, 2)) < 6
 
-samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail6) for i=1:100_000]
+samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail6) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 1
 @test minimum(getindex.(samples, 2)) > 4
 @test maximum(getindex.(samples, 1)) < 1.5
 @test maximum(getindex.(samples, 2)) < 6
 
-samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail7) for i=1:100_000]
+samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail7) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 1.5
 @test minimum(getindex.(samples, 2)) > 4
 @test maximum(getindex.(samples, 1)) < 2
 @test maximum(getindex.(samples, 2)) < 6
 
-samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail8) for i=1:100_000]
+samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail8) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 1
 @test minimum(getindex.(samples, 2)) > 6
 @test maximum(getindex.(samples, 1)) < 2
 @test maximum(getindex.(samples, 2)) < 8
 
-samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail9) for i=1:100_000]
+samples = [DiffEqNoiseProcess.sample_tail(W.rng, W.jpdf, W.tails.tail9) for i=1:1_000]
 @test minimum(getindex.(samples, 1)) > 2
 @test minimum(getindex.(samples, 2)) > 8
 @test maximum(getindex.(samples, 1)) < 5
 @test maximum(getindex.(samples, 2)) < 10
 
+# compare samples with pdf and check some statistics
+
+samples = [DiffEqNoiseProcess.sample_distribution(W,one(W.dt),nothing,nothing,nothing,W.rng) for i=1:100_000]
+
+dW1 = getindex.(getindex.(samples,1),1)
+dW2 = getindex.(getindex.(samples,1),2)
+r = sqrt.(dW1.^2 + dW2.^2)
+a = abs.(getindex.(getindex.(samples,2),1))
+
+@test mean(dW1) ≈ zero(eltype(r)) atol=1e-2
+@test mean(dW2) ≈ zero(eltype(r)) atol=1e-2
+
+@test var(dW1) ≈ one(eltype(r)) rtol=1e-1
+@test var(dW2) ≈ one(eltype(r)) rtol=1e-1
+
+# BKDE = kde((r, a), boundary=((0,6),(0,6)))
+# @test one(eltype(r)) ≈ sum(BKDE.density)*BKDE.x[2]*BKDE.y[2] rtol=1e-3
+# pl1 = heatmap(BKDE)
+# pl2 = marginalhist(r, a, fc = :plasma,  xlabel="r",  ylabel="a", bins=(64,64))
+# pl3 = plot(0:0.1:6,0:0.1:6,W.jpdf,st =:contourf, xlabel="r", ylabel="a", title="f(r,a)")
+# pl = plot(pl1, pl2, pl3, layout = (1, 3), legend = false, size=(800,250))
+
+
+
+# simulate oop noise problem
+
+dt = 0.1
+calculate_step!(W,dt,nothing,nothing)
+
+for i in 1:10
+  accept_step!(W,dt,nothing,nothing)
+end
+
+prob = NoiseProblem(W,(0.0,1.0));
+sol = solve(prob;dt=0.1)
+
+# simulate iip noise problem
+W = BoxWedgeTail!(0.0,zeros(2))
+
+dt = 0.1
+calculate_step!(W,dt,nothing,nothing)
+
+for i in 1:10
+  accept_step!(W,dt,nothing,nothing)
+end
+
+prob = NoiseProblem(W,(0.0,1.0));
+sol = solve(prob;dt=0.1)
 
 #end

@@ -428,15 +428,17 @@ function VirtualBrownianTree!(t0,W0,Z0=nothing,dist=INPLACE_WHITE_NOISE_DIST,bri
 end
 
 
-mutable struct BoxWedgeTail{T,N,Tt,T2,T3,ZType,F,F2,inplace,RNGType,tolType,
-  spacingType,jpdfType,boxType,wedgeType,tailType,distBWTType} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
+mutable struct BoxWedgeTail{T,N,Tt,TA,T2,T3,ZType,F,F2,inplace,RNGType,tolType,
+  spacingType,jpdfType,boxType,wedgeType,tailType,distBWTType,distΠType} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
   dist::F
   bridge::F2
   t::Vector{Tt}
+  A::Vector{TA}
   u::Vector{T2} # Aliased pointer to W for the AbstractVectorOfArray interface
   W::Vector{T2}
   Z::ZType
   curt::Tt
+  curA::TA
   curW::T2
   curZ::T3
   dt::Tt
@@ -463,6 +465,7 @@ mutable struct BoxWedgeTail{T,N,Tt,T2,T3,ZType,F,F2,inplace,RNGType,tolType,
   sqeezing::Bool
   tails::tailType
   distBWT::distBWTType
+  distΠ::distΠType
 end
 
 function BoxWedgeTail{iip}(t0,W0,Z0,dist,bridge;
@@ -487,6 +490,7 @@ function BoxWedgeTail{iip}(t0,W0,Z0,dist,bridge;
     dZtmp = copy(Z0)
   end
   W = [copy(W0)]
+  A0 = zero(eltype(W0))
   N = length((size(W0)..., length(W)))
 
   N!=2 && error("The BoxWedgeTail algorithms can only be used for 2d Brownian processes.")
@@ -542,12 +546,17 @@ function BoxWedgeTail{iip}(t0,W0,Z0,dist,bridge;
     error("Cubature not implemented but needed for a different discretization. Please report this error.")
   end
 
-  BoxWedgeTail{eltype(eltype(W0)),N,typeof(t0),typeof(W0),typeof(dZ),typeof(Z),
+  # distribution between 0 and 2pi to convert r to dWs
+  distΠ = Distributions.Uniform(zero(rM), convert(typeof(rM),2*pi))
+
+  BoxWedgeTail{eltype(eltype(W0)),N,typeof(t0),typeof(A0),typeof(W0),typeof(dZ),typeof(Z),
                 typeof(dist),typeof(bridge),iip,typeof(rng),typeof(Δr),typeof(rtol),
-                typeof(jpdf),typeof(boxes),typeof(wedges),typeof(tails),typeof(distBWT)}(
-                dist,bridge,[t0],W,W,Z,t0,
+                typeof(jpdf),typeof(boxes),typeof(wedges),typeof(tails),
+                typeof(distBWT),typeof(distΠ)}(
+                dist,bridge,[t0],[A0],W,W,Z,t0,A0,
                 copy(W0),curZ,t0,copy(W0),dZ,copy(W0),dZtilde,copy(W0),dZtmp,
-                save_everystep,0,rng,reset,reseed,rtol,Δr,Δa,Δz,rM,aM,jpdf,boxes,wedges,sqeezing,tails,distBWT)
+                save_everystep,0,rng,reset,reseed,rtol,Δr,Δa,Δz,rM,aM,jpdf,boxes,wedges,
+                sqeezing,tails,distBWT,distΠ)
 end
 
 (W::BoxWedgeTail)(t) = interpolate!(W,nothing, nothing, t)
