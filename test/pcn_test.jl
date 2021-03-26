@@ -6,7 +6,7 @@ using DiffEqBase
 using DiffEqBase.EnsembleAnalysis
 
 ##
-# Tests with
+# Tests of pCN
 ##
 
 W = WienerProcess(0.0,0.0,0.0)
@@ -21,7 +21,8 @@ end
 _W = deepcopy(W)
 
 # test with ρ=1
-W2 = pCN(_W, 1.0)
+W2 = pCN!(_W, 1.0)
+W2a = pCN(W, 1.0)
 WWrapper = NoiseWrapper(_W)
 
 
@@ -30,6 +31,8 @@ WWrapper = NoiseWrapper(_W)
 @test W2.source.Z == WWrapper.source.Z
 @test W2.source.W == W.W
 @test W2.source.Z == W.Z
+@test W2.source.W == W2a.source.W
+@test W2.source.Z == W2a.source.Z
 
 # multi dimensional
 W = WienerProcess(0.0,zeros(4),zeros(4))
@@ -43,7 +46,8 @@ end
 
 _W = deepcopy(W)
 
-W2 = pCN(_W, 1.0)
+W2 = pCN!(_W, 1.0)
+W2a = pCN(W, 1.0)
 WWrapper = NoiseWrapper(_W)
 
 # test source
@@ -53,14 +57,21 @@ WWrapper = NoiseWrapper(_W)
 @test W2.source.Z == _W.Z
 @test W2.source.W == W.W
 @test W2.source.Z == W.Z
+@test W2.source.W == W2a.source.W
+@test W2.source.Z == W2a.source.Z
 
 
 # test ρ!=0 and ρ!=1
-W3 = pCN(_W, 0.2)
+_W = deepcopy(W)
+W3 = pCN!(_W, 0.2)
+W3a = pCN(W, 0.2)
 
 # test source
+
 @test W3.source.W != W.W
 @test W3.source.Z == W.Z # no action on auxilary process
+@test W3.source.W == W3a.source.W
+@test W3.source.Z == W3a.source.Z
 
 # inplace
 W = WienerProcess!(0.0,zeros(4),zeros(4))
@@ -75,12 +86,15 @@ end
 _W = deepcopy(W)
 
 # test with ρ=0
-W2 = pCN(_W, 0.0)
+W2 = pCN!(_W, 0.0)
+W2a = pCN(W, 0.0)
 WWrapper = NoiseWrapper(_W)
 
 # test source
 @test W2.source.W != W.W
 @test W2.source.Z == W.Z
+@test W2.source.W == W2a.source.W
+@test W2.source.Z == W2a.source.Z
 
 # statistics test
 W = WienerProcess(0.0,0.0,0.0)
@@ -89,7 +103,7 @@ sol = solve(prob,dt=0.1)
 
 function prob_func(prob,i,repeat)
   _sol = deepcopy(sol)
-  Wtmp = pCN(_sol,1.0)
+  Wtmp = pCN!(_sol,1.0)
   remake(prob, noise=Wtmp)
 end
 
@@ -104,10 +118,24 @@ for i in 1:11
   @test ≈(timestep_meanvar(sim,i)[2],zero(sol.W[i]),atol=1e-2)
 end
 
+# ρ = 0.5 test
+ρ = 0.5
+W = WienerProcess(0.0,0.0,0.0)
+prob = NoiseProblem(W,(0.0,1000.0))
+sol = solve(prob,dt=0.001)
 
-# using Plots
-# m_series = [timestep_mean(sim,i)  for i in 1:11]
-# plot(m_series)
-# plot!(sol.W)
+prob2 = NoiseProblem(pCN(sol, ρ),(0.0,1000.0))
+sol2 = solve(prob2,dt=0.001)
+
+computedW(sim, indx) = (sim.u[indx+1]-sim.u[indx])/sqrt(sim.t[indx+1]-sim.t[indx])
+dWnew = []
+dWold = []
+for i in 1:length(sol.t[1:end-1])
+  push!(dWnew,computedW(sol,i,step(qs)))
+  push!(dWold,computedW(sol2,i,step(qs)))
+end
+@show cor(dWnew,dWold)
+
+@test ≈(cor(dWnew,dWold),ρ,atol=1e-2)
 
 end

@@ -68,6 +68,6 @@ export accept_step!, reject_step!, calculate_step!, setup_next_step!, save_noise
 
 export CorrelatedWienerProcess, CorrelatedWienerProcess!
 
-export pCN
+export pCN, pCN!
 
 end # module
