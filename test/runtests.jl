@@ -23,4 +23,5 @@ using Test
   include("extraction_test.jl")
   include("restart_test.jl")
   include("BWT_test.jl")
+  include("pcn_test.jl")
 end
