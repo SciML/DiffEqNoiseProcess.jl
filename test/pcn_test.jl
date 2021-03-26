@@ -131,8 +131,8 @@ computedW(sim, indx) = (sim.u[indx+1]-sim.u[indx])/sqrt(sim.t[indx+1]-sim.t[indx
 dWnew = []
 dWold = []
 for i in 1:length(sol.t[1:end-1])
-  push!(dWnew,computedW(sol,i,step(qs)))
-  push!(dWold,computedW(sol2,i,step(qs)))
+  push!(dWnew,computedW(sol,i))
+  push!(dWold,computedW(sol2,i))
 end
 @show cor(dWnew,dWold)
 
