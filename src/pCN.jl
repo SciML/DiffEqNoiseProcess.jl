@@ -1,4 +1,9 @@
 # Preconditioned Crank–Nicolson algorithm tools
+"""
+    pCN(noise::AbstractNoiseProcess, ρ; reset=true,reverse=false,indx=nothing)
+
+Create a new, but correlated noise process from `noise` and additional entropy with correlation ρ.
+"""
 function pCN(source::AbstractNoiseProcess{T,N,Vector{T2},inplace}, ρ;
               reset=true,reverse=false,indx=nothing) where {T,N,T2,inplace}
 
