@@ -36,6 +36,7 @@ include("noise_interfaces/noise_wrapper_interface.jl")
 include("noise_interfaces/box_wedge_tail_interface.jl")
 include("noise_interfaces/common.jl")
 include("correlated_noisefunc.jl")
+include("pCN.jl")
 
 export RSWM
 
@@ -66,5 +67,7 @@ export BoxWedgeTail, BoxWedgeTail!
 export accept_step!, reject_step!, calculate_step!, setup_next_step!, save_noise!
 
 export CorrelatedWienerProcess, CorrelatedWienerProcess!
+
+export pCN, pCN!
 
 end # module
