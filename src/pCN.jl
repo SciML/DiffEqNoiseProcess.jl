@@ -3,6 +3,10 @@
     pCN!(noise::AbstractNoiseProcess, ρ; reset=true,reverse=false,indx=nothing)
 
 Create a new, but correlated noise process from `noise` and additional entropy with correlation ρ.
+This update defines an autoregressive process in the space of Wiener (or noise process) trajectories which can be used as proposal distribution in Metropolis-Hastings algorithms (often called "preconditioned Crank–Nicolson scheme".)
+
+External links
+ * [Preconditioned Crank–Nicolson algorithm on Wikipedia](https://en.wikipedia.org/wiki/Preconditioned_Crank–Nicolson_algorithm)
 """
 function pCN!(source::AbstractNoiseProcess{T,N,Vector{T2},inplace}, ρ;
               reset=true,reverse=false,indx=nothing) where {T,N,T2,inplace}
