@@ -50,15 +50,23 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess,dt;
   W.curt = t0
   W.dt = dt
   if typeof(W) <: NoiseGrid
+    if t0 == W.t[1]
+      idx = 1
+    else
+      tdir = sign(W.t[2]-W.t[1])
+      @inbounds idx = searchsortedfirst(W.t,t0-tdir*10eps(typeof(t0)),rev=tdir<0)
+      (tdir<0) && (idx-=one(idx))
+    end
+
     if isinplace(W)
-      W.curW .= W.W[1]
+      W.curW .= W.W[idx]
       if W.Z != nothing
-        W.curZ .= W.Z[1]
+        W.curZ .= W.Z[idx]
       end
     else
-      W.curW = W.W[1]
+      W.curW = W.W[idx]
       if W.Z != nothing
-        W.curZ = W.Z[1]
+        W.curZ = W.Z[idx]
       end
     end
     W.step_setup = true

@@ -46,7 +46,7 @@ end
 function interpolate!(out1,out2,W::NoiseGrid,t)
   ts,timeseries,timeseries2 = W.t,W.W,W.Z
   sign(W.dt)*t > sign(W.dt)*(ts[end]+10*sign(W.dt)*eps(typeof(t))) && error("Solution interpolation cannot extrapolate past the final timepoint. Build a longer NoiseGrid to cover the integration.")
-  sign(W.dt)*t < sign(W.dt)*(ts[1]+10*sign(W.dt)*eps(typeof(t))) && error("Solution interpolation cannot extrapolate before the first timepoint. Build a longer NoiseGrid to cover the integration.")
+  sign(W.dt)*t < sign(W.dt)*(ts[1]-10*sign(W.dt)*eps(typeof(t))) && error("Solution interpolation cannot extrapolate before the first timepoint. Build a longer NoiseGrid to cover the integration.")
   tdir = sign(ts[end]-ts[1])
 
 
