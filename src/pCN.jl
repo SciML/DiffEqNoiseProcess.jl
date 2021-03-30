@@ -22,7 +22,7 @@ function pCN!(source::AbstractNoiseProcess{T,N,Vector{T2},inplace}, ρ;
   end
 
   source.W = ρ * source.W + sqrt(one(ρ)-ρ^2) * Wnew
-  source.W = ρ * source.u + sqrt(one(ρ)-ρ^2) * Wnew
+  source.u = ρ * source.u + sqrt(one(ρ)-ρ^2) * Wnew
   NoiseWrapper(source,reset=reset,reverse=reverse,indx=indx)
 end
 
@@ -48,6 +48,6 @@ function pCN(source::AbstractNoiseProcess{T,N,Vector{T2},inplace}, ρ;
   end
 
   source′.W = ρ * source′.W + sqrt(one(ρ)-ρ^2) * Wnew
-  source′.W = ρ * source′.u + sqrt(one(ρ)-ρ^2) * Wnew
+  source′.u = ρ * source′.u + sqrt(one(ρ)-ρ^2) * Wnew
   NoiseWrapper(source′,reset=reset,reverse=reverse,indx=indx)
 end
