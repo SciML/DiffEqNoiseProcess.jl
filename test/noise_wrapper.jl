@@ -239,19 +239,16 @@ end
 
   @test length(checkWrapper.u) != length(sol.u)
 
-  @test checkWrapper.u[end-1] ≈ sol.u[end-1] rtol=1e-13
-  @test checkWrapper.u[end] ≈ sol.u[end] rtol=1e-13
-  @test checkWrapper.W.W[end] ≈ sol.W.W[end] rtol=1e-16
-  @test checkWrapper(sol.t[indx1:end]).u ≈ sol.u[indx1:end]  rtol=1e-14
-
+  @test checkWrapper.u[end-1] ≈ sol.u[end-1] rtol=1e-10
+  @test checkWrapper.u[end] ≈ sol.u[end] rtol=1e-10
+  @test checkWrapper.W.W[end] ≈ sol.W.W[end] rtol=1e-10
+  @test checkWrapper(sol.t[indx1:end]).u ≈ sol.u[indx1:end]  rtol=1e-10
 
   # pl1 = using Plots; plot(checkWrapper.t[2:end]-checkWrapper.t[1:end-1], label="sol.t")
   # pl2 = plot(checkWrapper.W.t[2:end]-checkWrapper.W.t[1:end-1], label="sol.W.t")
   # pl3 = plot(vcat(checkWrapper.u[2:end]-checkWrapper.u[1:end-1]...), label="sol.u")
   # pl4 = plot(checkWrapper.W.t[2:end], vcat(checkWrapper.W[2:end]-checkWrapper.W[1:end-1]...), label="sol.W")
   # plot!(_sol.t[indx1+1:end], vcat(_sol.W.W[indx1+1:end]-_sol.W.W[indx1:end-1]...), label="sol.W")
-
-
 
   _sol = deepcopy(soloop)
   sol.W.save_everystep = false
@@ -264,8 +261,8 @@ end
 
   @test length(checkWrapper.u) != length(soloop.u)
 
-  @test checkWrapper.u[end-1] ≈ soloop.u[end-1] rtol=1e-13
-  @test checkWrapper.u[end] ≈ soloop.u[end] rtol=1e-13
-  @test checkWrapper.W.W[end] ≈ soloop.W.W[end] rtol=1e-16
-  @test checkWrapper(soloop.t[indx1:end]).u ≈ soloop.u[indx1:end]  rtol=1e-14
+  @test checkWrapper.u[end-1] ≈ soloop.u[end-1] rtol=1e-10
+  @test checkWrapper.u[end] ≈ soloop.u[end] rtol=1e-10
+  @test checkWrapper.W.W[end] ≈ soloop.W.W[end] rtol=1e-10
+  @test checkWrapper(soloop.t[indx1:end]).u ≈ soloop.u[indx1:end]  rtol=1e-10
 end
