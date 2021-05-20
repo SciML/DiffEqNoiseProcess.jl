@@ -171,17 +171,20 @@ end
 
   @test isapprox(_W.W[2:end], reverse(W1.W), atol=1e-12)
   @test isapprox(_W.W[2:end], reverse(W2.W), atol=1e-12)
+  @test isapprox(_W.Z[2:end], reverse(W1.Z), atol=1e-12)
+  @test isapprox(_W.Z[2:end], reverse(W2.Z), atol=1e-12)
 
   # Noise Grid
   dt = 0.001
   t = 0:dt:1
   brownian_values = cumsum([0;[sqrt(dt)*randn() for i in 1:length(t)-1]])
-  _W = NoiseGrid(t,brownian_values)
+  brownian_values2 = cumsum([0;[sqrt(dt)*randn() for i in 1:length(t)-1]])
+  _W = NoiseGrid(t,brownian_values,brownian_values2)
 
   prob = NoiseProblem(_W,(0.0,1.0))
   sol = solve(prob;dt=dt)
 
-  W1 = NoiseGrid(reverse(sol.t),reverse(sol.W))
+  W1 = NoiseGrid(reverse(sol.t),reverse(sol.W),reverse(sol.Z))
   prob = NoiseProblem(W1,(1.0,0.0))
   sol1 = solve(prob;dt=-dt)
 
@@ -191,7 +194,8 @@ end
 
   @test isapprox(sol.W, reverse(sol1.W), atol=1e-12)
   @test isapprox(sol.W, reverse(sol2.W), atol=1e-12)
-
+  @test isapprox(sol.Z, reverse(sol1.Z), atol=1e-12)
+  @test isapprox(sol.Z, reverse(sol2.Z), atol=1e-12)
 end
 
 
@@ -367,4 +371,115 @@ Some more Ito reversals
   # using Plots; plt = plot(sol)
   # plot!(reverse(sol1.t),reverse(sol1[1,:]))
   # plot(vcat(sol.u - reverse(sol1.u) ...))
+end
+
+
+@testset "SDE Ito additive noise Reversal Tests" begin
+  using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems
+  importsdeproblems()
+  using DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_additive, prob_sde_additivesystem
+  Random.seed!(100)
+  dt = 1e-3
+
+  @testset "OOP 1D" begin
+    # OOP 1D
+    prob = prob_sde_additive
+
+    # non-adaptive
+
+    ### SOSRA2
+    sol = solve(prob,SOSRA2(),dt=dt,save_noise=true, adaptive=false)
+    W1 = reverse(sol.W)
+
+    prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
+    sol1 = solve(prob1,SOSRA2(),dt=dt, adaptive=false)
+
+    @test sol.u ≈ reverse(sol1.u) rtol=1e-4
+    @test sol.t ≈ reverse(sol1.t) rtol=1e-4
+
+    ### SOSRI
+    sol = solve(prob,SOSRI(),dt=dt,save_noise=true, adaptive=false)
+    W1 = reverse(sol.W)
+
+    prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
+    sol1 = solve(prob1,SOSRI(),dt=dt, adaptive=false)
+
+    @test sol.u ≈ reverse(sol1.u) rtol=1e-4
+    @test sol.t ≈ reverse(sol1.t) rtol=1e-4
+
+    # adaptive
+
+    ### SOSRA2
+    sol = solve(prob,SOSRA2(),dt=dt,save_noise=true, adaptive=true)
+    W1 = reverse(sol.W)
+
+    prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
+    sol1 = solve(prob1,SOSRA2(),dt=dt, adaptive=true)
+
+    ts = prob.tspan[1]:0.1:prob.tspan[2]
+    @test sol(ts) ≈ sol1(ts) rtol=1e-3
+    @test length(sol.t) != length(sol1.t)
+
+    ### SOSRI
+    sol = solve(prob,SOSRI(),dt=dt,save_noise=true, adaptive=true)
+    W1 = reverse(sol.W)
+
+    prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
+    sol1 = solve(prob1,SOSRI(),dt=dt, adaptive=true)
+
+    ts = prob.tspan[1]:0.1:prob.tspan[2]
+    @test sol(ts) ≈ sol1(ts) rtol=1e-3
+    @test length(sol.t) != length(sol1.t)
+  end
+
+  @testset "iip 4D" begin
+    # iip 4D
+    prob = prob_sde_additivesystem
+
+    # non-adaptive
+
+    ### SOSRA2
+    sol = solve(prob,SOSRA2(),dt=dt,save_noise=true, adaptive=false)
+    W1 = reverse(sol.W)
+
+    prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
+    sol1 = solve(prob1,SOSRA2(),dt=dt, adaptive=false)
+
+    @test sol.u ≈ reverse(sol1.u) rtol=1e-4
+    @test sol.t ≈ reverse(sol1.t) rtol=1e-4
+
+    ### SOSRI
+    sol = solve(prob,SOSRI(),dt=dt,save_noise=true, adaptive=false)
+    W1 = reverse(sol.W)
+
+    prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
+    sol1 = solve(prob1,SOSRI(),dt=dt, adaptive=false)
+
+    @test sol.u ≈ reverse(sol1.u) rtol=1e-4
+    @test sol.t ≈ reverse(sol1.t) rtol=1e-4
+
+    # adaptive
+
+    ### SOSRA2
+    sol = solve(prob,SOSRA2(),dt=dt,save_noise=true, adaptive=true)
+    W1 = reverse(sol.W)
+
+    prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
+    sol1 = solve(prob1,SOSRA2(),dt=dt, adaptive=true)
+
+    ts = prob.tspan[1]:0.1:prob.tspan[2]
+    @test sol(ts) ≈ sol1(ts) rtol=1e-3
+    @test length(sol.t) != length(sol1.t)
+
+    ### SOSRI
+    sol = solve(prob,SOSRI(),dt=dt,save_noise=true, adaptive=true)
+    W1 = reverse(sol.W)
+
+    prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
+    sol1 = solve(prob1,SOSRI(),dt=dt, adaptive=true)
+
+    ts = prob.tspan[1]:0.1:prob.tspan[2]
+    @test sol(ts) ≈ sol1(ts) rtol=1e-3
+    @test length(sol.t) != length(sol1.t)
+  end
 end

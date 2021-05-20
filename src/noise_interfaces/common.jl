@@ -78,7 +78,11 @@ end
 
 function Base.reverse(W::AbstractNoiseProcess)
   if typeof(W) <: NoiseGrid
-    backwardnoise = NoiseGrid(reverse(W.t),reverse(W.W))
+    if W.Z === nothing
+      backwardnoise = NoiseGrid(reverse(W.t),reverse(W.W))
+    else
+      backwardnoise = NoiseGrid(reverse(W.t),reverse(W.W),reverse(W.Z))
+    end
   else
     W.save_everystep = false
     backwardnoise = NoiseWrapper(W, reverse=true)
