@@ -521,7 +521,7 @@ end
       if reverse
         W0,Wh = W.W[i],W.W[i-1]
         if W.Z != nothing
-          Z0,Zh = W.Z[i+1],W.Z[i]
+          Z0,Zh = W.Z[i],W.Z[i-1]
         end
         h = W.t[i-1]-W.t[i]
         q = (t-W.t[i])/h
