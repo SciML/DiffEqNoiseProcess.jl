@@ -268,7 +268,7 @@ function NoiseGrid(t,W,Z=nothing;reset=true)
     curZ = copy(Z[1])
     dZ = copy(Z[1])
   end
-  (typeof(val) <: AbstractArray && !(typeof(val) <: SArray))? iip = true : iip = false
+  (typeof(val) <: AbstractArray && !(typeof(val) <: SArray)) ? iip = true : iip = false
   NoiseGrid{typeof(val),ndims(val),typeof(dt),typeof(dW),typeof(dZ),typeof(Z),iip}(
             t,W,W,Z,curt,curW,curZ,dt,dW,dZ,true,reset)
 end
