@@ -17,6 +17,7 @@ using Test
   include("compoundpoisson.jl")
   include("ornstein.jl")
   include("bridge_test.jl")
+  include("ensemble_test.jl")
   include("sde_adaptivedistribution_tests.jl")
   include("reversal_test.jl")
   include("two_processes.jl")
