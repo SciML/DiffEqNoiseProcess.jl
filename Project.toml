@@ -35,7 +35,7 @@ Requires = "0.5, 1.0"
 ResettableStacks = "0.6, 1.0"
 SciMLBase = "1"
 StaticArrays = "0.10, 0.11, 0.12, 1.0"
-julia = "1.5"
+julia = "1.6"
 
 [extras]
 Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
