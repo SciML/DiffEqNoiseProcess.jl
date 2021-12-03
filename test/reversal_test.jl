@@ -45,8 +45,8 @@ using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
   prob2 = SDEProblem(f!,g!,sol[end],reverse(tspan),noise=W2)
   sol2 = solve(prob2,EulerHeun(),dt=0.1*dt, save_noise=false)
 
-  @test sol.u ≈ sol1(tarray).u atol=1e-2
-  @test sol.u ≈ sol2(tarray).u atol=1e-2
+  @test sol.u ≈ sol1(tarray).u atol=2e-2
+  @test sol.u ≈ sol2(tarray).u atol=2e-2
 
 
   # diagonal noise
