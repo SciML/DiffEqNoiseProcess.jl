@@ -276,7 +276,7 @@ end
 
   # plot(ts,reverse(ys))
   # plot!(reverse(ts), sol2.u)
-  @test isapprox(ys,sol2.u, atol=1e-4)
+  @test isapprox(ys,sol2.u, atol=1e-3)
   @test !isapprox(sol1.u,reverse(sol2.u), atol=1e-0)
 
   bwrong(u,p,t) =  b(u,p,t) - 1//2*dσ_dx(u,p,t)*σ(u,p,t)
