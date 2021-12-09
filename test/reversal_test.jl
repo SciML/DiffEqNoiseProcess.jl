@@ -460,26 +460,29 @@ end
 
     # adaptive
 
+    abstol = 1e-5
+    reltol = 1e-8
+
     ### SOSRA2
-    sol = solve(prob,SOSRA2(),dt=dt,save_noise=true, adaptive=true)
+    sol = solve(prob,SOSRA2(),dt=dt,save_noise=true,adaptive=true,abstol=abstol,reltol=reltol)
     W1 = reverse(sol.W)
 
     prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
-    sol1 = solve(prob1,SOSRA2(),dt=dt, adaptive=true)
+    sol1 = solve(prob1,SOSRA2(),dt=dt,adaptive=true,abstol=abstol,reltol=reltol)
 
     ts = prob.tspan[1]:0.1:prob.tspan[2]
-    @test sol(ts) ≈ sol1(ts) rtol=1e-3
+    @test sol(ts) ≈ sol1(ts) rtol=1e-4
     @test length(sol.t) != length(sol1.t)
 
     ### SOSRI
-    sol = solve(prob,SOSRI(),dt=dt,save_noise=true, adaptive=true)
+    sol = solve(prob,SOSRI(),dt=dt,save_noise=true,adaptive=true,abstol=abstol,reltol=reltol)
     W1 = reverse(sol.W)
 
     prob1 = SDEProblem(prob.f,prob.g,sol[end],reverse(prob.tspan),prob.p,noise=W1)
-    sol1 = solve(prob1,SOSRI(),dt=dt, adaptive=true)
+    sol1 = solve(prob1,SOSRI(),dt=dt,adaptive=true,abstol=abstol,reltol=reltol)
 
     ts = prob.tspan[1]:0.1:prob.tspan[2]
-    @test sol(ts) ≈ sol1(ts) rtol=1e-3
+    @test sol(ts) ≈ sol1(ts) rtol=1e-4
     @test length(sol.t) != length(sol1.t)
   end
 end
