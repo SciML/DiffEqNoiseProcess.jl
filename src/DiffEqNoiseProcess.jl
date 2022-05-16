@@ -2,7 +2,7 @@ module DiffEqNoiseProcess
 
 using ResettableStacks, DiffEqBase, RecipesBase
 using RecursiveArrayTools, StaticArrays, Random, Statistics
-using LinearAlgebra, Requires
+using LinearAlgebra
 
 import RandomNumbers: Xorshifts
 
@@ -17,7 +17,6 @@ import QuadGK, Optim
 
 using DiffEqBase: @..
 
-include("init.jl")
 include("types.jl")
 include("wiener.jl")
 include("solve.jl")

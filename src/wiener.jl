@@ -10,10 +10,10 @@ end
   convert(typeof(proto),randn(rng,size(proto)))
 end
 @inline wiener_randn!(rng::AbstractRNG,rand_vec::Array) = randn!(rng,rand_vec)
-
-# TODO: This needs an overload for GPUs
-@inline wiener_randn!(rng::AbstractRNG,rand_vec) = rand_vec .= Base.Broadcast.Broadcasted(randn,())
 @inline wiener_randn(y::AbstractRNG,::Type{Complex{T}}) where T = convert(T,one_over_sqrt2)*(randn(y,T)+im*randn(y,T))
+
+# This fallback works for GPUs because it doesn't assume we can pass an RNG
+@inline wiener_randn!(rng::AbstractRNG,rand_vec) = randn!(rand_vec)
 
 @inline function wiener_randn!(y::AbstractRNG,x::AbstractArray{<:Complex{T}}) where T<:Number
   # Remove loop
