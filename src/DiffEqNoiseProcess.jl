@@ -17,7 +17,6 @@ import QuadGK, Optim
 
 using DiffEqBase: @..
 
-include("init.jl")
 include("types.jl")
 include("wiener.jl")
 include("solve.jl")
