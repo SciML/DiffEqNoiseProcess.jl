@@ -1,11 +1,12 @@
 name = "DiffEqNoiseProcess"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "5.10.0"
+version = "5.11.0"
 
 [deps]
 DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+GPUArrays = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 PoissonRandom = "e409e4f3-bfea-5376-8464-e040bb5c01ab"
@@ -23,6 +24,7 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 [compat]
 DiffEqBase = "6.11"
 Distributions = "0.22, 0.23, 0.24, 0.25"
+GPUArrays = "8"
 Optim = "1"
 PoissonRandom = "0.4"
 QuadGK = "2"

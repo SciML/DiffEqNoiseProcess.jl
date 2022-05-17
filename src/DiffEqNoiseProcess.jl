@@ -15,6 +15,8 @@ import PoissonRandom, Distributions
 
 import QuadGK, Optim
 
+import GPUArrays
+
 using DiffEqBase: @..
 
 include("types.jl")
