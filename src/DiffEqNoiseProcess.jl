@@ -17,6 +17,8 @@ import QuadGK, Optim
 
 import GPUArrays
 
+using Markdown
+
 using DiffEqBase: @..
 
 include("types.jl")

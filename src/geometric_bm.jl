@@ -37,6 +37,24 @@ function gbm_bridge!(rand_vec,gbm,W,W0,Wh,q,h,u,p,t,rng)
   @.. rand_vec = gbm.σ*sqrt((1-q)*q*abs(h))*rand_vec+q*Wh
 end
 
+"""
+A `GeometricBrownianMotion` process is a Wiener process with
+constant drift `μ` and constant diffusion `σ`. I.e. this is the solution of the
+stochastic differential equation
+
+```math
+dX_t = \mu X_t dt + \sigma X_t dW_t
+```
+
+The `GeometricBrownianMotionProcess` is distribution exact (meaning, not a numerical
+solution of the stochastic differential equation, and instead follows the exact
+distribution properties). It can be back interpolated exactly as well. The constructor is:
+
+```julia
+GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0=nothing;kwargs...)
+GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
+```
+"""
 function GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0=nothing;kwargs...)
   gbm = GeometricBrownianMotion(μ,σ)
   NoiseProcess{false}(t0,W0,Z0,gbm,(dW,W,W0,Wh,q,h,u,p,t,rng)->gbm_bridge(dW,gbm,W,W0,Wh,q,h,u,p,t,rng);kwargs...)
@@ -50,6 +68,25 @@ function (X::GeometricBrownianMotion!)(rand_vec,W,dt,u,p,t,rng) #dist!
   wiener_randn!(rng,rand_vec)
   @.. rand_vec = W[end]*(exp(X.μ-(1/2)*X.σ*dt + X.σ*sqrt(dt)*rand_vec)-1)
 end
+
+"""
+A `GeometricBrownianMotion` process is a Wiener process with
+constant drift `μ` and constant diffusion `σ`. I.e. this is the solution of the
+stochastic differential equation
+
+```math
+dX_t = \mu X_t dt + \sigma X_t dW_t
+```
+
+The `GeometricBrownianMotionProcess` is distribution exact (meaning, not a numerical
+solution of the stochastic differential equation, and instead follows the exact
+distribution properties). It can be back interpolated exactly as well. The constructor is:
+
+```julia
+GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0=nothing;kwargs...)
+GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
+```
+"""
 function GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
   gbm = GeometricBrownianMotion!(μ,σ)
   NoiseProcess{true}(t0,W0,Z0,gbm,(rand_vec,W,W0,Wh,q,h,u,p,t,rng)->gbm_bridge!(rand_vec,gbm,W,W0,Wh,q,h,u,p,t,rng);kwargs...)
