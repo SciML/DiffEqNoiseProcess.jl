@@ -17,6 +17,8 @@ CorrelatedWienerProcess
 CorrelatedWienerProcess!
 SimpleWienerProcess
 SimpleWienerProcess!
+CompoundPoissonProcess
+CompoundPoissonProcess!
 ```
 
 ## Bridges
@@ -28,3 +30,4 @@ GeometricBrownianBridge
 GeometricBrownianBridge!
 CompoundPoissonBridge
 CompoundPoissonBridge!
+```

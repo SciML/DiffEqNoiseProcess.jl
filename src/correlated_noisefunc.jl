@@ -14,7 +14,7 @@ function construct_correlated_noisefunc(Γ)
   dist,bridge
 end
 
-"""
+@doc doc"""
 One can define a `CorrelatedWienerProcess` which is a Wiener process with
 correlations between the Wiener processes. The constructor is:
 
@@ -42,7 +42,7 @@ function construct_correlated_noisefunc!(Γ)
   dist,bridge
 end
 
-"""
+@doc doc"""
 One can define a `CorrelatedWienerProcess` which is a Wiener process with
 correlations between the Wiener processes. The constructor is:
 

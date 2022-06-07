@@ -2,5 +2,6 @@
 
 pages=[
     "Home" => "index.md",
-    "multiscalearray.md"
+    "noise_processes.md",
+    "abstract_noise_processes.md"
 ]

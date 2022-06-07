@@ -37,7 +37,7 @@ function gbm_bridge!(rand_vec,gbm,W,W0,Wh,q,h,u,p,t,rng)
   @.. rand_vec = gbm.σ*sqrt((1-q)*q*abs(h))*rand_vec+q*Wh
 end
 
-"""
+@doc doc"""
 A `GeometricBrownianMotion` process is a Wiener process with
 constant drift `μ` and constant diffusion `σ`. I.e. this is the solution of the
 stochastic differential equation
@@ -69,7 +69,7 @@ function (X::GeometricBrownianMotion!)(rand_vec,W,dt,u,p,t,rng) #dist!
   @.. rand_vec = W[end]*(exp(X.μ-(1/2)*X.σ*dt + X.σ*sqrt(dt)*rand_vec)-1)
 end
 
-"""
+@doc doc"""
 A `GeometricBrownianMotion` process is a Wiener process with
 constant drift `μ` and constant diffusion `σ`. I.e. this is the solution of the
 stochastic differential equation

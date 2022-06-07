@@ -1,4 +1,4 @@
-"""
+@doc doc"""
 A `BrownianBridge` process is a Wiener process with a pre-defined start and end
 value. This process is distribution exact and back be back interpolated exactly
 as well. The constructor is:
@@ -23,7 +23,7 @@ function BrownianBridge(t0,tend,W0,Wend,Z0=nothing,Zend=nothing;kwargs...)
   W
 end
 
-"""
+@doc doc"""
 A `BrownianBridge` process is a Wiener process with a pre-defined start and end
 value. This process is distribution exact and back be back interpolated exactly
 as well. The constructor is:
