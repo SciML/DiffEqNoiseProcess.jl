@@ -26,8 +26,8 @@ CompoundPoissonProcess!
 ```@docs
 BrownianBridge
 BrownianBridge!
-GeometricBrownianBridge
-GeometricBrownianBridge!
-CompoundPoissonBridge
-CompoundPoissonBridge!
+DiffEqNoiseProcess.GeometricBrownianBridge
+DiffEqNoiseProcess.GeometricBrownianBridge!
+DiffEqNoiseProcess.CompoundPoissonBridge
+DiffEqNoiseProcess.CompoundPoissonBridge!
 ```
