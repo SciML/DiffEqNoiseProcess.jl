@@ -9,6 +9,9 @@ It holds the tools for developing noise processes for differential equations.
 While completely independent and usable on its own, users interested in using this
 functionality should check out [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl).
 
-## Documentation
+## Tutorials and Documentation
 
-Extensive documentation of this functionality is on the [Noise Process page](https://diffeq.sciml.ai/stable/features/noise_process/).
+For information on using the package,
+[see the stable documentation](https://noise.sciml.ai/stable/). Use the
+[in-development documentation](https://noise.sciml.ai/dev/) for the version of
+the documentation, which contains the unreleased features.
