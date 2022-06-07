@@ -29,6 +29,23 @@ https://arxiv.org/pdf/1011.0067.pdf page 18
 function ou_bridge(dW,ou,W,W0,Wh,q,hu,p,t,rng) end
 function ou_bridge!(rand_vec,ou,W,W0,Wh,q,h,u,p,t,rng) end
 
+@doc doc"""
+a `Ornstein-Uhlenbeck` process which is a Wiener process defined
+by the stochastic differential equation
+
+```math
+dX_t = \theta (\mu - X_t) dt + \sigma dW_t
+```
+
+The `OrnsteinUhlenbeckProcess` is distribution exact (meaning, not a numerical
+solution of the stochastic differential equation, and instead follows the exact
+distribution properties). The constructor is:
+
+```julia
+OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
+OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
+```
+"""
 function OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
   ou = OrnsteinUhlenbeck(Θ,μ,σ)
   NoiseProcess{false}(t0,W0,Z0,ou,nothing;kwargs...)
@@ -44,6 +61,24 @@ function (X::OrnsteinUhlenbeck!)(rand_vec,W,dt,u,p,t,rng) #dist!
   wiener_randn!(rng,rand_vec)
   @.. rand_vec = X.μ+(W[end]-X.μ)*exp(-X.Θ*dt) + rand_vec*X.σ*sqrt((1-exp.(-2*X.Θ.*dt))/(2*X.Θ)) - W[end]
 end
+
+@doc doc"""
+A `Ornstein-Uhlenbeck` process which is a Wiener process defined
+by the stochastic differential equation
+
+```math
+dX_t = \theta (\mu - X_t) dt + \sigma dW_t
+```
+
+The `OrnsteinUhlenbeckProcess` is distribution exact (meaning, not a numerical
+solution of the stochastic differential equation, and instead follows the exact
+distribution properties). The constructor is:
+
+```julia
+OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
+OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
+```
+"""
 function OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
   ou = OrnsteinUhlenbeck!(Θ,μ,σ)
   NoiseProcess{true}(t0,W0,Z0,ou,nothing;kwargs...)

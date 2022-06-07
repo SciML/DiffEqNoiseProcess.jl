@@ -1,6 +1,3 @@
-# https://www.math.wisc.edu/~anderson/papers/AndPostleap.pdf
-# Incorporating postleap checks in tau-leaping
-# J. Chem. Phys. 128, 054103 (2008); https://doi.org/10.1063/1.2819665
 function cpp_bridge(dW,cpp,W,W0,Wh,q,h,u,p,t,rng)
   rand.(rng,Distributions.Binomial.(Int.(Wh),float.(q)))
 end
@@ -8,6 +5,11 @@ function cpp_bridge!(rand_vec,cpp,W,W0,Wh,q,h,u,p,t,rng)
   rand_vec .= rand.(rng,Distributions.Binomial.(Int.(Wh),float.(q)))
 end
 
+"""
+https://www.math.wisc.edu/~anderson/papers/AndPostleap.pdf
+Incorporating postleap checks in tau-leaping
+J. Chem. Phys. 128, 054103 (2008); https://doi.org/10.1063/1.2819665
+"""
 mutable struct CompoundPoissonProcess{R,CR}
   rate::R
   currate::CR
@@ -22,6 +24,11 @@ function (P::CompoundPoissonProcess)(dW,W,dt,u,p,t,rng)
   PoissonRandom.pois_rand.(rng,dt.*P.currate)
 end
 
+"""
+https://www.math.wisc.edu/~anderson/papers/AndPostleap.pdf
+Incorporating postleap checks in tau-leaping
+J. Chem. Phys. 128, 054103 (2008); https://doi.org/10.1063/1.2819665
+"""
 struct CompoundPoissonProcess!{R,CR}
   rate::R
   currate::CR

@@ -13,6 +13,18 @@ function construct_correlated_noisefunc(Γ)
   end
   dist,bridge
 end
+
+@doc doc"""
+One can define a `CorrelatedWienerProcess` which is a Wiener process with
+correlations between the Wiener processes. The constructor is:
+
+```julia
+CorrelatedWienerProcess(Γ,t0,W0,Z0=nothing;kwargs...)
+CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;kwargs...)
+```
+
+where `Γ` is the constant covariance matrix.
+"""
 CorrelatedWienerProcess(Γ,t0,W0,Z0=nothing;rng = Xorshifts.Xoroshiro128Plus(rand(UInt64))) = NoiseProcess{false}(t0,W0,Z0,construct_correlated_noisefunc(Γ)...,rswm=RSWM(),rng=rng)
 
 function construct_correlated_noisefunc!(Γ)
@@ -29,6 +41,18 @@ function construct_correlated_noisefunc!(Γ)
   end
   dist,bridge
 end
+
+@doc doc"""
+One can define a `CorrelatedWienerProcess` which is a Wiener process with
+correlations between the Wiener processes. The constructor is:
+
+```julia
+CorrelatedWienerProcess(Γ,t0,W0,Z0=nothing;kwargs...)
+CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;kwargs...)
+```
+
+where `Γ` is the constant covariance matrix.
+"""
 CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;rng = Xorshifts.Xoroshiro128Plus(rand(UInt64))) =
                          NoiseProcess{true}(t0,W0,Z0,construct_correlated_noisefunc!(Γ)...,
                          rswm=RSWM(),rng = rng)
