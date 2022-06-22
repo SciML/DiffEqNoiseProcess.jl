@@ -16,7 +16,7 @@ end
 @inline wiener_randn!(rng::AbstractRNG, rand_vec) = rand_vec .= Base.Broadcast.Broadcasted(randn, ())
 
 # This fallback works for GPUs because it doesn't assume we can pass an RNG
-@inline wiener_randn!(rng::AbstractRNG, rand_vec::GPUArrays.AbstractGPUArray) = randn!(rand_vec)
+@inline wiener_randn!(rng::AbstractRNG, rand_vec::GPUArraysCore.AbstractGPUArray) = randn!(rand_vec)
 
 @inline function wiener_randn!(y::AbstractRNG, x::AbstractArray{<:Complex{T}}) where {T<:Number}
   # Remove loop

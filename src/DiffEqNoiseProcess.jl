@@ -15,7 +15,7 @@ import PoissonRandom, Distributions
 
 import QuadGK, Optim
 
-import GPUArrays
+import GPUArraysCore
 
 using Markdown
 
