@@ -269,7 +269,7 @@ end
     sol2 = solve(prob1, EM(false), dt = dt, adaptive = false)
 
     #plot(ts, sol1.u - reverse(sol2.u))
-    @test !isapprox(ys, sol2(reverse(ts2)).u, atol=1e-6)
+    @test !isapprox(ys, sol2(reverse(ts2)).u, atol = 1e-6)
     @test isapprox(sol1(ts2).u, sol2(ts2).u, atol = 1e-0)
 end
 
