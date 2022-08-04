@@ -55,7 +55,7 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess, dt;
             tdir = sign(W.t[2] - W.t[1])
             @inbounds idx = searchsortedfirst(W.t, t0 - tdir * 10eps(typeof(t0)),
                                               rev = tdir < 0)
-            (tdir < 0) && (idx -= one(idx))
+            # (tdir < 0) && (idx -= one(idx))
         end
 
         if isinplace(W)
