@@ -1,6 +1,9 @@
 @testset "SDE Adaptive Distribution Tests" begin
     using StochasticDiffEq, StatsBase, Distributions, HypothesisTests
-    using Random, DiffEqProblemLibrary
+    using Random
+    using DiffEqProblemLibrary.SDEProblemLibrary
+    # load problems
+    SDEProblemLibrary.importsdeproblems()
 
     prob = prob_sde_linear
     Random.seed!(200)
@@ -12,8 +15,9 @@
     for j in 1:M
         Wends = Vector{Float64}(undef, N)
         for i in 1:N
-            sol = solve(prob, SRI(), dt = 1 / 2^(4), abstol = 1e-2, reltol = 0,
-                        adaptivealg = :RSwM1)
+            W = WienerProcess(0.0, 0.0, 0.0, rswm = RSWM(adaptivealg = :RSwM1))
+            _prob = remake(prob, noise = W)
+            sol = solve(_prob, SRI(), dt = 1 / 2^(4), abstol = 1e-2, reltol = 0)
             Wends[i] = sol.W.W[end]
         end
         kssol = ApproximateOneSampleKSTest(Wends / sqrt(T), Normal())
@@ -25,8 +29,9 @@
     for j in 1:M
         Wends = Vector{Float64}(undef, N)
         for i in 1:N
-            sol = solve(prob, SRI(), dt = 1 / 2^(4), abstol = 1e-2, reltol = 0,
-                        adaptivealg = :RSwM2)
+            W = WienerProcess(0.0, 0.0, 0.0, rswm = RSWM(adaptivealg = :RSwM2))
+            _prob = remake(prob, noise = W)
+            sol = solve(_prob, SRI(), dt = 1 / 2^(4), abstol = 1e-2, reltol = 0)
             Wends[i] = sol.W.W[end]
         end
         kssol = ApproximateOneSampleKSTest(Wends / sqrt(T), Normal())
@@ -38,8 +43,9 @@
     for j in 1:M
         Wends = Vector{Float64}(undef, N)
         for i in 1:N
-            sol = solve(prob, SRI(), dt = 1 / 2^(4), abstol = 1e-2, reltol = 0,
-                        adaptivealg = :RSwM3)
+            W = WienerProcess(0.0, 0.0, 0.0, rswm = RSWM(adaptivealg = :RSwM3))
+            _prob = remake(prob, noise = W)
+            sol = solve(_prob, SRI(), dt = 1 / 2^(4), abstol = 1e-2, reltol = 0)
             Wends[i] = sol.W.W[end]
         end
         kssol = ApproximateOneSampleKSTest(Wends / sqrt(T), Normal())
