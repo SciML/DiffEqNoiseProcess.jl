@@ -381,9 +381,10 @@ end
 # sampling from boxes
 function sample_box(W::BoxWedgeTail, Boxes::AbstractBoxGeneration)
     indx = rand(W.rng, Boxes.dist)
-    # boxes store r, a, Δr, Δa 
+    # boxes store r, a, Δr, Δa
     ri, ai, Δr, Δa = Boxes.boxes[indx]
-    DU = Distributions.Product(Distributions.Uniform.([ri, ai], [ri + Δr, ai + Δa]))
+    DU = Distributions.product_distribution(Distributions.Uniform.([ri, ai],
+                                                                   [ri + Δr, ai + Δa]))
 
     r, a = rand(W.rng, DU)
     return r, a
@@ -458,8 +459,12 @@ function sample_wedge(W::BoxWedgeTail, wedges::Wedges)
     indx = rand(W.rng, wedges.dist)
     # wedges store f̃ij, hij, ϵijmin, ϵijmax, r, a, Δr
     f̃ij, hij, ϵijmin, ϵijmax, ri, ai = wedges.boxes[indx]
-    DU = Distributions.Product(Distributions.Uniform.([ri, ai, hij],
-                                                      [ri + W.Δr, ai + W.Δa, f̃ij]))
+    DU = Distributions.product_distribution(Distributions.Uniform.([ri, ai, hij],
+                                                                   [
+                                                                       ri + W.Δr,
+                                                                       ai + W.Δa,
+                                                                       f̃ij,
+                                                                   ]))
     if W.sqeezing
         fij, fij2, fij3, fij4 = wedges.fvalues[indx]
         while true
@@ -550,7 +555,7 @@ struct Tail3{pType, distType, pdfType, cType} <: AbstractTail
                                                                           2 / pi)), aM,
                                         8 * one(aM))
 
-        dist = Distributions.Product([dist1, dist2])
+        dist = Distributions.product_distribution([dist1, dist2])
 
         c = convert(typeof(rM), 2.6)
 
@@ -572,7 +577,7 @@ struct Tail4{pType, distType, pdfType, cType} <: AbstractTail
                                                                           1 / pi)), aM,
                                         6 * one(aM))
 
-        dist = Distributions.Product([dist1, dist2])
+        dist = Distributions.product_distribution([dist1, dist2])
 
         c = convert(typeof(rM), 2.6)
 
@@ -594,7 +599,7 @@ struct Tail5{pType, distType, pdfType, cType} <: AbstractTail
                                                                           1 / 2.8)), aM,
                                         6 * one(aM))
 
-        dist = Distributions.Product([dist1, dist2])
+        dist = Distributions.product_distribution([dist1, dist2])
 
         c = convert(typeof(rM), 2.8)
 
@@ -616,7 +621,7 @@ struct Tail6{pType, distType, pdfType, cType} <: AbstractTail
                                                                           1 / 2.6)), aM,
                                         6 * one(aM))
 
-        dist = Distributions.Product([dist1, dist2])
+        dist = Distributions.product_distribution([dist1, dist2])
 
         c = convert(typeof(rM), 3.0)
 
@@ -638,7 +643,7 @@ struct Tail7{pType, distType, pdfType, cType} <: AbstractTail
                                                                           1 / 2.4)), aM,
                                         6 * one(aM))
 
-        dist = Distributions.Product([dist1, dist2])
+        dist = Distributions.product_distribution([dist1, dist2])
 
         c = convert(typeof(rM), 3.2)
 
@@ -660,7 +665,7 @@ struct Tail8{pType, distType, pdfType, cType} <: AbstractTail
                                                                           1 / 2.4)),
                                         6 * one(aM), 8 * one(aM))
 
-        dist = Distributions.Product([dist1, dist2])
+        dist = Distributions.product_distribution([dist1, dist2])
 
         c = convert(typeof(rM), 4.2)
 
@@ -682,7 +687,7 @@ struct Tail9{pType, distType, pdfType, cType} <: AbstractTail
                                                                           2 / pi)),
                                         8 * one(aM), 10 * one(aM))
 
-        dist = Distributions.Product([dist1, dist2])
+        dist = Distributions.product_distribution([dist1, dist2])
 
         c = convert(typeof(rM), 2.4)
 
