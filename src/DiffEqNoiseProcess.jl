@@ -11,6 +11,8 @@ import RandomNumbers, Random123
 import DiffEqBase: isinplace, solve, AbstractNoiseProcess,
                    DEIntegrator, AbstractNoiseProblem
 
+import SciMLBase: remake
+
 import PoissonRandom, Distributions
 
 import QuadGK, Optim

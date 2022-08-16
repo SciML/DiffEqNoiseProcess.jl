@@ -88,3 +88,28 @@ function Base.reverse(W::AbstractNoiseProcess)
     end
     return backwardnoise
 end
+
+function Base.similar(np::NoiseProcess, ::Type{NoiseProcess}=NoiseProcess)
+    NoiseProcess{isinplace(np)}(0., 0., np.Z isa AbstractVector ? np.Z[1] : np.Z, np.dist, np.bridge)
+end
+
+function Base.copy(np::NoiseProcess)
+    np2 = similar(np)
+    for f in propertynames(np)
+        setfield!(np2, f, getfield(np, f))
+    end
+    np2
+end
+
+function SciMLBase.remake(np::NoiseProcess; kwargs...)
+    np_new = copy(np)
+    inits = (t0 = :t, W0 = :W, Z0 = :Z)
+    for kwarg in kwargs
+        if first(kwarg) in keys(inits)
+            setfield!(np_new, inits[first(kwarg)], [second(kwarg)])
+        else
+            setfield!(np_new, kwarg...)
+        end
+    end
+    np_new
+end
