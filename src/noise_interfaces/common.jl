@@ -89,8 +89,14 @@ function Base.reverse(W::AbstractNoiseProcess)
     return backwardnoise
 end
 
-function Base.similar(np::NoiseProcess, ::Type{NoiseProcess}=NoiseProcess)
-    NoiseProcess{isinplace(np)}(0., 0., np.Z isa AbstractVector ? np.Z[1] : np.Z, np.dist, np.bridge)
+function Base.similar(np::NoiseProcess, ::Type{NoiseProcess} = NoiseProcess)
+    NoiseProcess{isinplace(np)}(0.0, 0.0, np.Z isa AbstractVector ? np.Z[1] : np.Z, np.dist,
+                                np.bridge;
+                                rswm = np.rswm, save_everystep = np.save_everystep,
+                                rng = deepcopy(np.rng),
+                                reset = np.reset, reseed = np.reseed,
+                                continuous = np.continuous,
+                                cache = np.cache)
 end
 
 function Base.copy(np::NoiseProcess)
