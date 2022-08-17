@@ -542,6 +542,7 @@ mutable struct NoiseFunction{T, N, wType, zType, Tt, T2, T3, inplace} <:
     dt::Tt
     dW::T2
     dZ::T3
+    t0::Tt
     reset::Bool
 
     function NoiseFunction{iip}(t0, W, Z = nothing;
@@ -560,7 +561,7 @@ mutable struct NoiseFunction{T, N, wType, zType, Tt, T2, T3, inplace} <:
         end
         new{typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
             typeof(curt), typeof(curW), typeof(curZ), iip}(W, Z, curt, curW, curZ,
-                                                           dt, dW, dZ, reset)
+                                                           dt, dW, dZ, t0, reset)
     end
 end
 

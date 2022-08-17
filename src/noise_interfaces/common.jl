@@ -76,7 +76,7 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess, dt;
 end
 
 function DiffEqBase.reinit!(W::NoiseFunction, dt;
-                            t0 = zero(W.curt),
+                            t0 = W.t0,
                             erase_sol = true,
                             setup_next = false)
     W.curt = t0
