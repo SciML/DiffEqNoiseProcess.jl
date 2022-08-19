@@ -1,6 +1,6 @@
 @testset "Remake" begin
     using SciMLBase, DiffEqNoiseProcess, Test, Random
-    W = WienerProcess(0.0, 1.0, 1.0, rng = Xoshiro(42))
+    W = WienerProcess(0.0, 1.0, 1.0, rng = Random.Xoshiro(42))
     dt = 0.1
     W.dt = dt
     u = nothing
@@ -13,7 +13,7 @@
     for prop in propertynames(W)
         @test getfield(W, prop) === getfield(W2, prop)
     end
-    rng2 = Xoshiro(43)
+    rng2 = Random.Xoshiro(43)
     W3 = remake(W2, rng = rng2)
     @test W3.rng === rng2
     W.rng = rng2
