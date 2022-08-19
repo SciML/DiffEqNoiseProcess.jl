@@ -2,3 +2,7 @@
 *.jl.*.cov
 *.jl.mem
 Manifest.toml
+
+# vscode stuff
+.vscode
+.vscode/*
