@@ -2,9 +2,7 @@
     using DiffEqNoiseProcess, DiffEqBase, StochasticDiffEq
     using Test
 
-    using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems
-    importsdeproblems()
-    import DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_linear, prob_sde_2Dlinear
+    import SDEProblemLibrary: prob_sde_linear, prob_sde_2Dlinear
 
     prob = prob_sde_linear
     integrator = init(prob, EM(), dt = 0.01)

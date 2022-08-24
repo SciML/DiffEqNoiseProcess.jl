@@ -346,9 +346,7 @@ Some more Ito reversals
 end
 
 @testset "SDE Ito additive noise Reversal Tests" begin
-    using DiffEqProblemLibrary.SDEProblemLibrary: importsdeproblems
-    importsdeproblems()
-    using DiffEqProblemLibrary.SDEProblemLibrary: prob_sde_additive, prob_sde_additivesystem
+    using SDEProblemLibrary: prob_sde_additive, prob_sde_additivesystem
     Random.seed!(100)
     dt = 1e-3
 
