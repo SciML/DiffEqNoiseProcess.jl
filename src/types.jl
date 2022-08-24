@@ -673,12 +673,12 @@ end
 (W::NoiseTransport)(t) = W(nothing, nothing, t, W.rv)
 function (W::NoiseTransport)(u, p, t, rv)
     if W.Z != nothing
-    if isinplace(W)
-        out2 = similar(W.dZ)
-        W.Z(out2, u, p, t, rv)
-    else
-        out2 = W.Z(u, p, t, rv)
-    end
+        if isinplace(W)
+            out2 = similar(W.dZ)
+            W.Z(out2, u, p, t, rv)
+        else
+            out2 = W.Z(u, p, t, rv)
+        end
     else
         out2 = nothing
     end
