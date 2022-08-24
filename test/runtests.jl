@@ -8,6 +8,7 @@ using Test
     include("correlated.jl")
     include("noise_wrapper.jl")
     include("noise_function.jl")
+    include("noise_process_remake.jl")
     include("VBT_test.jl")
     include("noise_grid.jl")
     include("noise_approximation.jl")
