@@ -25,7 +25,7 @@
 
     out1 = rand(4)
     out2 = nothing
-    sol(out1, out2, nothing, nothing, 0.5)
+    sol(out1, out2, nothing, nothing, 0.5, W.rv)
 
     @test out1 == sol(0.5)[1]
 end
