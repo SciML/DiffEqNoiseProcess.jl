@@ -635,70 +635,69 @@ W = NoiseTransport(zeros(4), f!, nothing, randn(4), randn!)
 
 This allows you to put such processes as driving noises into SDEs and RODEs. Have fun.
 """
-mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, Trv, Tr, RNGType, inplace} <:
-    AbstractNoiseProcess{T, N, nothing, inplace}
-W::wType
-Z::zType
-curt::Tt
-curW::T2
-curZ::T3
-dt::Tt
-dW::T2
-dZ::T3
-t0::Tt
-RV::Trv
-rv::Tr
-rng::RNGType
-reset::Bool
-reseed::Bool # this is of no use since reseed is only used in a `NoiseProcess` in `StochasticDiffEq.jl/src/solve.jl/#L421`
+mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, Trv, Tr, RNGType, inplace} <: AbstractNoiseProcess{T, N, nothing, inplace}
+    W::wType
+    Z::zType
+    curt::Tt
+    curW::T2
+    curZ::T3
+    dt::Tt
+    dW::T2
+    dZ::T3
+    t0::Tt
+    RV::Trv
+    rv::Tr
+    rng::RNGType
+    reset::Bool
+    reseed::Bool # this is of no use since reseed is only used in a `NoiseProcess` in `StochasticDiffEq.jl/src/solve.jl/#L421`
 
-function NoiseTransport{iip}(t0, W, RV = nothing, rv = nothing, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true; noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
-curt = t0
-dt = t0
-curW = copy(noise_prototype)
-dW = copy(noise_prototype)
-if Z === nothing
- curZ = nothing
- dZ = nothing
-else
- curZ = copy(noise_prototype)
- dZ = copy(noise_prototype)
-end
+    function NoiseTransport{iip}(t0, W, RV = nothing, rv = nothing, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true; noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
+        curt = t0
+        dt = t0
+        curW = copy(noise_prototype)
+        dW = copy(noise_prototype)
+        if Z === nothing
+            curZ = nothing
+            dZ = nothing
+        else
+            curZ = copy(noise_prototype)
+            dZ = copy(noise_prototype)
+        end
 
-new{typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
- typeof(curt), typeof(curW), typeof(curZ), typeof(RV), typeof(rv), typeof(rng), iip}(W, Z, curt, curW, curZ,
-                                                dt, dW, dZ, t0, RV, rv, rng, reset, reseed)
-end
+        new{typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
+        typeof(curt), typeof(curW), typeof(curZ), typeof(RV), typeof(rv), typeof(rng), iip}(W, Z, curt, curW, curZ,
+                                                        dt, dW, dZ, t0, RV, rv, rng, reset, reseed)
+    end
 end
 
 (W::NoiseTransport)(t) = W(nothing, nothing, t, W.rv)
 function (W::NoiseTransport)(u, p, t, rv)
-if W.Z != nothing
-if isinplace(W)
- out2 = similar(W.dZ)
- W.Z(out2, u, p, t, rv)
-else
- out2 = W.Z(u, p, t, rv)
-end
-else
-out2 = nothing
-end
-if isinplace(W)
-out1 = similar(W.dW)
-W.W(out1, u, p, t, rv)
-else
-out1 = W.W(u, p, t, rv)
-end
-out1, out2
+    if W.Z != nothing
+    if isinplace(W)
+        out2 = similar(W.dZ)
+        W.Z(out2, u, p, t, rv)
+    else
+        out2 = W.Z(u, p, t, rv)
+    end
+    else
+        out2 = nothing
+    end
+    if isinplace(W)
+        out1 = similar(W.dW)
+        W.W(out1, u, p, t, rv)
+    else
+        out1 = W.W(u, p, t, rv)
+    end
+    out1, out2
 end
 function (W::NoiseTransport)(out1, out2, u, p, t, rv)
-W.W(out1, u, p, t, rv)
-W.Z != nothing && W.Z(out2, u, p, t, rv)
+    W.W(out1, u, p, t, rv)
+    W.Z != nothing && W.Z(out2, u, p, t, rv)
 end
 
 function NoiseTransport(t0, W, RV=nothing, rv=nothing, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset=true, reseed=true; kwargs...)
-iip = DiffEqBase.isinplace(W, 5)
-NoiseTransport{iip}(t0, W, RV, rv, Z, rng, reset, reseed; kwargs...)
+    iip = DiffEqBase.isinplace(W, 5)
+    NoiseTransport{iip}(t0, W, RV, rv, Z, rng, reset, reseed; kwargs...)
 end
 
 """
