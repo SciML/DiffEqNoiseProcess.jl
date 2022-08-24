@@ -649,7 +649,7 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, Trv, Tr, RNGType, 
     rv::Tr
     rng::RNGType
     reset::Bool
-    reseed::Bool # this is of no use since reseed is only used in a `NoiseProcess` in `StochasticDiffEq.jl/src/solve.jl/#L421`
+    reseed::Bool # this is currently of no use since reseed is only used in a `NoiseProcess` in `StochasticDiffEq.jl/src/solve.jl/#L421`
 
     function NoiseTransport{iip}(t0, W, RV = nothing, rv = nothing, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true; noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
         curt = t0
