@@ -596,6 +596,112 @@ function NoiseFunction(t0, W, Z = nothing; kwargs...)
 end
 
 """
+```julia
+mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, Tr, Trv, RNGType, inplace} <: AbstractNoiseProcess{T, N, nothing, inplace}
+```
+
+This allows you to define stochastic processes of the form `W(t) = f(u, p, t, Y)`, where `f` is a function and `Y` is expected to be a random variable.
+This will use the function lazily, only caching values required to minimize function
+calls, but not store the entire noise array. This requires an initial time point
+`t0` in the domain of `W`. A second function is needed if the desired SDE algorithm
+requires multiple processes.
+
+```julia
+function NoiseTransport{iip}(t0, W, Z = nothing, RV = nothing, rv = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true;
+    noise_prototype = nothing) where {iip}
+```
+
+Additionally, one can use an in-place function ``W(out1, u, p, t, Y)`, or `W(out1, out2, u, p, t, Y)`, for more efficient
+generation of the arrays for multi-dimensional processes. When the in-place version
+is used without a dispatch for the out-of-place version, the `noise_prototype`
+needs to be set.
+
+## NoiseTransport Example
+
+The `NoiseTransport` is pretty simple: pass a function and a random process. Here, a random process is any function that accepts a random number generator and, optionally, the size of the realization. As an example, let us implement the Gaussian noise `W(t) = sin(Yt)`, where `Y` is a normal random variable, taken here as `randn`.
+
+```julia
+f(u, p, t, v) = sin(v * t)
+W = NoiseTransport(0.0, f, nothing, randn(), randn)
+```
+
+If it's multi-dimensional and an in-place function is used, the `noise_prototype`
+must be given. For example:
+
+```julia
+f!(out, u, p, t, v) = (out.=sin.(v * t))
+W = NoiseTransport(zeros(4), f!, nothing, randn(4), randn!)
+```
+
+This allows you to put such processes as driving noises into SDEs and RODEs. Have fun.
+"""
+mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, Trv, Tr, RNGType, inplace} <:
+    AbstractNoiseProcess{T, N, nothing, inplace}
+W::wType
+Z::zType
+curt::Tt
+curW::T2
+curZ::T3
+dt::Tt
+dW::T2
+dZ::T3
+t0::Tt
+RV::Trv
+rv::Tr
+rng::RNGType
+reset::Bool
+reseed::Bool # this is of no use since reseed is only used in a `NoiseProcess` in `StochasticDiffEq.jl/src/solve.jl/#L421`
+
+function NoiseTransport{iip}(t0, W, RV = nothing, rv = nothing, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true; noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
+curt = t0
+dt = t0
+curW = copy(noise_prototype)
+dW = copy(noise_prototype)
+if Z === nothing
+ curZ = nothing
+ dZ = nothing
+else
+ curZ = copy(noise_prototype)
+ dZ = copy(noise_prototype)
+end
+
+new{typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
+ typeof(curt), typeof(curW), typeof(curZ), typeof(RV), typeof(rv), typeof(rng), iip}(W, Z, curt, curW, curZ,
+                                                dt, dW, dZ, t0, RV, rv, rng, reset, reseed)
+end
+end
+
+(W::NoiseTransport)(t) = W(nothing, nothing, t, W.rv)
+function (W::NoiseTransport)(u, p, t, rv)
+if W.Z != nothing
+if isinplace(W)
+ out2 = similar(W.dZ)
+ W.Z(out2, u, p, t, rv)
+else
+ out2 = W.Z(u, p, t, rv)
+end
+else
+out2 = nothing
+end
+if isinplace(W)
+out1 = similar(W.dW)
+W.W(out1, u, p, t, rv)
+else
+out1 = W.W(u, p, t, rv)
+end
+out1, out2
+end
+function (W::NoiseTransport)(out1, out2, u, p, t, rv)
+W.W(out1, u, p, t, rv)
+W.Z != nothing && W.Z(out2, u, p, t, rv)
+end
+
+function NoiseTransport(t0, W, RV=nothing, rv=nothing, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset=true, reseed=true; kwargs...)
+iip = DiffEqBase.isinplace(W, 5)
+NoiseTransport{iip}(t0, W, RV, rv, Z, rng, reset, reseed; kwargs...)
+end
+
+"""
 A noise grid builds a noise process from arrays of points. For example, you
 can generate your desired noise process as an array `W` with timepoints `t`,
 and use the constructor:
