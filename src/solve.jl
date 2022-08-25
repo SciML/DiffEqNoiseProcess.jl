@@ -5,23 +5,13 @@ function DiffEqBase.__solve(prob::AbstractNoiseProblem,
         error("dt must be provided to simulate a noise process. Please pass dt=...")
     end
     W = deepcopy(prob.noise)
-    if typeof(W) <: Union{NoiseProcess, NoiseTransport}
+    if typeof(W) <: NoiseProcess
         if prob.seed != 0
             Random.seed!(W.rng, prob.seed)
         else
             Random.seed!(W.rng, rand(UInt64))
         end
     end
-    if typeof(W) <: NoiseTransport && W.reset
-        if typeof(W.rv) <: AbstractArray
-            W.RV(W.rng, W.rv)
-        else
-            W.rv = W.RV(W.rng)
-        end
-    end
-#=     if W.curt != prob.tspan[1] && hasproperty(W, :reset) && W.reset
-        reinit!(W, prob.tspan[1], t0=prob.tspan[1])
-    end =#
     W.curt = prob.tspan[1]
     W.dt = dt
     setup_next_step!(W, nothing, nothing)
