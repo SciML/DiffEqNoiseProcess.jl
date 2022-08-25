@@ -125,6 +125,12 @@ function DiffEqBase.reinit!(W::NoiseTransport, dt;
         end
     end
 
+    if typeof(W.rv) <: AbstractArray
+        W.RV(W.rng, W.rv)
+    elseif W.rv !== nothing && W.RV !== nothing
+        W.rv = W.RV(W.rng)
+    end
+
 return nothing
 end
 
