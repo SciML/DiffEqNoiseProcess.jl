@@ -600,7 +600,7 @@ end
 mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, Tr, Trv, RNGType, inplace} <: AbstractNoiseProcess{T, N, nothing, inplace}
 ```
 
-This allows you to define stochastic processes of the form `W(t) = f(u, p, t, Y)`, where `f` is a function and `Y` is expected to be a random variable.
+This allows you to define stochastic processes of the form `W(t) = f(u, p, t, RV)`, where `f` is a function and `RV` is expected to be a random variable.
 This will use the function lazily, only caching values required to minimize function
 calls, but not store the entire noise array. This requires an initial time point
 `t0` in the domain of `W`. A second function is needed if the desired SDE algorithm
@@ -610,7 +610,7 @@ requires multiple processes.
 function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true; noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
 ```
 
-Additionally, one can use an in-place function `W(out, u, p, t, Y)` for more efficient
+Additionally, one can use an in-place function `W(out, u, p, t, rv)` for more efficient
 generation of the arrays for multi-dimensional processes. When the in-place version
 is used without a dispatch for the out-of-place version, the `noise_prototype`
 needs to be set.
@@ -622,24 +622,35 @@ The `NoiseTransport` requires you to pass an initial time, a transport function,
 As a first example, let us implement the Gaussian noise `W(t) = sin(Yt)`, where `Y` is a normal random variable.
 
 ```julia
-f(u, p, t, v) = sin(v * t)
+f(u, p, t, rv) = sin(rv * t)
 t0 = 0.0
 RV = randn
-rv = RV()
+rv = randn()
 W = NoiseTransport(t0, f, RV, rv)
 ```
 
-If the random process is expected to be multi-dimensional, it is preferable to use an in-place transport function, and, in this case, the `noise_prototype` must be given. For example:
+If we want to build a scalar random process out of a random vector, then an in-place version for the random vector is required, as follows.
 
 ```julia
-f!(out, u, p, t, v) = (out .= sin.(v * t))
+using Random: randn!
+f(u, p, t, rv) = sin(t + rv[1]) + cos(t + rv[2])
+t0 = 0.0
+RV = randn!
+rv = randn(2)
+W = NoiseTransport(t0, f, RV, rv)
+```
+
+If the random process is expected to be multi-dimensional, it is preferable to use an in-place transport function, and, in this case, the `noise_prototype` must be given. Here is an example with a scalar random vector.
+
+```julia
+f!(out, u, p, t, rv) = (out .= sin.(rv * t))
 t0 = 0.0
 RV = randn
 rv = 0.0
 W = NoiseTransport(t0, f!, RV, rv, noise_prototype = zeros(4))
 ```
 
-We can also have a random vector, in which case an in-place version is required. For example
+We can also have a random vector with a multi-dimensional process, in which case an in-place version of `RV` is required. For example.
 
 ```julia
 using Random: randn!
@@ -658,7 +669,7 @@ rv = zeros(2)
 W = NoiseTransport(t0, f!, RV, rv, noise_prototype = zeros(3))
 ```
 
-A `NoiseTransport` can be uses as driving noise for SDEs and RODEs.
+A `NoiseTransport` can be uses as driving noise for SDEs and RODEs. Have fun!
 """
 mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType, inplace} <: AbstractNoiseProcess{T, N, nothing, inplace}
     W::wType
