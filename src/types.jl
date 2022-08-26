@@ -675,7 +675,8 @@ W = NoiseTransport(t0, f!, RV!, rv, noise_prototype = zeros(3))
 
 A `NoiseTransport` can be uses as driving noise for SDEs and RODEs. Have fun!
 """
-mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType, inplace} <: AbstractNoiseProcess{T, N, nothing, inplace}
+mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType, inplace} <:
+               AbstractNoiseProcess{T, N, nothing, inplace}
     W::wType
     Z::zType
     curt::Tt
@@ -691,7 +692,10 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
     reset::Bool
     reseed::Bool
 
-    function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true, noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
+    function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing;
+                                 rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+                                 reset = true, reseed = true,
+                                 noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
         curt = t0
         dt = t0
         curW = copy(noise_prototype)
@@ -705,8 +709,9 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
         end
 
         new{typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
-        typeof(curt), typeof(curW), typeof(curZ), typeof(RV), typeof(rv), typeof(rng), iip}(W, Z, curt, curW, curZ,
-                                                        dt, dW, dZ, t0, RV, rv, rng, reset, reseed)
+            typeof(curt), typeof(curW), typeof(curZ), typeof(RV), typeof(rv), typeof(rng),
+            iip}(W, Z, curt, curW, curZ,
+                 dt, dW, dZ, t0, RV, rv, rng, reset, reseed)
     end
 end
 
@@ -735,12 +740,15 @@ function (W::NoiseTransport)(out1, out2, u, p, t, rv)
     W.Z !== nothing && W.Z(out2, u, p, t, rv)
 end
 
-function NoiseTransport(t0, W, RV, rv, Z = nothing; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset=true, reseed=true, kwargs...)
+function NoiseTransport(t0, W, RV, rv, Z = nothing;
+                        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true,
+                        reseed = true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
     NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
 end
 
-function NoiseTransport(t0, W, RV; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset=true, reseed=true, kwargs...)
+function NoiseTransport(t0, W, RV; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+                        reset = true, reseed = true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
     rv = RV(rng)
     Z = nothing

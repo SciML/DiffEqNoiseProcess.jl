@@ -29,5 +29,4 @@
     sol(out1, out2, nothing, nothing, 0.5, sol.rv)
 
     @test out1 == sol(0.5)[1] == W(nothing, nothing, 0.5, sol.rv)[1]
-
 end

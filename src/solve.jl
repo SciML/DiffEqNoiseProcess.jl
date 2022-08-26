@@ -13,7 +13,7 @@ function DiffEqBase.__solve(prob::AbstractNoiseProblem,
         end
     end
     if typeof(W) <: NoiseTransport && W.reset
-        reinit!(W, prob.tspan[1], t0=prob.tspan[1])
+        reinit!(W, prob.tspan[1], t0 = prob.tspan[1])
     else
         W.curt = prob.tspan[1]
         W.dt = dt

@@ -102,10 +102,9 @@ function DiffEqBase.reinit!(W::NoiseFunction, dt;
 end
 
 function DiffEqBase.reinit!(W::NoiseTransport, dt;
-    t0 = W.t0,
-    erase_sol = true,
-    setup_next = false)
-    
+                            t0 = W.t0,
+                            erase_sol = true,
+                            setup_next = false)
     W.curt = t0
     W.dt = dt
 
@@ -131,7 +130,7 @@ function DiffEqBase.reinit!(W::NoiseTransport, dt;
         end
     end
 
-return nothing
+    return nothing
 end
 
 function Base.reverse(W::AbstractNoiseProcess)
