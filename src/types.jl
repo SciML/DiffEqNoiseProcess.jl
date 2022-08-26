@@ -597,17 +597,21 @@ end
 
 """
 ```julia
-mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, Tr, Trv, RNGType, inplace} <: AbstractNoiseProcess{T, N, nothing, inplace}
+mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType, inplace} <: AbstractNoiseProcess{T, N, nothing, inplace}
 ```
 
-This allows you to define stochastic processes of the form `W(t) = f(u, p, t, RV)`, where `f` is a function and `RV` is expected to be a random variable.
+This allows you to define stochastic processes of the form `W(t) = f(u, p, t, RV)`, where `f` is a function and `RV` represents a random variable.
 This will use the function lazily, only caching values required to minimize function
 calls, but not store the entire noise array. This requires an initial time point
 `t0` in the domain of `W`. A second function is needed if the desired SDE algorithm
 requires multiple processes.
 
 ```julia
-function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true; noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
+function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true, noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
+```
+
+```julia
+function NoiseTransport(t0, W, RV; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset=true, reseed=true, kwargs...)
 ```
 
 Additionally, one can use an in-place function `W(out, u, p, t, rv)` for more efficient
@@ -617,17 +621,16 @@ needs to be set.
 
 ## NoiseTransport Example
 
-The `NoiseTransport` requires you to pass an initial time, a transport function, a random variable and an initial realization of the random variable. The random variable can also be either out-of-place or in-place. It is assumed it is out-of-place when the realization is a subtype of `Number`, and in-place, when it is a subtype of `AbstractArray`. Here, a random variable is any function that accepts a random number generator, in the out-of-place case (e.g. `rand(rng)`), or a random number generator and a realization to be mutated (e.g. `rand!(rng, rv)`).
+The `NoiseTransport` requires you to pass an initial time, a transport function, and a random variable. The random variable can be either out-of-place or in-place. It is assumed it is out-of-place when the realization is a subtype of `Number`, and in-place, when it is a subtype of `AbstractArray`. Here, a random variable is any function that accepts a random number generator, in the out-of-place case (e.g. `rand(rng)`), or a random number generator and a realization to be mutated (e.g. `rand!(rng, rv)`).
 
-The realization `rv` is used in the first time an `AbstractRODEProblem` is solved. Subsequent runs of the same problem will draw a different realization from the random variable `RV`, unless `reseed` is set to false. In the case of a `NoiseProblem`, however, a new realization will happen at the first run already, and, in this case, `rv` can be regarded as a realization prototype.
+An optional realization `rv` may be given. The realization `rv` is used in the first time an `AbstractRODEProblem` is solved. Subsequent runs of the same problem will draw a different realization from the random variable `RV`, unless `reseed` is set to false. In the case of a `NoiseProblem`, however, a new realization will happen at the first run already, and, in this case, `rv` can be regarded as a realization prototype, which is necessary in the case of a random vector.
 
 As a first example, let us implement the Gaussian noise `W(t) = sin(Yt)`, where `Y` is a normal random variable.
 
 ```julia
 f(u, p, t, rv) = sin(rv * t)
 t0 = 0.0
-rv = randn()
-W = NoiseTransport(t0, f, randn, rv)
+W = NoiseTransport(t0, f, randn)
 ```
 
 If we want to build a scalar random process out of a random vector, then an in-place version for the random vector is required, as follows. We can also use parameters in the transport function, in which case the `noise_prototype` must be given.
@@ -688,7 +691,7 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
     reset::Bool
     reseed::Bool
 
-    function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true; noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
+    function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true, noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
         curt = t0
         dt = t0
         curW = copy(noise_prototype)
@@ -732,9 +735,16 @@ function (W::NoiseTransport)(out1, out2, u, p, t, rv)
     W.Z !== nothing && W.Z(out2, u, p, t, rv)
 end
 
-function NoiseTransport(t0, W, RV, rv, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset=true, reseed=true; kwargs...)
+function NoiseTransport(t0, W, RV, rv, Z = nothing; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset=true, reseed=true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
-    NoiseTransport{iip}(t0, W, RV, rv, Z, rng, reset, reseed; kwargs...)
+    NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
+end
+
+function NoiseTransport(t0, W, RV; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset=true, reseed=true, kwargs...)
+    iip = DiffEqBase.isinplace(W, 5)
+    rv = RV(rng)
+    Z = nothing
+    NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
 end
 
 """

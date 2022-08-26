@@ -2,7 +2,8 @@
     using DiffEqNoiseProcess, DiffEqBase, Random, Test
 
     f = (u, p, t, Y) -> exp(Y * t)
-    W = NoiseTransport(0.0, f, randn, 1.0)
+
+    W = NoiseTransport(0.0, f, randn)
 
     dt = 0.1
     calculate_step!(W, dt, nothing, nothing)
