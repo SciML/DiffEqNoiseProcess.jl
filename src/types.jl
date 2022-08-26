@@ -630,14 +630,15 @@ rv = randn()
 W = NoiseTransport(t0, f, randn, rv)
 ```
 
-If we want to build a scalar random process out of a random vector, then an in-place version for the random vector is required, as follows.
+If we want to build a scalar random process out of a random vector, then an in-place version for the random vector is required, as follows. We can also use parameters in the transport function, in which case the `noise_prototype` must be given.
 
 ```julia
 using Random: randn!
-f(u, p, t, rv) = sin(t + rv[1]) + cos(t + rv[2])
+f(u, p, t, rv) = sin(p[1] * t + rv[1]) + cos(p[2] * t + rv[2])
 t0 = 0.0
 rv = randn(2)
-W = NoiseTransport(t0, f, randn!, rv)
+p = (π, 2π)
+W = NoiseTransport(t0, f, randn!, rv, noise_prototype=f(nothing, p, t0, rv))
 ```
 
 If the random process is expected to be multi-dimensional, it is preferable to use an in-place transport function, and, in this case, the `noise_prototype` must be given. Here is an example with a scalar random vector with a beta distribution, from `Distributions.jl`.
