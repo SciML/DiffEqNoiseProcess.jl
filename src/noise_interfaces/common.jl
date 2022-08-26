@@ -109,6 +109,12 @@ function DiffEqBase.reinit!(W::NoiseTransport, dt;
     W.curt = t0
     W.dt = dt
 
+    if typeof(W.rv) <: AbstractArray
+        W.RV(W.rng, W.rv)
+    else
+        W.rv = W.RV(W.rng)
+    end
+
     if isinplace(W)
         W.curW .= first(W(t0))
         W.dW .= W.curW
@@ -123,12 +129,6 @@ function DiffEqBase.reinit!(W::NoiseTransport, dt;
             W.curZ = last(W(t0))
             W.dZ = W.curZ
         end
-    end
-
-    if typeof(W.rv) <: AbstractArray
-        W.RV(W.rng, W.rv)
-    elseif W.rv !== nothing && W.RV !== nothing
-        W.rv = W.RV(W.rng)
     end
 
 return nothing
