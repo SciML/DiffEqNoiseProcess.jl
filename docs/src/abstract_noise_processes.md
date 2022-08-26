@@ -21,7 +21,7 @@ The recursion terminates when the query time agrees within some tolerance
 with `tmid` or when the maximum depth of the tree is reached.
 
 Lastly, the `NoiseFunction` allows you to use any function of time as the
-noise process. Together, this functionality allows you to define any colored
+noise process, while `NoiseTransport` let you define a random process as the transport of a random variable or a random vector by a time-dependent function. Together, these functionalities allow you to define any colored
 noise process and use this efficiently and accurately in your simulations.
 
 ## The Standard `AbstractNoiseProcess`
@@ -40,6 +40,7 @@ differential equations.
 ```@docs
 NoiseWrapper
 NoiseFunction
+NoiseTransport
 NoiseGrid
 NoiseApproximation
 VirtualBrownianTree
