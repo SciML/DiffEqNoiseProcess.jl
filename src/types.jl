@@ -617,16 +617,17 @@ needs to be set.
 
 ## NoiseTransport Example
 
-The `NoiseTransport` requires you to pass an initial time, a transport function, a random variable and an initial realization of the random variable. The random variable can also be either out-of-place or in-place. It is assumed it is out-of-place when the realization is a subtype of `Number`, or in-place, when it is a subtype of `AbstractArray`. Here, a random variable is any function that accepts a random number generator, in the out-of-place case (e.g. `rand(rng)`), or a random number generator and a realization to be mutated (e.g. `rand!(rng, rv)`).
+The `NoiseTransport` requires you to pass an initial time, a transport function, a random variable and an initial realization of the random variable. The random variable can also be either out-of-place or in-place. It is assumed it is out-of-place when the realization is a subtype of `Number`, and in-place, when it is a subtype of `AbstractArray`. Here, a random variable is any function that accepts a random number generator, in the out-of-place case (e.g. `rand(rng)`), or a random number generator and a realization to be mutated (e.g. `rand!(rng, rv)`).
+
+The realization `rv` is used in the first time an `AbstractRODEProblem` is solved. Subsequent runs of the same problem will draw a different realization from the random variable `RV`, unless `reseed` is set to false. In the case of a `NoiseProblem`, however, a new realization will happen at the first run already, and, in this case, `rv` can be regarded as a realization prototype.
 
 As a first example, let us implement the Gaussian noise `W(t) = sin(Yt)`, where `Y` is a normal random variable.
 
 ```julia
 f(u, p, t, rv) = sin(rv * t)
 t0 = 0.0
-RV = randn
 rv = randn()
-W = NoiseTransport(t0, f, RV, rv)
+W = NoiseTransport(t0, f, randn, rv)
 ```
 
 If we want to build a scalar random process out of a random vector, then an in-place version for the random vector is required, as follows.
@@ -635,17 +636,16 @@ If we want to build a scalar random process out of a random vector, then an in-p
 using Random: randn!
 f(u, p, t, rv) = sin(t + rv[1]) + cos(t + rv[2])
 t0 = 0.0
-RV = randn!
 rv = randn(2)
-W = NoiseTransport(t0, f, RV, rv)
+W = NoiseTransport(t0, f, randn!, rv)
 ```
 
-If the random process is expected to be multi-dimensional, it is preferable to use an in-place transport function, and, in this case, the `noise_prototype` must be given. Here is an example with a scalar random vector.
+If the random process is expected to be multi-dimensional, it is preferable to use an in-place transport function, and, in this case, the `noise_prototype` must be given. Here is an example with a scalar random vector with a beta distribution, from `Distributions.jl`.
 
 ```julia
 f!(out, u, p, t, rv) = (out .= sin.(rv * t))
 t0 = 0.0
-RV = randn
+RV(rng) = rand(rng, Beta(2, 3))
 rv = 0.0
 W = NoiseTransport(t0, f!, RV, rv, noise_prototype = zeros(4))
 ```
@@ -663,10 +663,10 @@ function f!(out, u, p, t, v)
 end
 
 t0 = 0.0
-RV = randn! 
+RV!(rng, v) = (v[1] = randn(rng); v[2] = rand(rng)) 
 rv = zeros(2)
 
-W = NoiseTransport(t0, f!, RV, rv, noise_prototype = zeros(3))
+W = NoiseTransport(t0, f!, RV!, rv, noise_prototype = zeros(3))
 ```
 
 A `NoiseTransport` can be uses as driving noise for SDEs and RODEs. Have fun!
@@ -685,7 +685,7 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
     rv::Trv
     rng::RNGType
     reset::Bool
-    reseed::Bool # this is currently of no use since reseed is only used in a `NoiseProcess` in `StochasticDiffEq.jl/src/solve.jl/#L421`
+    reseed::Bool
 
     function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing, rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true, reseed = true; noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
         curt = t0
