@@ -37,6 +37,7 @@ include("noise_interfaces/noise_grid_interface.jl")
 include("noise_interfaces/noise_approximation_interface.jl")
 include("noise_interfaces/noise_wrapper_interface.jl")
 include("noise_interfaces/box_wedge_tail_interface.jl")
+include("noise_interfaces/noise_transport_interface.jl")
 include("noise_interfaces/common.jl")
 include("correlated_noisefunc.jl")
 include("pCN.jl")
@@ -61,7 +62,7 @@ export CompoundPoissonBridge, CompoundPoissonBridge!
 
 export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!
 
-export NoiseWrapper, NoiseFunction, NoiseGrid, NoiseApproximation
+export NoiseWrapper, NoiseFunction, NoiseGrid, NoiseApproximation, NoiseTransport
 
 export VirtualBrownianTree, VirtualBrownianTree!
 

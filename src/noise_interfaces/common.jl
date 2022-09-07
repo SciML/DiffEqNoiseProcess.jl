@@ -101,6 +101,38 @@ function DiffEqBase.reinit!(W::NoiseFunction, dt;
     return nothing
 end
 
+function DiffEqBase.reinit!(W::NoiseTransport, dt;
+                            t0 = W.t0,
+                            erase_sol = true,
+                            setup_next = false)
+    W.curt = t0
+    W.dt = dt
+
+    if typeof(W.rv) <: AbstractArray
+        W.RV(W.rng, W.rv)
+    else
+        W.rv = W.RV(W.rng)
+    end
+
+    if isinplace(W)
+        W.curW .= first(W(t0))
+        W.dW .= W.curW
+        if W.Z !== nothing
+            W.curZ .= last(W(t0))
+            W.dZ .= W.curZ
+        end
+    else
+        W.curW = first(W(t0))
+        W.dW = W.curW
+        if W.Z !== nothing
+            W.curZ = last(W(t0))
+            W.dZ = W.curZ
+        end
+    end
+
+    return nothing
+end
+
 function Base.reverse(W::AbstractNoiseProcess)
     if typeof(W) <: NoiseGrid
         if W.Z === nothing
