@@ -1,4 +1,4 @@
-@testset "NoiseWrapper" begin
+@testset "SDE NoiseWrapper" begin
     using StochasticDiffEq, DiffEqBase, DiffEqNoiseProcess, Test
 
     f1 = (u, p, t) -> 1.01u
@@ -12,7 +12,13 @@
     prob1 = SDEProblem(f1, g1, 1.0, (0.0, 1.0), noise = W2)
 
     sol2 = solve(prob1, EM(), dt = dt)
+    @test sol1.u ≈ sol2.u
 
+    sol2 = solve(prob1, EM(), dt = dt)
+    @test sol1.u ≈ sol2.u
+
+    prob1 = SDEProblem(f1, g1, 1.0, (0.0, 1.0), noise = W2)
+    sol2 = solve(prob1, EM(), dt = dt)
     @test sol1.u ≈ sol2.u
 
     W3 = NoiseWrapper(sol1.W)
