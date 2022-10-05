@@ -1,5 +1,5 @@
 @testset "Virtual Brownian Tree tests" begin
-    using DiffEqNoiseProcess, DiffEqBase, Test, Random
+    using DiffEqNoiseProcess, DiffEqBase, StochasticDiffEq, Test, Random
     import RandomNumbers, Random123
 
     W = VirtualBrownianTree(0.0, 0.0; tree_depth = 3, search_depth = 5)
@@ -63,4 +63,19 @@
     sol = solve(prob; dt = 1 / 10)
 
     @test isapprox(Base.summarysize(sol) / Base.summarysize(w0), 4, rtol = 1e-4)
+
+    # test reproducibility
+    f = (u, p, t) -> 1.01u
+    g = (u, p, t) -> 1.01u
+    dt = 1 // 2^4
+
+    W = VirtualBrownianTree(0.0, 0.0; tree_depth = 3, tend = 1.25)
+
+    prob = SDEProblem(f, g, 1.0, (0.0, 1.0), noise = W)
+
+    sol1 = solve(prob, EM(), dt = dt, save_noise = true)
+    sol2 = solve(prob, EM(), dt = dt)
+
+    @test sol1.W.W ≈ sol2.W.W
+    @test_broken sol1.u ≈ sol2.u
 end
