@@ -42,6 +42,26 @@ function DiffEqBase.reinit!(W::Union{NoiseProcess, NoiseApproximation}, dt;
     return nothing
 end
 
+function DiffEqBase.reinit!(W::VirtualBrownianTree, dt;
+                            t0 = W.t[1],
+                            erase_sol = false,
+                            setup_next = true)
+
+    # Back to noise's starting state
+    W.curt = W.t[1]
+    W.curW = W.W[1]
+    if W.curt != t0
+        # jump to prob's initial state if different from noise's
+        accept_step!(W, t0 - W.curt - W.dt, nothing, nothing)
+        W.curt += W.dt
+        W.curW += W.dW
+    end
+    # setup first step
+    W.dt = dt
+    setup_next && setup_next_step!(W, nothing, nothing)
+    return nothing
+end
+
 function DiffEqBase.reinit!(W::AbstractNoiseProcess, dt;
                             t0 = W.t[1],
                             erase_sol = true,
@@ -71,7 +91,7 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess, dt;
         end
         W.step_setup = true
     end
-    setup_next && setup_next_step!(W)
+    setup_next && setup_next_step!(W, nothing, nothing)
     return nothing
 end
 

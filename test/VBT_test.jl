@@ -77,5 +77,26 @@
     sol2 = solve(prob, EM(), dt = dt)
 
     @test sol1.W.W ≈ sol2.W.W
-    @test_broken sol1.u ≈ sol2.u
+    @test sol1.u ≈ sol2.u
+
+    sol2 = solve(prob, EM(), dt = dt)
+    @test sol1.W.W ≈ sol2.W.W
+    @test sol1.u ≈ sol2.u
+
+    prob2 = SDEProblem(f, g, sol1(0.5), (0.5, 1.0), noise = W)
+
+    sol2 = solve(prob2, EM(), dt = dt, save_noise = true)
+
+    @test sol1.W.W ≈ sol2.W.W
+    @test sol2.u[1] == sol1(0.5)
+    @test sol2.u[2] ≈ sol1(0.5 + dt)
+    @test sol1(sol2.t).u ≈ sol2.u
+
+    # Prepared a backwards test for reinit, but backward integration of VBT is not working (issue #125):
+    prob3 = SDEProblem(f, g, sol1(1.0), (1.0, 0.5), noise = W)
+
+    @test_broken @test_nowarn sol3 = solve(prob2, EM(), dt = dt, save_noise = true)
+
+    @test_broken sol1.W.W ≈ sol3.W.W
+    @test_broken sol1(sol3.t).u ≈ sol3.u
 end
