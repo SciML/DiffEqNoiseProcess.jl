@@ -69,8 +69,8 @@
     g = (u, p, t) -> 1.01u
     dt = 1 // 2^4
 
-    W = VirtualBrownianTree(0.0, 0.0; tree_depth = 3, tend = 1.25)
-
+    ## forward reproducibility
+    W = VirtualBrownianTree(0.0, 0.0; tree_depth = 5, tend = 2.0)
     prob = SDEProblem(f, g, 1.0, (0.0, 1.0), noise = W)
 
     sol1 = solve(prob, EM(), dt = dt, save_noise = true)
@@ -90,5 +90,28 @@
     @test sol1.W.W ≈ sol2.W.W
     @test sol2.u[1] == sol1(0.5)
     @test sol2.u[2] ≈ sol1(0.5 + dt)
+    @test sol1(sol2.t).u ≈ sol2.u
+
+    ## backward reproducibility
+    W = VirtualBrownianTree(-2.0, 0.0; tree_depth = 6, tend = 2.0)
+    prob = SDEProblem(f, g, 1.0, (1.0, 0.0), noise = W)
+
+    sol1 = solve(prob, EM(), dt = dt, save_noise = true)
+    sol2 = solve(prob, EM(), dt = dt)
+
+    @test sol1.W.W ≈ sol2.W.W
+    @test sol1.u ≈ sol2.u
+
+    sol2 = solve(prob, EM(), dt = dt)
+    @test sol1.W.W ≈ sol2.W.W
+    @test sol1.u ≈ sol2.u
+
+    prob2 = SDEProblem(f, g, sol1(0.5), (0.5, 0.0), noise = W)
+
+    sol2 = solve(prob2, EM(), dt = dt, save_noise = true)
+
+    @test sol1.W.W ≈ sol2.W.W
+    @test sol2.u[1] == sol1(0.5)
+    @test sol2.u[2] ≈ sol1(0.5 - dt)
     @test sol1(sol2.t).u ≈ sol2.u
 end
