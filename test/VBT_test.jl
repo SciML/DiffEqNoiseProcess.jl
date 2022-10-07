@@ -91,12 +91,4 @@
     @test sol2.u[1] == sol1(0.5)
     @test sol2.u[2] ≈ sol1(0.5 + dt)
     @test sol1(sol2.t).u ≈ sol2.u
-
-    # Prepared a backwards test for reinit, but backward integration of VBT is not working (issue #125):
-    prob3 = SDEProblem(f, g, sol1(1.0), (1.0, 0.5), noise = W)
-
-    @test_broken @test_nowarn sol3 = solve(prob3, EM(), dt = dt, save_noise = true)
-
-    @test_broken sol1.W.W ≈ sol3.W.W
-    @test_broken sol1(sol3.t).u ≈ sol3.u
 end
