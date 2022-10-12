@@ -3,10 +3,15 @@ end
 
 function interpolate!(W::VirtualBrownianTree, u, p, t)
     ts, timeseries, timeseries2 = W.t, W.W, W.Z
-    sign(W.dt) * t > sign(W.dt) * ts[end] &&
+
+    if t > ts[end] ≥ ts[1] || t < ts[end] < ts[1]
         error("Bridge cannot extrapolate past the final timepoint. Build a longer VBT to cover the integration.")
-    sign(W.dt) * t < sign(W.dt) * ts[1] &&
+    end
+
+    if t < ts[1] ≤ ts[end] || t > ts[1] ≥ ts[end]
         error("Bridge cannot extrapolate before the first timepoint. Build a longer VBT to cover the integration.")
+    end
+
     tdir = sign(ts[end] - ts[1])
 
     if t isa Union{Rational, Integer}
@@ -111,14 +116,15 @@ function accept_step!(W::VirtualBrownianTree, dt, u, p, setup_next = true)
     end
 
     W.dt = dt #dtpropose
+    t_min, t_max = extrema((W.t[begin], W.t[end]))
+    t = W.curt + W.dt
     if (W.dt isa Union{Rational, Integer})
-        if sign(W.dt) * (W.curt + W.dt) > sign(W.dt) * W.t[end]
+        if t < t_min || t > t_max
             setup_next = false
             W.step_setup = false
         end
     else
-        if sign(W.dt) * (W.curt + W.dt) >
-           sign(W.dt) * (W.t[end] + sign(W.dt) * 10eps(typeof(dt)))
+        if t < t_min - 10eps(typeof(dt)) || t > t_max + 10eps(typeof(dt))
             setup_next = false
             W.step_setup = false
         end
