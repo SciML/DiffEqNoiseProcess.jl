@@ -1357,7 +1357,3 @@ function Base.copy(W::NoiseApproximation)
     Wnew = NoiseApproximation(W.source1, W.source2)
     copy!(Wnew, W)
 end
-
-#Wnew.S₁.cur = W.S₁.cur
-#Wnew.S₁.numResets = W.S₁.numResets
-#Wnew.S₁.data = recursivecopy(W.S₁.data)
