@@ -1,5 +1,12 @@
 isinplace(W::AbstractNoiseProcess{T, N, S, inplace}) where {T, N, S, inplace} = inplace
 
+function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
+    for x in fieldnames(typeof(W))
+        setfield!(Wnew, x, deepcopy(getfield(W, x)))
+    end
+    Wnew
+end
+
 """
 ```julia
 mutable struct NoiseProcess{T,N,Tt,T2,T3,ZType,F,F2,inplace,S1,S2,RSWM,C,RNGType} <: {T,N,Vector{T2},inplace}
@@ -231,6 +238,52 @@ adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 function NoiseProcess(t0, W0, Z0, dist, bridge; kwargs...)
     iip = DiffEqBase.isinplace(dist, 7)
     NoiseProcess{iip}(t0, W0, Z0, dist, bridge; kwargs...)
+end
+
+#??? rswm::RSWM
+#??? cache::C
+
+function Base.copy!(Wnew::T, W::T) where {T <: NoiseProcess}
+    for x in (:dist, :bridge, :curt, :dt, :maxstacksize, :maxstacksize2, :save_everystep,
+              :iter, :reset, :reseed, :continuous)
+        setfield!(Wnew, x, getfield(W, x))
+    end
+    for x in (:t, :curW, :dW, :dWtilde, :dWtmp, :rng)
+        setfield!(Wnew, x, copy(getfield(W, x)))
+    end
+    if W.Z === nothing
+        Wnew.Z = nothing
+        Wnew.curZ = nothing
+        Wnew.dZ = nothing
+        Wnew.dZtilde = nothing
+        Wnew.dZtmp = nothing
+    else
+        Wnew.Z = recursivecopy(W.Z)
+        Wnew.curZ = copy(W.curZ)
+        Wnew.dZ = copy(W.dZ)
+        Wnew.dZtilde = copy(W.dZtilde)
+        Wnew.dZtmp = copy(W.dZtmp)
+    end
+    if W.cache === nothing
+        Wnew.cache = nothing
+    else
+        recursivecopy!(Wnew.cache, W.cache)
+    end
+    Wnew.W = recursivecopy(W.W)
+    Wnew.u = Wnew.W
+    Wnew.S₁.cur = W.S₁.cur
+    Wnew.S₁.numResets = W.S₁.numResets
+    Wnew.S₁.data = recursivecopy(W.S₁.data)
+    Wnew.S₂.cur = W.S₂.cur
+    Wnew.S₂.numResets = W.S₂.numResets
+    Wnew.S₂.data = recursivecopy(W.S₂.data)
+    Wnew.rswm = deepcopy(W.rswm)
+    Wnew
+end
+
+function Base.copy(W::NoiseProcess)
+    Wnew = NoiseProcess(W.curt, W.curW, W.curZ, W.dist, W.bridge)
+    copy!(Wnew, W)
 end
 
 """
@@ -595,6 +648,32 @@ function NoiseFunction(t0, W, Z = nothing; kwargs...)
     NoiseFunction{iip}(t0, W, Z; kwargs...)
 end
 
+function Base.:(==)(W1::T, W2::T) where {T<:NoiseFunction}
+    all(getfield(W1, x) == getfield(W2, x) for x in fieldnames(NoiseFunction))
+end
+
+function Base.copy!(Wnew::T, W::T) where {T <: NoiseFunction}
+    for x in (:W, :Z, :curt, :dt, :t0, :reset)
+        setfield!(Wnew, x, getfield(W, x))
+    end
+    for x in (:curW, :dW)
+        setfield!(Wnew, x, copy(getfield(W, x)))
+    end
+    if W.Z === nothing
+        Wnew.curZ = nothing
+        Wnew.dZ = nothing
+    else
+        Wnew.curZ = copy(W.curZ)
+        Wnew.dZ = copy(W.dZ)
+    end
+    Wnew
+end
+
+function Base.copy(W::NoiseFunction)
+    Wnew = NoiseFunction(W.t0, W.W, W.Z)
+    copy!(Wnew, W)
+end
+
 """
 ```julia
 mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType, inplace} <: AbstractNoiseProcess{T, N, nothing, inplace}
@@ -753,6 +832,28 @@ function NoiseTransport(t0, W, RV; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)
     rv = RV(rng)
     Z = nothing
     NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
+end
+
+function Base.copy!(Wnew::T, W::T) where {T <: NoiseTransport}
+    for x in (:W, :Z, :curt, :dt, :t0, :reset, :reseed)
+        setfield!(Wnew, x, getfield(W, x))
+    end
+    for x in (:curW, :dW, :RV, :rv, :rng)
+        setfield!(Wnew, x, copy(getfield(W, x)))
+    end
+    if W.Z === nothing
+        Wnew.curZ = nothing
+        Wnew.dZ = nothing
+    else
+        Wnew.curZ = copy(W.curZ)
+        Wnew.dZ = copy(W.dZ)
+    end
+    Wnew
+end
+
+function Base.copy(W::NoiseTransport)
+    Wnew = NoiseTransport(W.t0, W.W, copy(W.RV))
+    copy!(Wnew, W)
 end
 
 """
