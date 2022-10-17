@@ -1,6 +1,14 @@
 @testset "Copy Noises" begin
     using DiffEqNoiseProcess, StochasticDiffEq
 
+    function Base.:(==)(W1::T, W2::T) where {T<:DiffEqNoiseProcess.AbstractNoiseProcess}
+        all(getfield(W1, x) == getfield(W2, x) for x in fieldnames(typeof(W1)))
+    end
+
+    function Base.:(==)(W1::T, W2::T) where {T<:DiffEqNoiseProcess.NoiseApproximation}
+        all(getfield(W1, x) == getfield(W2, x) for x in fieldnames(typeof(W1)) if x ∉ (:source1,:source2))
+    end
+
     for W in (WienerProcess(0.0, 0.0),
               SimpleWienerProcess(0.0, 0.0),
               RealWienerProcess(0.0, 0.0),
@@ -27,5 +35,6 @@
 
     W = NoiseApproximation(init(SDEProblem((u, p, t) -> 1.5u, (u, p, t) -> 0.2u, 1.0, (0.0, Inf)), EM(), dt=1/10))
     W2 = copy(W)
+    @test W2 == W
     @test W2 !== W
 end

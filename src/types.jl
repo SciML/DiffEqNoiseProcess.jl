@@ -706,10 +706,6 @@ function NoiseFunction(t0, W, Z = nothing; kwargs...)
     NoiseFunction{iip}(t0, W, Z; kwargs...)
 end
 
-function Base.:(==)(W1::T, W2::T) where {T<:AbstractNoiseProcess}
-    all(getfield(W1, x) == getfield(W2, x) for x in fieldnames(typeof(W1)))
-end
-
 function Base.copy!(Wnew::T, W::T) where {T <: NoiseFunction}
     for x in (:W, :Z, :curt, :dt, :t0, :reset)
         setfield!(Wnew, x, getfield(W, x))
