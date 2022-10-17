@@ -1,5 +1,5 @@
 @testset "Copy Noises" begin
-    using DiffEqNoiseProcess, DiffEqBase
+    using DiffEqNoiseProcess, StochasticDiffEq
 
     for W in (WienerProcess(0.0, 0.0),
               SimpleWienerProcess(0.0, 0.0),
@@ -24,4 +24,8 @@
         @test W2 == W
         @test W2 !== W
     end
+
+    W = NoiseApproximation(init(SDEProblem((u, p, t) -> 1.5u, (u, p, t) -> 0.2u, 1.0, (0.0, Inf)), EM(), dt=1/10))
+    W2 = copy(W)
+    @test W2 !== W
 end

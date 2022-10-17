@@ -1146,6 +1146,34 @@ end
 (W::NoiseApproximation)(u, p, t) = interpolate!(W, t)
 (W::NoiseApproximation)(out1, out2, u, p, t) = interpolate!(out1, out2, W, t)
 
+function Base.copy!(Wnew::T, W::T) where {T <: NoiseApproximation}
+    for x in (:curt, :dt, :reset)
+        setfield!(Wnew, x, getfield(W, x))
+    end
+    for x in (:t, :curW, :dW)
+        setfield!(Wnew, x, copy(getfield(W, x)))
+    end
+    if W.Z === nothing
+        Wnew.Z = nothing
+        Wnew.curZ = nothing
+        Wnew.dZ = nothing
+    else
+        Wnew.Z = recursivecopy(W.Z)
+        Wnew.curZ = copy(W.curZ)
+        Wnew.dZ = copy(W.dZ)
+    end
+    Wnew.W = recursivecopy(W.W)
+    Wnew.u = Wnew.W
+    Wnew.source1 = deepcopy(W.source1)
+    Wnew.source2 = deepcopy(W.source2)
+    Wnew
+end
+
+function Base.copy(W::NoiseApproximation)
+    Wnew = NoiseApproximation(W.source1, W.source2)
+    copy!(Wnew, W)
+end
+
 """
 A `VirtualBrownianTree` builds the noise process starting from an initial
 time `t0`, the first value of the proces `W0`, and (optionally) the first
