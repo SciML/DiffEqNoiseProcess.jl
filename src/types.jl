@@ -377,6 +377,37 @@ function SimpleNoiseProcess(t0, W0, Z0, dist, bridge; kwargs...)
     SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
+function Base.copy!(Wnew::T, W::T) where {T <: SimpleNoiseProcess}
+    for x in (:dist, :bridge, :curt, :dt,  :save_everystep,
+              :iter, :reset, :reseed)
+        setfield!(Wnew, x, getfield(W, x))
+    end
+    for x in (:t, :curW, :dW, :dWtilde, :dWtmp, :rng)
+        setfield!(Wnew, x, copy(getfield(W, x)))
+    end
+    if W.Z === nothing
+        Wnew.Z = nothing
+        Wnew.curZ = nothing
+        Wnew.dZ = nothing
+        Wnew.dZtilde = nothing
+        Wnew.dZtmp = nothing
+    else
+        Wnew.Z = recursivecopy(W.Z)
+        Wnew.curZ = copy(W.curZ)
+        Wnew.dZ = copy(W.dZ)
+        Wnew.dZtilde = copy(W.dZtilde)
+        Wnew.dZtmp = copy(W.dZtmp)
+    end
+    Wnew.W = recursivecopy(W.W)
+    Wnew.u = Wnew.W
+    Wnew
+end
+
+function Base.copy(W::SimpleNoiseProcess)
+    Wnew = NoiseProcess(W.curt, W.curW, W.curZ, W.dist, W.bridge)
+    copy!(Wnew, W)
+end
+
 """
 ```julia
 mutable struct NoiseWrapper{T,N,Tt,T2,T3,T4,ZType,inplace} <: AbstractNoiseProcess{T,N,Vector{T2},inplace}
@@ -543,6 +574,33 @@ function (W::NoiseWrapper)(out1, out2, u, p, t)
 end
 adaptive_alg(W::NoiseWrapper) = adaptive_alg(W.source)
 
+function Base.copy!(Wnew::T, W::T) where {T <: NoiseWrapper}
+    for x in (:curt, :dt, :reset, :reverse)
+        setfield!(Wnew, x, getfield(W, x))
+    end
+    for x in (:t, :curW, :dW)
+        setfield!(Wnew, x, copy(getfield(W, x)))
+    end
+    if W.Z === nothing
+        Wnew.Z = nothing
+        Wnew.curZ = nothing
+        Wnew.dZ = nothing
+    else
+        Wnew.Z = recursivecopy(W.Z)
+        Wnew.curZ = copy(W.curZ)
+        Wnew.dZ = copy(W.dZ)
+    end
+    Wnew.W = recursivecopy(W.W)
+    Wnew.u = Wnew.W
+    copy!(Wnew.source, W.source)
+    Wnew
+end
+
+function Base.copy(W::NoiseWrapper)
+    Wnew = NoiseWrapper(W.source)
+    copy!(Wnew, W)
+end
+
 """
 ```julia
 mutable struct NoiseFunction{T,N,wType,zType,Tt,T2,T3,inplace} <: AbstractNoiseProcess{T,N,nothing,inplace}
@@ -648,8 +706,8 @@ function NoiseFunction(t0, W, Z = nothing; kwargs...)
     NoiseFunction{iip}(t0, W, Z; kwargs...)
 end
 
-function Base.:(==)(W1::T, W2::T) where {T<:NoiseFunction}
-    all(getfield(W1, x) == getfield(W2, x) for x in fieldnames(NoiseFunction))
+function Base.:(==)(W1::T, W2::T) where {T<:AbstractNoiseProcess}
+    all(getfield(W1, x) == getfield(W2, x) for x in fieldnames(typeof(W1)))
 end
 
 function Base.copy!(Wnew::T, W::T) where {T <: NoiseFunction}
@@ -953,6 +1011,32 @@ end
 (W::NoiseGrid)(t) = interpolate!(W, t)
 (W::NoiseGrid)(u, p, t) = interpolate!(W, t)
 (W::NoiseGrid)(out1, out2, u, p, t) = interpolate!(out1, out2, W, t)
+
+function Base.copy!(Wnew::T, W::T) where {T <: NoiseGrid}
+    for x in (:curt, :dt, :step_setup, :reset)
+        setfield!(Wnew, x, getfield(W, x))
+    end
+    for x in (:t, :curW, :dW)
+        setfield!(Wnew, x, copy(getfield(W, x)))
+    end
+    if W.Z === nothing
+        Wnew.Z = nothing
+        Wnew.curZ = nothing
+        Wnew.dZ = nothing
+    else
+        Wnew.Z = recursivecopy(W.Z)
+        Wnew.curZ = copy(W.curZ)
+        Wnew.dZ = copy(W.dZ)
+    end
+    Wnew.W = recursivecopy(W.W)
+    Wnew.u = Wnew.W
+    Wnew
+end
+
+function Base.copy(W::NoiseGrid)
+    Wnew = NoiseGrid(W.t, W.W, W.Z)
+    copy!(Wnew, W)
+end
 
 """
 In many cases, one would like to define a noise process directly by a stochastic
