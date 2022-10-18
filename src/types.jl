@@ -1305,7 +1305,7 @@ function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
             setfield!(Wnew, x, getfield(W, x))
         elseif getfield(W, x) isa AbstractNoiseProcess
             copy!(getfield(Wnew, x), getfield(W, x))
-        elseif getfield(W, x) isa AbstractArray{Nothing, N} where N
+        elseif getfield(W, x) isa AbstractArray{Nothing, N} where {N}
             setfield!(Wnew, x, copy(getfield(W, x)))
         elseif getfield(W, x) isa AbstractArray
             setfield!(Wnew, x, recursivecopy(getfield(W, x)))
