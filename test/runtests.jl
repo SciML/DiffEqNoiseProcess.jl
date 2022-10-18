@@ -9,6 +9,7 @@ using Test
     include("noise_wrapper.jl")
     include("noise_function.jl")
     include("noise_transport.jl")
+    include("copy_noise_test.jl")
     include("VBT_test.jl")
     include("noise_grid.jl")
     include("noise_approximation.jl")
