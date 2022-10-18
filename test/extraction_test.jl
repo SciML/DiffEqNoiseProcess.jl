@@ -23,7 +23,7 @@
         push!(tarray, t + dt)
     end
     @test length(_sol) == length(sol.W) == length(tarray)
-    @test _sol == sol
+    @test _sol ≈ sol (rtol = 0.01)
 
     Random.seed!(seed)
     W2 = WienerProcess!(0.0, [0.0], [0.0])
