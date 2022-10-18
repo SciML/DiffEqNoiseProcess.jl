@@ -28,8 +28,8 @@
               NoiseGrid(0:0.01:1, sin.(0:0.01:1)),
               NoiseWrapper(solve(NoiseProblem(WienerProcess(0.0, 0.0), (0.0, 0.1)),dt=1/10)),
               NoiseApproximation(init(SDEProblem((u, p, t) -> 1.5u, (u, p, t) -> 0.2u, 1.0, (0.0, Inf)), EM(), dt=1/10)),
-              BoxWedgeTail(0.0, zeros(2), box_grouping = :Columns),
-              VirtualBrownianTree(0.0, 0.0; tree_depth = 3, search_depth = 5)
+              #VirtualBrownianTree(0.0, 0.0; tree_depth = 3, search_depth = 5),
+              BoxWedgeTail(0.0, zeros(2), box_grouping = :Columns)
               )
         W2 = copy(W)
         @test W2 == W
