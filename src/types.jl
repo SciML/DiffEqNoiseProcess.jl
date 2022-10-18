@@ -1305,6 +1305,8 @@ function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
             setfield!(Wnew, x, getfield(W, x))
         elseif getfield(W, x) isa AbstractNoiseProcess
             copy!(getfield(Wnew, x), getfield(W, x))
+        elseif getfield(W, x) isa AbstractArray{Nothing, N} where N
+            setfield!(Wnew, x, copy(getfield(W, x)))
         elseif getfield(W, x) isa AbstractArray
             recursivecopy!(getfield(Wnew, x), getfield(W, x))
         elseif getfield(W, x) isa ResettableStacks.ResettableStack
@@ -1355,5 +1357,15 @@ end
 
 function Base.copy(W::NoiseApproximation)
     Wnew = NoiseApproximation(W.source1, W.source2)
+    copy!(Wnew, W)
+end
+
+function Base.copy(W::VirtualBrownianTree)
+    Wnew = VirtualBrownianTree(W.curt, W.curW, W.curZ, W.dist, W.bridge)
+    copy!(Wnew, W)
+end
+
+function Base.copy(W::BoxWedgeTail)
+    Wnew = BoxWedgeTail(W.curt, W.curW, W.curZ, W.dist, W.bridge)
     copy!(Wnew, W)
 end
