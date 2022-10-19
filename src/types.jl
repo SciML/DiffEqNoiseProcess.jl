@@ -1298,4 +1298,3 @@ function BoxWedgeTail!(t0, W0, Z0 = nothing, dist = INPLACE_WHITE_NOISE_DIST,
                        bridge = INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
     BoxWedgeTail{true}(t0, W0, Z0, dist, bridge; kwargs...)
 end
-
