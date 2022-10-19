@@ -1305,7 +1305,7 @@ function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
             setfield!(Wnew, x, getfield(W, x))
         elseif getfield(W, x) isa AbstractNoiseProcess
             copy!(getfield(Wnew, x), getfield(W, x))
-        elseif getfield(W, x) isa AbstractArray{Nothing, N} where {N}
+        elseif getfield(W, x) isa AbstractArray && !ismutable(eltype(getfield(W, x)))
             setfield!(Wnew, x, copy(getfield(W, x)))
         elseif getfield(W, x) isa AbstractArray
             setfield!(Wnew, x, recursivecopy(getfield(W, x)))
@@ -1313,10 +1313,15 @@ function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
             setfield!(getfield(Wnew, x), :cur, getfield(W, x).cur)
             setfield!(getfield(Wnew, x), :numResets, getfield(W, x).numResets)
             setfield!(getfield(Wnew, x), :data, recursivecopy(getfield(W, x).data))
+        elseif getfield(W, x) isa RSWM
+            setfield!(getfield(Wnew, x), :discard_length, getfield(W, x).discard_length)
+            setfield!(getfield(Wnew, x), :adaptivealg, getfield(W, x).adaptivealg)
         elseif getfield(W, x) isa Random.AbstractRNG
             setfield!(Wnew, x, copy(getfield(W, x)))
         else
+            @warn "Got deep with $x::$(typeof(getfield(W, x))) in $(first(split(string(typeof(W)), '}')))"
             setfield!(Wnew, x, deepcopy(getfield(W, x)))
+            throw(ArgumentError("Ops, got too deep!"))
         end
     end
     if hasfield(typeof(W), :u)
@@ -1331,7 +1336,7 @@ function Base.copy(W::NoiseProcess)
 end
 
 function Base.copy(W::SimpleNoiseProcess)
-    Wnew = NoiseProcess(W.curt, W.curW, W.curZ, W.dist, W.bridge)
+    Wnew = SimpleNoiseProcess(W.curt, W.curW, W.curZ, W.dist, W.bridge)
     copy!(Wnew, W)
 end
 
