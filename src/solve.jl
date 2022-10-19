@@ -4,7 +4,7 @@ function DiffEqBase.__solve(prob::AbstractNoiseProblem,
     if dt == 0.0 || dt == nothing
         error("dt must be provided to simulate a noise process. Please pass dt=...")
     end
-    W = deepcopy(prob.noise)
+    W = copy(prob.noise)
     if typeof(W) <: Union{NoiseProcess, NoiseTransport}
         if prob.seed != 0
             Random.seed!(W.rng, prob.seed)
