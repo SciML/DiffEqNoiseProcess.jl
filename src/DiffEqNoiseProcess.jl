@@ -22,6 +22,7 @@ using Markdown
 using DiffEqBase: @..
 
 include("types.jl")
+include("copy_noise_types.jl")
 include("wiener.jl")
 include("solve.jl")
 include("geometric_bm.jl")
