@@ -1,16 +1,18 @@
 @testset "Copy Noise test" begin
     using DiffEqNoiseProcess, StochasticDiffEq
 
-    function Base.:(==)(W1::T, W2::T) where {T <: DiffEqNoiseProcess.AbstractNoiseProcess}
+    # define a temporary equality suitable for comparing noise types (tab-completed by `\boxminus<tab>`)
+    ⊟(W1, W2) = (W1 == W2)
+    function ⊟(W1::T, W2::T) where {T <: DiffEqNoiseProcess.AbstractNoiseProcess}
         equal = true
         for x in fieldnames(T)
             xequal = true
             if getfield(W2, x) isa DiffEqNoiseProcess.ResettableStacks.ResettableStack
-                xequal &= all(getfield(getfield(W1, x), y) == getfield(getfield(W2, x), y) for y in (:cur, :numResets, :data))
+                xequal &= all(getfield(getfield(W1, x), y) ⊟ getfield(getfield(W2, x), y) for y in (:cur, :numResets, :data))
             elseif getfield(W2, x) isa DiffEqNoiseProcess.RSWM
-                xequal &= all(getfield(getfield(W1, x), y) == getfield(getfield(W2, x), y) for y in (:discard_length, :adaptivealg))
+                xequal &= all(getfield(getfield(W1, x), y) ⊟ getfield(getfield(W2, x), y) for y in (:discard_length, :adaptivealg))
             elseif !ismutable(getfield(W1, x)) || getfield(W1, x) isa AbstractArray || getfield(W1, x) === nothing || getfield(W2, x) === nothing
-                xequal &= (getfield(W1, x) == getfield(W2, x))
+                xequal &= (getfield(W1, x) ⊟ getfield(W2, x))
             end
             if xequal != true
                 @info "$x::$(typeof(getfield(W1, x))) with value W1.$x = $(getfield(W1, x)) and W2.$x = $(getfield(W2, x)) in $(first(split(string(T), '}')))"
@@ -34,7 +36,7 @@
         W2 = deepcopy(W)
         @test typeof(W2) == typeof(W)
         copy!(W2, W)
-        @test W2 == W
+        @test W2 ⊟ W
         @test W2 !== W
         @test W2.W === W2.u !== W.W === W.u
     end
@@ -45,9 +47,9 @@
         (RealWienerProcess(0.0, 0.0), RealWienerProcess(1.0, 1.0)))
         W = deepcopy(W1)
         @test typeof(W2) == typeof(W1)
-        @test W == W1
+        @test W ⊟ W1
         copy!(W2, W1)
-        @test W2 == W1
+        @test W2 ⊟ W1
         @test W2 !== W1
         @test W2.W === W2.u !== W1.W === W1.u
     end
@@ -63,7 +65,7 @@
         W2 = deepcopy(W)
         @test typeof(W2) == typeof(W)
         copy!(W2, W)
-        @test W2 == W
+        @test W2 ⊟ W
         @test W2 !== W
     end
 end
