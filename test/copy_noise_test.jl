@@ -39,6 +39,7 @@
         @test typeof(W2) == typeof(W)
         copy!(W2, W)
         @test W2 ⊟ W
+        @test copy(W) ⊟ W
         @test W2 !== W
         @test W2.W === W2.u !== W.W === W.u
     end
@@ -51,11 +52,13 @@
         @test W ⊟ W1
         copy!(W2, W1)
         @test W2 ⊟ W1
+        @test copy(W1) ⊟ W1
         @test W2 !== W1
         @test W2.W === W2.u !== W1.W === W1.u
     end
 
     for W in (NoiseFunction(0.0, (u, p, t) -> exp(t)),
+        NoiseTransport(0.0, (u, p, t, Y) -> exp(t), (rng) -> nothing),
               NoiseGrid(0:0.01:1, sin.(0:0.01:1)),
               NoiseWrapper(solve(NoiseProblem(WienerProcess(0.0, 0.0), (0.0, 0.1)),
                                  dt = 1 / 10)),
@@ -67,6 +70,7 @@
         @test typeof(W2) == typeof(W)
         copy!(W2, W)
         @test W2 ⊟ W
+        @test copy(W) ⊟ W
         @test W2 !== W
     end
 end
