@@ -1324,16 +1324,17 @@ function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
         elseif getfield(W, x) isa Random.AbstractRNG
             setfield!(Wnew, x, copy(getfield(W, x)))
         else
-            @warn "Got deep with $x::$(typeof(getfield(W, x))) in $(first(split(string(typeof(W)), '}')))"
+            # @warn "Got deep with $x::$(typeof(getfield(W, x))) in $(first(split(string(typeof(W)), '}')))"
             setfield!(Wnew, x, deepcopy(getfield(W, x)))
         end
     end
+    # field u should be an alias for field W:
     if hasfield(typeof(W), :u)
         Wnew.u = Wnew.W
     end
     Wnew
 end
-
+#= 
 function Base.copy(W::NoiseProcess)
     Wnew = NoiseProcess(W.curt, W.curW, W.curZ, W.dist, W.bridge)
     copy!(Wnew, W)
@@ -1378,3 +1379,4 @@ function Base.copy(W::BoxWedgeTail)
     Wnew = BoxWedgeTail(W.curt, W.curW, W.curZ, W.dist, W.bridge)
     copy!(Wnew, W)
 end
+ =#
