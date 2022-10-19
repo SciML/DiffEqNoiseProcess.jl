@@ -1338,34 +1338,37 @@ end
 
 function Base.copy(W::NoiseProcess)
     Wnew = NoiseProcess{isinplace(W)}(W.curt, W.curW, W.curZ, W.dist, W.bridge;
-    rswm = W.rswm, save_everystep = W.save_everystep,
-    rng = W.rng,
-    reset = W.reset, reseed = W.reseed, continuous = W.continuous, cache = W.cache)
+                                      rswm = W.rswm, save_everystep = W.save_everystep,
+                                      rng = W.rng,
+                                      reset = W.reset, reseed = W.reseed,
+                                      continuous = W.continuous, cache = W.cache)
     copy!(Wnew, W)
 end
 
 function Base.copy(W::SimpleNoiseProcess)
     Wnew = SimpleNoiseProcess{isinplace(W)}(W.curt, W.curW, W.curZ, W.dist, W.bridge;
-    save_everystep = W.save_everystep,
-    rng = W.rng,
-    reset = W.reset, reseed = W.reseed)
+                                            save_everystep = W.save_everystep,
+                                            rng = W.rng,
+                                            reset = W.reset, reseed = W.reseed)
     copy!(Wnew, W)
 end
 
-function Base.copy(W::Union{NoiseWrapper, NoiseGrid, NoiseApproximation, VirtualBrownianTree, BoxWedgeTail})
+function Base.copy(W::Union{NoiseWrapper, NoiseGrid, NoiseApproximation,
+                            VirtualBrownianTree, BoxWedgeTail})
     Wnew = typeof(W)((getfield(W, x) for x in fieldnames(typeof(W)))...)
     copy!(Wnew, W)
 end
 
 function Base.copy(W::NoiseFunction)
-    Wnew = NoiseFunction{isinplace(W)}(W.t0, W.W, W.Z; noise_prototype = W.curW, reset = W.reset)
+    Wnew = NoiseFunction{isinplace(W)}(W.t0, W.W, W.Z; noise_prototype = W.curW,
+                                       reset = W.reset)
     copy!(Wnew, W)
 end
 
 function Base.copy(W::NoiseTransport)
     Wnew = NoiseTransport{isinplace(W)}(W.t0, W.W, W.RV, W.rv, W.Z;
-    rng = W.rng,
-    reset = W.reset, reseed = W.reseed,
-    noise_prototype = W.curW)
+                                        rng = W.rng,
+                                        reset = W.reset, reseed = W.reseed,
+                                        noise_prototype = W.curW)
     copy!(Wnew, W)
 end
