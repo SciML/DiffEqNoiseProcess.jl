@@ -8,7 +8,7 @@ makedocs(sitename = "DiffEqNoiseProcess.jl",
          clean = true, doctest = false,
          format = Documenter.HTML(analytics = "UA-90474609-3",
                                   assets = ["assets/favicon.ico"],
-                                  canonical = "https://noise.sciml.ai/stable/"),
+                                  canonical = "https://docs.sciml.ai/DiffEqNoiseProcess/stable/"),
          pages = pages)
 
 deploydocs(repo = "github.com/SciML/DiffEqNoiseProcess.jl.git";
