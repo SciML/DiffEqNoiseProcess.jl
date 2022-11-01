@@ -506,7 +506,7 @@ struct Tail1{pType, distType, pdfType, cType} <: AbstractTail
                                         12 * one(rM))
         dist2 = Distributions.Uniform(zero(aM), aM)
 
-        dist = Distributions.Product([dist1, dist2])
+        dist = Distributions.product_distribution([dist1, dist2])
 
         c = convert(typeof(rM), 2.3)
 
