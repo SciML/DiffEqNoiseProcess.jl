@@ -126,4 +126,79 @@
         @test mean(solW_at_1)≈expected_mean rtol=0.1
         @test var(solW_at_1)≈expected_variance atol=0.1
     end
+
+    @testset "GBMBridge" begin
+        μ, σ = 1.2, 0.2
+        t0, tend = 0.0, 1.0
+        W0, Wend = 1.0, 2.0
+        Z0 =  Zend = nothing
+        W = GeometricBrownianBridge(μ, σ, t0, tend, W0, Wend, Z0, Zend)
+
+        t = 1.0
+        expected_mean = Wend
+        expected_variance = 0.0
+
+        meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
+        varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
+        @test meanW≈expected_mean rtol=0.1
+        @test varW≈expected_variance atol=0.1
+
+        prob = NoiseProblem(W, tspan)
+        ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol[end], false))
+        sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
+        @test mean(sol)≈expected_mean rtol=0.1
+        @test var(sol)≈expected_variance atol=0.1
+
+        prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
+
+        ensemble_probW = EnsembleProblem(prob,
+                                         output_func = (sol, i) -> (sol.W.W[end], false))
+
+        solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
+
+        @test mean(solW_at_1)≈expected_mean rtol=0.1
+        @test var(solW_at_1)≈expected_variance atol=0.1
+    end
+
+    @testset "CompoundPoissonBridge" begin
+        rate = (u, p, t) -> 100
+        W = CompoundPoissonBridge(rate, 0.0, 1.0, 0.0, 1.0)
+
+        t = 1.0
+        expected_mean = 1.0
+        expected_variance = 0.0
+
+        meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
+        varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
+        @test meanW≈expected_mean rtol=0.1
+        @test varW≈expected_variance atol=0.1
+
+        prob = NoiseProblem(W, tspan)
+        ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol[end], false))
+        sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
+        @test mean(sol)≈expected_mean rtol=0.1
+        @test var(sol)≈expected_variance atol=0.1
+
+        prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
+
+        ensemble_probW = EnsembleProblem(prob,
+                                         output_func = (sol, i) -> (sol.W.W[end], false))
+
+        solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
+
+        @test mean(solW_at_1)≈expected_mean rtol=0.1
+        @test var(solW_at_1)≈expected_variance atol=0.1
+    end
+
+    @testset "NoiseTransport" begin
+        W = NoiseTransport(0.0, (u, p, t, Y) -> Y * t, randn)
+        t = 2.0
+        expected_mean = 0.0
+        expected_variance = t^2
+
+        meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
+        varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
+        @test meanW≈expected_mean atol=0.1
+        @test varW≈expected_variance rtol=0.1
+    end
 end
