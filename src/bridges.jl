@@ -20,6 +20,7 @@ function BrownianBridge(t0, tend, W0, Wend, Z0 = nothing, Zend = nothing; kwargs
         Zh = nothing
     end
     push!(W.S₁, (h, Wh, Zh))
+    push!(W.reinitS₁, (h, Wh, Zh))
     W
 end
 
@@ -45,6 +46,7 @@ function BrownianBridge!(t0, tend, W0, Wh, Z0 = nothing, Zh = nothing; kwargs...
         Zh = nothing
     end
     push!(W.S₁, (h, Wh, Zh))
+    push!(W.reinitS₁, (h, Wh, Zh))
     W
 end
 
@@ -59,6 +61,7 @@ function GeometricBrownianBridge(μ, σ, t0, tend, W0, Wend, Z0 = nothing, Zend 
         Zh = nothing
     end
     push!(W.S₁, (h, Wh, Zh))
+    push!(W.reinitS₁, (h, Wh, Zh))
     W
 end
 
@@ -73,6 +76,7 @@ function GeometricBrownianBridge!(μ, σ, t0, tend, W0, Wh, Z0 = nothing, Zh = n
         Zh = nothing
     end
     push!(W.S₁, (h, Wh, Zh))
+    push!(W.reinitS₁, (h, Wh, Zh))
     W
 end
 
@@ -81,6 +85,7 @@ function CompoundPoissonBridge(rate, t0, tend, W0, Wend; kwargs...)
     h = tend - t0
     Wh = Wend - W0
     push!(W.S₁, (h, Wh, nothing))
+    push!(W.reinitS₁, (h, Wh, nothing))
     W
 end
 
@@ -89,5 +94,6 @@ function CompoundPoissonBridge!(rate, t0, tend, W0, Wh; kwargs...)
     h = tend - t0
     Wh .-= W0
     push!(W.S₁, (h, Wh, nothing))
+    push!(W.reinitS₁, (h, Wh, nothing))
     W
 end

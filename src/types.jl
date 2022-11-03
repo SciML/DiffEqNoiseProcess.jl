@@ -163,6 +163,7 @@ mutable struct NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSW
     dZtmp::T3
     S₁::S1
     S₂::S2
+    reinitS₁::S1
     rswm::RSWM
     maxstacksize::Int
     maxstacksize2::Int
@@ -183,6 +184,8 @@ mutable struct NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSW
                                                          })
         S₂ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
                                                          })
+        reinitS₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
+        })
         if Z0 == nothing
             Z = nothing
             curZ = nothing
@@ -213,6 +216,7 @@ mutable struct NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSW
                                                                                    copy(W0),
                                                                                    dZtmp,
                                                                                    S₁, S₂,
+                                                                                   reinitS₁,
                                                                                    rswm, 0,
                                                                                    0,
                                                                                    save_everystep,
