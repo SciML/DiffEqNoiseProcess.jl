@@ -131,7 +131,7 @@
         μ, σ = 1.2, 0.2
         t0, tend = 0.0, 1.0
         W0, Wend = 1.0, 2.0
-        Z0 =  Zend = nothing
+        Z0 = Zend = nothing
         W = GeometricBrownianBridge(μ, σ, t0, tend, W0, Wend, Z0, Zend)
 
         t = 1.0
