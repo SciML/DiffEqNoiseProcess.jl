@@ -184,8 +184,9 @@ mutable struct NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSW
                                                          })
         S₂ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
                                                          })
-        reinitS₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
-        })
+        reinitS₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0),
+                                                               typeof(Z0)
+                                                               })
         if Z0 == nothing
             Z = nothing
             curZ = nothing

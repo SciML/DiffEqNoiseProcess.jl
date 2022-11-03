@@ -13,8 +13,8 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW ≈ expected_mean atol = 0.1
-        @test varW ≈ expected_variance rtol = 0.1
+        @test meanW≈expected_mean atol=0.1
+        @test varW≈expected_variance rtol=0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol[end], false))
@@ -45,8 +45,8 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW ≈ expected_mean atol = 0.1
-        @test varW ≈ expected_variance rtol = 0.1
+        @test meanW≈expected_mean atol=0.1
+        @test varW≈expected_variance rtol=0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol[end], false))
@@ -78,8 +78,8 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW ≈ expected_mean atol = 0.1
-        @test varW ≈ expected_variance rtol = 0.1
+        @test meanW≈expected_mean atol=0.1
+        @test varW≈expected_variance rtol=0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol[end], false))
@@ -107,8 +107,8 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW ≈ expected_mean rtol = 0.1
-        @test varW ≈ expected_variance atol = 0.1
+        @test meanW≈expected_mean rtol=0.1
+        @test varW≈expected_variance atol=0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol[end], false))
