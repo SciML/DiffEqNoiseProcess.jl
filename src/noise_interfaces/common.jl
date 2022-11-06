@@ -11,14 +11,21 @@ function DiffEqBase.reinit!(W::Union{NoiseProcess, NoiseApproximation}, dt;
         end
     end
 
-    W.curt = t0
-    W.dt = dt
     if typeof(W) <: NoiseApproximation
         reinit!(W.source1)
         if W.source2 != nothing
             reinit!(W.source2)
         end
+    elseif typeof(W) <: NoiseProcess
+        ResettableStacks.reset!(W.S₁)
+        while length(W.S₁) < length(W.reinitS₁)
+            push!(W.S₁, W.reinitS₁.data[W.S₁.cur + 1])
+        end
+        ResettableStacks.reset!(W.S₂)
     end
+
+    # Back to noise' starting state
+    W.curt = first(W.t)
 
     if isinplace(W)
         W.curW .= first(W.W)
@@ -32,13 +39,18 @@ function DiffEqBase.reinit!(W::Union{NoiseProcess, NoiseApproximation}, dt;
         end
     end
 
-    if typeof(W) <: NoiseProcess
-        while !isempty(W.S₁)
-            pop!(W.S₁) # Get a reset for this stack?
-        end
-        ResettableStacks.reset!(W.S₂)
+    if W.curt != t0
+        # jump to prob's initial state if different from noise's
+        W.dt = t0 - W.curt
+        setup_next_step!(W, nothing, nothing)
+        accept_step!(W, dt, nothing, nothing, false)
     end
-    setup_next && setup_next_step!(W)
+
+    # prepare for actual first step
+    W.dt = dt
+
+    setup_next && setup_next_step!(W, nothing, nothing)
+
     return nothing
 end
 
@@ -48,16 +60,60 @@ function DiffEqBase.reinit!(W::VirtualBrownianTree, dt;
                             setup_next = true)
 
     # Back to noise's starting state
-    W.curt = W.t[1]
-    W.curW = W.W[1]
+    W.curt = first(W.t)
+
+    if isinplace(W)
+        W.curW .= first(W.W)
+        if W.Z != nothing
+            W.curZ .= first(W.Z)
+        end
+    else
+        W.curW = first(W.W)
+        if W.Z != nothing
+            W.curZ = first(W.Z)
+        end
+    end
+
     if W.curt != t0
         # jump to prob's initial state if different from noise's
-        accept_step!(W, t0 - W.curt - W.dt, nothing, nothing)
-        W.curt += W.dt
-        W.curW += W.dW
+        W.dt = t0 - W.curt
+        setup_next_step!(W, nothing, nothing)
+        accept_step!(W, dt, nothing, nothing, false)
     end
-    # setup first step
+
+    # prepare for actual first step
     W.dt = dt
+    setup_next && setup_next_step!(W, nothing, nothing)
+    return nothing
+end
+
+function DiffEqBase.reinit!(W::NoiseGrid, dt;
+                            t0 = W.t[1],
+                            erase_sol = true,
+                            setup_next = false)
+    W.curt = t0
+    W.dt = dt
+    if t0 == W.t[1]
+        idx = 1
+    else
+        tdir = sign(W.t[2] - W.t[1])
+        @inbounds idx = searchsortedfirst(W.t, t0 - tdir * 10eps(typeof(t0)),
+                                          rev = tdir < 0)
+        # (tdir < 0) && (idx -= one(idx))
+    end
+
+    if isinplace(W)
+        W.curW .= W.W[idx]
+        if W.Z != nothing
+            W.curZ .= W.Z[idx]
+        end
+    else
+        W.curW = W.W[idx]
+        if W.Z != nothing
+            W.curZ = W.Z[idx]
+        end
+    end
+    W.step_setup = true
     setup_next && setup_next_step!(W, nothing, nothing)
     return nothing
 end
@@ -68,29 +124,7 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess, dt;
                             setup_next = false)
     W.curt = t0
     W.dt = dt
-    if typeof(W) <: NoiseGrid
-        if t0 == W.t[1]
-            idx = 1
-        else
-            tdir = sign(W.t[2] - W.t[1])
-            @inbounds idx = searchsortedfirst(W.t, t0 - tdir * 10eps(typeof(t0)),
-                                              rev = tdir < 0)
-            # (tdir < 0) && (idx -= one(idx))
-        end
 
-        if isinplace(W)
-            W.curW .= W.W[idx]
-            if W.Z != nothing
-                W.curZ .= W.Z[idx]
-            end
-        else
-            W.curW = W.W[idx]
-            if W.Z != nothing
-                W.curZ = W.Z[idx]
-            end
-        end
-        W.step_setup = true
-    end
     setup_next && setup_next_step!(W, nothing, nothing)
     return nothing
 end

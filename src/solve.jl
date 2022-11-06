@@ -12,12 +12,10 @@ function DiffEqBase.__solve(prob::AbstractNoiseProblem,
             Random.seed!(W.rng, rand(UInt64))
         end
     end
-    if typeof(W) <: NoiseTransport && W.reset
-        reinit!(W, prob.tspan[1], t0 = prob.tspan[1])
-    else
-        W.curt = prob.tspan[1]
-        W.dt = dt
+    if W.reset
+        reinit!(W, dt, t0 = prob.tspan[1])
     end
+
     setup_next_step!(W, nothing, nothing)
     tType = typeof(W.curt)
     while W.curt < prob.tspan[2]
