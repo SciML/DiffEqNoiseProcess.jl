@@ -272,9 +272,15 @@ end
     save_noise = true
     _seed = 0x952197dfddfdce1f
 
-    W = WienerProcess(t,rand_prototype,
-                    save_everystep=save_noise,
-                    rng = Xorshifts.Xoroshiro128Plus(_seed))
+    if VERSION > v"1.6"
+        W = WienerProcess(t,rand_prototype,
+                        save_everystep=save_noise,
+                        rng = Xorshifts.Xoroshiro128Plus(_seed))
+    else
+        W = WienerProcess(t,rand_prototype,
+                        save_everystep=save_noise,
+                        rng = MersenneTwisters.MT19937(_seed))
+    end
     bW = NoiseProcess(W, vec(W.dW))
     @test bW.dW isa AbstractVector && W.dW isa AbstractMatrix
 end
