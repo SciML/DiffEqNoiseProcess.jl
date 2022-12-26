@@ -283,6 +283,6 @@ end
     end
     prob = NoiseProblem(W,(0.0,1.0))
     W2 = solve(prob;dt=0.1)
-    bW = NoiseProcess(W2, vec.(W2.W))
+    bW = DiffEqNoiseProcess.vec_NoiseProcess(W2)
     @test bW.dW isa AbstractVector && W.dW isa AbstractMatrix
 end
