@@ -281,6 +281,8 @@ end
                           save_everystep = save_noise,
                           rng = MersenneTwisters.MT19937(_seed))
     end
-    bW = NoiseProcess(W, vec(W.dW))
+    prob = NoiseProblem(W,(0.0,1.0))
+    W2 = solve(prob;dt=0.1)
+    bW = NoiseProcess(W2, vec.(W2.W))
     @test bW.dW isa AbstractVector && W.dW isa AbstractMatrix
 end
