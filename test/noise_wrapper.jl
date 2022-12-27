@@ -1,4 +1,4 @@
-using DiffEqNoiseProcess, Test, Random
+using DiffEqNoiseProcess, Test, Random, RandomNumbers
 using StochasticDiffEq, LinearAlgebra
 @testset "NoiseWrapper" begin
     _W = WienerProcess(0.0, 0.0, 0.0)
@@ -263,4 +263,26 @@ end
     @test checkWrapper.u[end]≈soloop.u[end] rtol=1e-10
     @test checkWrapper.W.W[end]≈soloop.W.W[end] rtol=1e-10
     @test checkWrapper(soloop.t[indx1:end]).u≈soloop.u[indx1:end] rtol=1e-10
+end
+
+@testset "Diagonal to Non-diagonal NoiseProcess conversion" begin
+    t = 0.0
+    dtleft = 0.01
+    rand_prototype = [0.0 0.0 0.0; 0.0 0.0 0.0]
+    save_noise = true
+    _seed = 0x952197dfddfdce1f
+
+    if VERSION > v"1.6"
+        W = WienerProcess(t, rand_prototype,
+                          save_everystep = save_noise,
+                          rng = Xorshifts.Xoroshiro128Plus(_seed))
+    else
+        W = WienerProcess(t, rand_prototype,
+                          save_everystep = save_noise,
+                          rng = MersenneTwisters.MT19937(_seed))
+    end
+    prob = NoiseProblem(W, (0.0, 1.0))
+    W2 = solve(prob; dt = 0.1)
+    bW = DiffEqNoiseProcess.vec_NoiseProcess(W2)
+    @test bW.dW isa AbstractVector && W.dW isa AbstractMatrix
 end
