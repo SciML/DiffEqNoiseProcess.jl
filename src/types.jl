@@ -177,17 +177,17 @@ mutable struct NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSW
 end
 
 function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
-                            rswm = RSWM(), save_everystep = true,
-                            rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
-                            reset = true, reseed = true, continuous = true,
-                            cache = nothing) where {iip}
+                           rswm = RSWM(), save_everystep = true,
+                           rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+                           reset = true, reseed = true, continuous = true,
+                           cache = nothing) where {iip}
     S₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
-                                                        })
+                                                     })
     S₂ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
-                                                        })
+                                                     })
     reinitS₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0),
-                                                            typeof(Z0)
-                                                            })
+                                                           typeof(Z0)
+                                                           })
     if Z0 == nothing
         Z = nothing
         curZ = nothing
@@ -204,29 +204,38 @@ function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
     W = [copy(W0)]
     N = length((size(W0)..., length(W)))
     NoiseProcess{eltype(eltype(W0)), N, typeof(t0), typeof(W0), typeof(dZ), typeof(Z),
-        typeof(dist), typeof(bridge),
-        iip, typeof(S₁), typeof(S₂), typeof(rswm), typeof(cache), typeof(rng)}(dist,
-                                                                                bridge,
-                                                                                [t0], W,
-                                                                                W, Z, t0,
-                                                                                copy(W0),
-                                                                                curZ, t0,
-                                                                                copy(W0),
-                                                                                dZ,
-                                                                                copy(W0),
-                                                                                dZtilde,
-                                                                                copy(W0),
-                                                                                dZtmp,
-                                                                                S₁, S₂,
-                                                                                reinitS₁,
-                                                                                rswm, 0,
-                                                                                0,
-                                                                                save_everystep,
-                                                                                0, rng,
-                                                                                reset,
-                                                                                reseed,
-                                                                                continuous,
-                                                                                cache)
+                 typeof(dist), typeof(bridge),
+                 iip, typeof(S₁), typeof(S₂), typeof(rswm), typeof(cache), typeof(rng)}(dist,
+                                                                                        bridge,
+                                                                                        [
+                                                                                            t0,
+                                                                                        ],
+                                                                                        W,
+                                                                                        W,
+                                                                                        Z,
+                                                                                        t0,
+                                                                                        copy(W0),
+                                                                                        curZ,
+                                                                                        t0,
+                                                                                        copy(W0),
+                                                                                        dZ,
+                                                                                        copy(W0),
+                                                                                        dZtilde,
+                                                                                        copy(W0),
+                                                                                        dZtmp,
+                                                                                        S₁,
+                                                                                        S₂,
+                                                                                        reinitS₁,
+                                                                                        rswm,
+                                                                                        0,
+                                                                                        0,
+                                                                                        save_everystep,
+                                                                                        0,
+                                                                                        rng,
+                                                                                        reset,
+                                                                                        reseed,
+                                                                                        continuous,
+                                                                                        cache)
 end
 
 function vec_NoiseProcess(W::NoiseProcess{T, N, Tt}) where {T, N, Tt}
@@ -253,31 +262,32 @@ function vec_NoiseProcess(W::NoiseProcess{T, N, Tt}) where {T, N, Tt}
     S₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(W.curt), Wtype, Ztype})
     S₂ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(W.curt), Wtype, Ztype})
     reinitS₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(W.curt), Wtype, Ztype})
-    
+
     NoiseProcess{T, N, Tt, Wtype, typeof(dZ), typeof(Z),
-        typeof(W.dist), typeof(W.bridge),
-        iip, typeof(S₁), typeof(S₂), typeof(W.rswm), typeof(W.cache), typeof(W.rng)}(W.dist,
-                                                                                W.bridge,
-                                                                                W.t, _W,
-                                                                                _W, Z, W.curt,
-                                                                                vec(W.curW),
-                                                                                curZ, W.curt,
-                                                                                vec(W.dW),
-                                                                                dZ,
-                                                                                vec(W.dWtilde),
-                                                                                dZtilde,
-                                                                                vec(W.dWtmp),
-                                                                                dZtmp,
-                                                                                S₁, S₂,
-                                                                                reinitS₁,
-                                                                                W.rswm, W.maxstacksize,
-                                                                                W.maxstacksize2,
-                                                                                W.save_everystep,
-                                                                                W.iter, W.rng,
-                                                                                W.reset,
-                                                                                W.reseed,
-                                                                                W.continuous,
-                                                                                W.cache)
+                 typeof(W.dist), typeof(W.bridge),
+                 iip, typeof(S₁), typeof(S₂), typeof(W.rswm), typeof(W.cache), typeof(W.rng)
+                 }(W.dist,
+                   W.bridge,
+                   W.t, _W,
+                   _W, Z, W.curt,
+                   vec(W.curW),
+                   curZ, W.curt,
+                   vec(W.dW),
+                   dZ,
+                   vec(W.dWtilde),
+                   dZtilde,
+                   vec(W.dWtmp),
+                   dZtmp,
+                   S₁, S₂,
+                   reinitS₁,
+                   W.rswm, W.maxstacksize,
+                   W.maxstacksize2,
+                   W.save_everystep,
+                   W.iter, W.rng,
+                   W.reset,
+                   W.reseed,
+                   W.continuous,
+                   W.cache)
 end
 
 (W::NoiseProcess)(t) = interpolate!(W, nothing, nothing, t)
