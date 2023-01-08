@@ -33,15 +33,15 @@ function interpolate!(W::NoiseGrid, t)
     @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
                  (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
         val1 = timeseries[i]
-        timeseries2 != nothing ? val2 = timeseries2[i] : val2 = nothing
+        timeseries2 !== nothing ? val2 = timeseries2[i] : val2 = nothing
     elseif ts[i - 1] == t # Can happen if it's the first value!
         val1 = timeseries[i - 1]
-        timeseries2 != nothing ? val2 = timeseries2[i - 1] : val2 = nothing
+        timeseries2 !== nothing ? val2 = timeseries2[i - 1] : val2 = nothing
     else
         dt = ts[i] - ts[i - 1]
         Θ = (t - ts[i - 1]) / dt
         val1 = linear_interpolant(Θ, dt, timeseries[i - 1], timeseries[i])
-        timeseries2 != nothing ?
+        timeseries2 !== nothing ?
         val2 = linear_interpolant(Θ, dt, timeseries2[i - 1], timeseries2[i]) :
         val2 = nothing
     end
@@ -65,15 +65,15 @@ function interpolate!(out1, out2, W::NoiseGrid, t)
     @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
                  (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
         copyto!(out1, timeseries[i])
-        timeseries2 != nothing && copyto!(out2, timeseries2[i])
+        timeseries2 !== nothing && copyto!(out2, timeseries2[i])
     elseif ts[i - 1] == t # Can happen if it's the first value!
         copyto!(out1, timeseries[i - 1])
-        timeseries2 != nothing && copyto!(out2, timeseries2[i - 1])
+        timeseries2 !== nothing && copyto!(out2, timeseries2[i - 1])
     else
         dt = ts[i] - ts[i - 1]
         Θ = (t - ts[i - 1]) / dt
         linear_interpolant!(out1, Θ, dt, timeseries[i - 1], timeseries[i])
-        timeseries2 != nothing &&
+        timeseries2 !== nothing &&
             linear_interpolant!(out2, Θ, dt, timeseries2[i - 1], timeseries2[i])
     end
 end
@@ -86,13 +86,13 @@ function calculate_step!(W::NoiseGrid, dt, u, p)
     if isinplace(W)
         interpolate!(W.dW, W.dZ, W, t)
         W.dW .-= W.curW
-        if W.Z != nothing
+        if W.Z !== nothing
             W.dZ .-= W.curZ
         end
     else
         new_W, new_Z = W(t)
         W.dW = new_W - W.curW
-        if W.Z != nothing
+        if W.Z !== nothing
             W.dZ = new_Z - W.curZ
         end
     end
@@ -108,7 +108,7 @@ function accept_step!(W::NoiseGrid, dt, u, p, setup_next = true)
         W.curW += W.dW
     end
     W.curt += W.dt
-    if W.Z != nothing
+    if W.Z !== nothing
         if isinplace(W)
             W.curZ .+= W.dZ
         else
