@@ -14,7 +14,7 @@ function BrownianBridge(t0, tend, W0, Wend, Z0 = nothing, Zend = nothing; kwargs
     W = WienerProcess(t0, W0, Z0; kwargs...)
     h = tend - t0
     Wh = Wend - W0
-    if Z0 != nothing
+    if Z0 !== nothing
         Zh = Zend - Z0
     else
         Zh = nothing
@@ -40,7 +40,7 @@ function BrownianBridge!(t0, tend, W0, Wh, Z0 = nothing, Zh = nothing; kwargs...
     W = WienerProcess!(t0, W0, Z0; kwargs...)
     h = tend - t0
     Wh .-= W0
-    if Z0 != nothing
+    if Z0 !== nothing
         Zh .-= Z0
     else
         Zh = nothing
@@ -55,7 +55,7 @@ function GeometricBrownianBridge(μ, σ, t0, tend, W0, Wend, Z0 = nothing, Zend 
     W = GeometricBrownianMotionProcess(μ, σ, t0, W0, Z0; kwargs...)
     h = tend - t0
     Wh = Wend - W0
-    if Z0 != nothing
+    if Z0 !== nothing
         Zh = Zend - Z0
     else
         Zh = nothing
@@ -70,7 +70,7 @@ function GeometricBrownianBridge!(μ, σ, t0, tend, W0, Wh, Z0 = nothing, Zh = n
     W = GeometricBrownianMotionProcess!(μ, σ, t0, W0, Z0; kwargs...)
     h = tend - t0
     Wh .-= W0
-    if Z0 != nothing
+    if Z0 !== nothing
         Zh .-= Z0
     else
         Zh = nothing

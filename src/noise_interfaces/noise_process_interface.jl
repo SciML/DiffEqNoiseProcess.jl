@@ -2,7 +2,7 @@
     if W.t != W.curt
         push!(W.W, copy(W.curW))
         push!(W.t, copy(W.curt))
-        if W.Z != nothing
+        if W.Z !== nothing
             push!(W.Z, copy(W.curZ))
         end
     end
@@ -15,12 +15,12 @@ end
 
     if isinplace(W)
         @.. W.curW += W.dW
-        if W.Z != nothing
+        if W.Z !== nothing
             @.. W.curZ += W.dZ
         end
     else
         W.curW += W.dW
-        if W.Z != nothing
+        if W.Z !== nothing
             W.curZ += W.dZ
         end
     end
@@ -28,7 +28,7 @@ end
     if W.save_everystep
         push!(W.W, copy(W.curW))
         push!(W.t, copy(W.curt))
-        if W.Z != nothing
+        if W.Z !== nothing
             push!(W.Z, copy(W.curZ))
         end
     end
@@ -55,13 +55,13 @@ end
         if !isinplace(W)
             dttmp = zero(W.dt)
             W.dW = zero(W.dW)
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.dZ = zero(W.dZ)
             end
         else
             dttmp = zero(W.dt)
             fill!(W.dW, zero(eltype(W.dW)))
-            if W.Z != nothing
+            if W.Z !== nothing
                 fill!(W.dZ, zero(eltype(W.dZ)))
             end
         end
@@ -72,12 +72,12 @@ end
                 dttmp += L₁
                 if isinplace(W)
                     @.. W.dW += L₂
-                    if W.Z != nothing
+                    if W.Z !== nothing
                         @.. W.dZ += L₃
                     end
                 else
                     W.dW += L₂
-                    if W.Z != nothing
+                    if W.Z !== nothing
                         W.dZ += L₃
                     end
                 end
@@ -91,36 +91,36 @@ end
                 dttmp += qtmp * L₁
                 if isinplace(W)
                     W.bridge(W.dWtilde, W, W.curW, L₂, qtmp, L₁, u, p, W.curt, W.rng)
-                    if W.Z != nothing
+                    if W.Z !== nothing
                         W.bridge(W.dZtilde, W, W.curZ, L₃, qtmp, L₁, u, p, W.curt, W.rng)
                     end
                 else
                     W.dWtilde = W.bridge(W.dW, W, W.curW, L₂, qtmp, L₁, u, p, W.curt, W.rng)
-                    if W.Z != nothing
+                    if W.Z !== nothing
                         W.dZtilde = W.bridge(W.dZ, W, W.curZ, L₃, qtmp, L₁, u, p, W.curt,
                                              W.rng)
                     end
                 end
                 if isinplace(W)
                     @.. W.dW += W.dWtilde
-                    if W.Z != nothing
+                    if W.Z !== nothing
                         @.. W.dZ += W.dZtilde
                     end
                 else
                     W.dW += W.dWtilde
-                    if W.Z != nothing
+                    if W.Z !== nothing
                         W.dZ += W.dZtilde
                     end
                 end
                 if (1 - qtmp) * L₁ > W.rswm.discard_length
                     if isinplace(W)
                         @.. L₂ -= W.dWtilde
-                        if W.Z != nothing
+                        if W.Z !== nothing
                             @.. L₃ -= W.dZtilde
                         end
                     else
                         L₂ -= W.dWtilde
-                        if W.Z != nothing
+                        if W.Z !== nothing
                             L₃ -= W.dZtilde
                         end
                     end
@@ -149,23 +149,23 @@ end
         if dtleft > W.rswm.discard_length #Stack emptied
             if isinplace(W)
                 W.dist(W.dWtilde, W, dtleft, u, p, W.curt, W.rng)
-                if W.Z != nothing
+                if W.Z !== nothing
                     W.dist(W.dZtilde, W, dtleft, u, p, W.curt, W.rng)
                 end
             else
                 W.dWtilde = W.dist(W.dW, W, dtleft, u, p, W.curt, W.rng)
-                if W.Z != nothing
+                if W.Z !== nothing
                     W.dZtilde = W.dist(W.dZ, W, dtleft, u, p, W.curt, W.rng)
                 end
             end
             if isinplace(W)
                 @.. W.dW += W.dWtilde
-                if W.Z != nothing
+                if W.Z !== nothing
                     @.. W.dZ += W.dZtilde
                 end
             else
                 W.dW += W.dWtilde
-                if W.Z != nothing
+                if W.Z !== nothing
                     W.dZ += W.dZtilde
                 end
             end
@@ -184,12 +184,12 @@ end
 @inline function calculate_step!(W::NoiseProcess, dt, u, p)
     if isinplace(W)
         W.dist(W.dW, W, dt, u, p, W.curt, W.rng)
-        if W.Z != nothing
+        if W.Z !== nothing
             W.dist(W.dZ, W, dt, u, p, W.curt, W.rng)
         end
     else
         W.dW = W.dist(W.dW, W, dt, u, p, W.curt, W.rng)
-        if W.Z != nothing
+        if W.Z !== nothing
             W.dZ = W.dist(W.dZ, W, dt, u, p, W.curt, W.rng)
         end
     end
@@ -203,12 +203,12 @@ end
        (adaptive_alg(W) == :RSwM3 && isempty(W.S₂))
         if isinplace(W)
             W.bridge(W.dWtilde, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.bridge(W.dZtilde, W, 0, W.dZ, q, dtnew, u, p, W.curt, W.rng)
             end
         else
             W.dWtilde = W.bridge(W.dW, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.dZtilde = W.bridge(W.dZ, W, 0, W.dZ, q, dtnew, u, p, W.curt, W.rng)
             end
         end
@@ -238,12 +238,12 @@ end
         end
         if isinplace(W)
             copyto!(W.dW, W.dWtilde)
-            if W.Z != nothing
+            if W.Z !== nothing
                 copyto!(W.dZ, W.dZtilde)
             end
         else
             W.dW = W.dWtilde
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.dZ = W.dZtilde
             end
         end
@@ -251,13 +251,13 @@ end
         if !isinplace(W)
             dttmp = zero(W.dt)
             W.dWtmp = zero(W.dW)
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.dZtmp = zero(W.dZtmp)
             end
         else
             dttmp = zero(W.dt)
             fill!(W.dWtmp, zero(eltype(W.dWtmp)))
-            if W.Z != nothing
+            if W.Z !== nothing
                 fill!(W.dZtmp, zero(eltype(W.dZtmp)))
             end
         end
@@ -269,12 +269,12 @@ end
             dttmp += L₁
             if isinplace(W)
                 @.. W.dWtmp += L₂
-                if W.Z != nothing
+                if W.Z !== nothing
                     @.. W.dZtmp += L₃
                 end
             else
                 W.dWtmp += L₂
-                if W.Z != nothing
+                if W.Z !== nothing
                     W.dZtmp += L₃
                 end
             end
@@ -285,12 +285,12 @@ end
                 qM = dtM / L₁
                 if isinplace(W)
                     W.bridge(W.dWtilde, W, 0, L₂, qM, L₁, u, p, W.curt, W.rng)
-                    if W.Z != nothing
+                    if W.Z !== nothing
                         W.bridge(W.dZtilde, W, 0, L₃, qM, L₁, u, p, W.curt, W.rng)
                     end
                 else
                     W.dWtilde = W.bridge(W.dW, W, 0, L₂, qM, L₁, u, p, W.curt, W.rng)
-                    if W.Z != nothing
+                    if W.Z !== nothing
                         W.dZtilde = W.bridge(W.dZ, W, 0, L₃, qM, L₁, u, p, W.curt, W.rng)
                     end
                 end
@@ -321,12 +321,12 @@ end
         end # end while
         if isinplace(W)
             @.. W.dW += W.dWtilde - W.dWtmp
-            if W.Z != nothing
+            if W.Z !== nothing
                 @.. W.dZ += W.dZtilde - W.dZtmp
             end
         else
             W.dW += W.dWtilde - W.dWtmp
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.dZ += W.dZtilde - W.dZtmp
             end
         end
@@ -346,14 +346,14 @@ end
         if isinplace(W)
             W.dist(W.dW, W, dt, u, p, t, W.rng)
             W.curW .+= W.dW
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.dist(W.dZ, W, dt, u, p, t, W.rng)
                 W.curZ .+= W.dZ
             end
         else
             W.dW = W.dist(W.dW, W, dt, u, p, t, W.rng)
             W.curW += W.dW
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.dZ = W.dist(W.dZ, W, dt, u, p, t, W.rng)
                 W.curZ += W.dZ
             end
@@ -363,7 +363,7 @@ end
             push!(W.t, t)
             push!(W.W, out1)
         end
-        if W.Z != nothing
+        if W.Z !== nothing
             out2 = copy(W.curZ)
             if W.save_everystep
                 push!(W.Z, out2)
@@ -384,7 +384,7 @@ end
             else
                 W.curW = W.W[i]
             end
-            if W.Z != nothing
+            if W.Z !== nothing
                 if isinplace(W)
                     W.curZ .= W.Z[i]
                 else
@@ -401,7 +401,7 @@ end
             else
                 W.curW = W.W[i]
             end
-            if W.Z != nothing
+            if W.Z !== nothing
                 if isinplace(W)
                     W.curZ .= W.Z[i]
                 else
@@ -414,14 +414,14 @@ end
         else
             if reverse
                 W0, Wh = W.W[i], W.W[i - 1]
-                if W.Z != nothing
+                if W.Z !== nothing
                     Z0, Zh = W.Z[i + 1], W.Z[i]
                 end
                 h = W.t[i - 1] - W.t[i]
                 q = (t - W.t[i]) / h
             else
                 W0, Wh = W.W[i - 1], W.W[i]
-                if W.Z != nothing
+                if W.Z !== nothing
                     Z0, Zh = W.Z[i - 1], W.Z[i]
                 end
                 h = W.t[i] - W.t[i - 1]
@@ -436,7 +436,7 @@ end
                 else
                     @. new_curW += W0
                 end
-                if W.Z != nothing
+                if W.Z !== nothing
                     new_curZ = similar(W.dZ)
                     W.bridge(new_curZ, W, Z0, Zh, q, h, u, p, t, W.rng)
                     if iscontinuous(W)
@@ -457,7 +457,7 @@ end
                 else
                     new_curW += W0
                 end
-                if W.Z != nothing
+                if W.Z !== nothing
                     new_curZ = W.bridge(W.dZ, W, Z0, Zh, q, h, u, p, t, W.rng)
                     if iscontinuous(W)
                         new_curZ += (1 - q) * Z0
@@ -473,7 +473,7 @@ end
                 insert!(W.W, i, new_curW)
                 insert!(W.t, i, t)
             end
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.curZ = new_curZ
                 if W.save_everystep
                     insert!(W.Z, i, new_curZ)
@@ -494,20 +494,20 @@ end
         end
         W.dist(W.dW, W, dt, u, p, t, W.rng)
         out1 .+= W.dW
-        if W.Z != nothing
+        if W.Z !== nothing
             W.dist(W.dZ, W, dt, u, p, t, W.rng)
             out2 .+= W.dZ
         end
         if W.save_everystep
             push!(W.t, t)
             push!(W.W, copy(out1))
-            if W.Z != nothing
+            if W.Z !== nothing
                 push!(W.Z, copy(out2))
             end
         end
         # if abs(dt) < 1e-14
         #   @. out1 = W.curW + W.dW
-        #   if W.Z != nothing
+        #   if W.Z !== nothing
         #     @. out2 = W.curZ + W.dZ
         #   end
         # end
@@ -521,26 +521,26 @@ end
 
         if t isa Union{Rational, Integer} && t == W.t[i]
             out1 .= W.W[i]
-            if W.Z != nothing
+            if W.Z !== nothing
                 out2 .= W.Z[i]
             end
         elseif !(t isa Union{Rational, Integer}) &&
                isapprox(t, W.t[i]; atol = 100eps(typeof(t)), rtol = 100eps(t))
             out1 .= W.W[i]
-            if W.Z != nothing
+            if W.Z !== nothing
                 out2 .= W.Z[i]
             end
         else
             if reverse
                 W0, Wh = W.W[i], W.W[i - 1]
-                if W.Z != nothing
+                if W.Z !== nothing
                     Z0, Zh = W.Z[i], W.Z[i - 1]
                 end
                 h = W.t[i - 1] - W.t[i]
                 q = (t - W.t[i]) / h
             else
                 W0, Wh = W.W[i - 1], W.W[i]
-                if W.Z != nothing
+                if W.Z !== nothing
                     Z0, Zh = W.Z[i - 1], W.Z[i]
                 end
                 h = W.t[i] - W.t[i - 1]
@@ -551,7 +551,7 @@ end
 
             out1 .+= (1 - q) * W0
 
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.bridge(out2, W, Z0, Zh, q, h, u, p, t, W.rng)
                 out2 .+= (1 - q) * Z0
             end
@@ -560,7 +560,7 @@ end
                 insert!(W.W, i, copy(out1))
                 insert!(W.t, i, t)
             end
-            if W.Z != nothing
+            if W.Z !== nothing
                 W.curZ .= out2
                 if W.save_everystep
                     insert!(W.Z, i, copy(out2))
@@ -574,7 +574,7 @@ end
 function resize_stack!(W::NoiseProcess, i)
     for j in eachindex(W.S₂.data)
         resize!(W.S₂.data[j][2], i)
-        W.S₂.data[j][3] != nothing && resize!(W.S₂.data[j][3], i)
+        W.S₂.data[j][3] !== nothing && resize!(W.S₂.data[j][3], i)
     end
     return nothing
 end
@@ -582,7 +582,7 @@ end
 function deleteat_stack!(W::NoiseProcess, i)
     for j in eachindex(W.S₂.data)
         deleteat!(W.S₂.data[j][2], i)
-        W.S₂.data[j][3] != nothing && deleteat!(W.S₂.data[j][3], i)
+        W.S₂.data[j][3] !== nothing && deleteat!(W.S₂.data[j][3], i)
     end
     return nothing
 end
@@ -591,7 +591,7 @@ end
 function addat_stack!(W::NoiseProcess,i)
   for j in eachindex(W.S₂.data)
     resize!(W.S₂.data[j],i)
-    W.S₂.data[j][3] != nothing && resize!(W.S₂.data[j][3],i)
+    W.S₂.data[j][3] !== nothing && resize!(W.S₂.data[j][3],i)
   end
 end
 =#

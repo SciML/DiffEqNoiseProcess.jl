@@ -23,12 +23,12 @@ function interpolate!(W::VirtualBrownianTree, u, p, t)
     @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
                  (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
         val1 = timeseries[i]
-        W.dZ != nothing ? val2 = timeseries2[i] : val2 = nothing
+        W.dZ !== nothing ? val2 = timeseries2[i] : val2 = nothing
     elseif ts[i - 1] == t # Can happen if it's the first value!
         val1 = timeseries[i - 1]
-        W.dZ != nothing ? val2 = timeseries2[i - 1] : val2 = nothing
+        W.dZ !== nothing ? val2 = timeseries2[i - 1] : val2 = nothing
     else
-        if W.dZ != nothing
+        if W.dZ !== nothing
             val1, val2 = search_VBT(t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
                                     timeseries[i],
                                     timeseries2[i - 1], timeseries2[i], W, W.rng)
@@ -58,12 +58,12 @@ function interpolate!(out1, out2, W::VirtualBrownianTree, u, p, t)
     @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
                  (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
         copyto!(out1, timeseries[i])
-        W.dZ != nothing && copyto!(out2, timeseries2[i])
+        W.dZ !== nothing && copyto!(out2, timeseries2[i])
     elseif ts[i - 1] == t # Can happen if it's the first value!
         copyto!(out1, timeseries[i - 1])
-        W.dZ != nothing && copyto!(out2, timeseries2[i - 1])
+        W.dZ !== nothing && copyto!(out2, timeseries2[i - 1])
     else
-        if W.dZ != nothing
+        if W.dZ !== nothing
             search_VBT!(out1, out2, t, seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
                         timeseries[i],
                         timeseries2[i - 1], timeseries2[i], W, W.rng)
@@ -84,13 +84,13 @@ function calculate_step!(W::VirtualBrownianTree, dt, u, p)
     if isinplace(W)
         interpolate!(W.dW, W.dZ, W, u, p, t)
         W.dW .-= W.curW
-        if W.dZ != nothing
+        if W.dZ !== nothing
             W.dZ .-= W.curZ
         end
     else
         new_W, new_Z = interpolate!(W, u, p, t)
         W.dW = new_W - W.curW
-        if W.dZ != nothing
+        if W.dZ !== nothing
             W.dZ = new_Z - W.curZ
         end
     end
@@ -107,7 +107,7 @@ function accept_step!(W::VirtualBrownianTree, dt, u, p, setup_next = true)
         W.curW += W.dW
     end
     W.curt += W.dt
-    if W.dZ != nothing
+    if W.dZ !== nothing
         if isinplace(W)
             W.curZ .+= W.dZ
         else
@@ -171,7 +171,7 @@ function create_VBT_cache(bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.A
 
     dW = Wend - W0 # for input of bridges
 
-    if Z0 != nothing
+    if Z0 !== nothing
         Zs = [Z0, Zend]
     else
         Zs = [nothing]
@@ -184,7 +184,7 @@ function create_VBT_cache(bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.A
     for level in 1:Int(tree_depth)
         new_ts = Vector{typeof(t0)}(undef, 0)
         new_Ws = Vector{typeof(W0)}(undef, 0)
-        if Z0 != nothing
+        if Z0 !== nothing
             new_Zs = Vector{typeof(Z0)}(undef, 0)
         else
             new_Zs = [nothing]
@@ -202,7 +202,7 @@ function create_VBT_cache(bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.A
             #q = (t-t0)/h # == 1//2 defined above
 
             w = bridge(dW, nothing, W0tmp, W1tmp, q, h, nothing, nothing, nothing, rng)
-            if Z0 != nothing
+            if Z0 !== nothing
                 Z0tmp, Z1tmp = Zs[i], Zs[i + 1]
                 z = bridge(dW, nothing, Z0tmp, Z1tmp, q, h, nothing, nothing, nothing, rng)
                 append!(new_Zs, Z0)
@@ -215,7 +215,7 @@ function create_VBT_cache(bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.A
         push!(new_ts, tend)
         push!(new_Ws, Wend)
 
-        if Z0 != nothing
+        if Z0 !== nothing
             push!(new_Zs, Zend)
             Zs = new_Zs
         end
@@ -241,7 +241,7 @@ function search_VBT(t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
 
     out1 = W.bridge(W.dW, nothing, W0, W1, q, h, nothing, nothing, nothing, rng)
 
-    if Z0 != nothing
+    if Z0 !== nothing
         out2 = W.bridge(W.dW, nothing, Z0, Z1, q, h, nothing, nothing, nothing, rng)
     else
         out2 = nothing
@@ -249,7 +249,7 @@ function search_VBT(t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
 
     # create a buffer
     W0tmp, W1tmp = copy(W0), copy(W1)
-    if Z0 != nothing
+    if Z0 !== nothing
         Z0tmp, Z1tmp = copy(Z0), copy(Z1)
     end
 
@@ -259,14 +259,14 @@ function search_VBT(t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
             t1 = tmid
             W0tmp, W1tmp = W0tmp, out1
             seed_v = seed_l
-            if Z0 != nothing
+            if Z0 !== nothing
                 Z0tmp, Z1tmp = Z0tmp, out2
             end
         else
             t0 = tmid
             W0tmp, W1tmp = out1, W1tmp
             seed_v = seed_r
-            if Z0 != nothing
+            if Z0 !== nothing
                 Z0tmp, Z1tmp = out2, Z1tmp
             end
         end
@@ -276,7 +276,7 @@ function search_VBT(t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
         h = t1 - t0
 
         out1 = W.bridge(W.dW, nothing, W0tmp, W1tmp, q, h, nothing, nothing, nothing, rng)
-        if Z0 != nothing
+        if Z0 !== nothing
             out2 = W.bridge(W.dW, nothing, Z0tmp, Z1tmp, q, h, nothing, nothing, nothing,
                             rng)
         end
@@ -298,14 +298,14 @@ function search_VBT!(out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrow
     # create a buffer
     copyto!(W.W0tmp, W0)
     copyto!(W.W1tmp, W1)
-    if Z0 != nothing
+    if Z0 !== nothing
         copyto!(W.Z0tmp, Z0)
         copyto!(W.Z1tmp, Z1)
     end
 
     W.bridge(out1, W.dW, nothing, W.W0tmp, W.W1tmp, q, h, nothing, nothing, nothing, rng)
 
-    if Z0 != nothing
+    if Z0 !== nothing
         W.bridge(out2, W.dW, nothing, W.Z0tmp, W.Z1tmp, q, h, nothing, nothing, nothing,
                  rng)
     end
@@ -316,14 +316,14 @@ function search_VBT!(out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrow
             t1 = tmid
             copyto!(W.W1tmp, out1)
             seed_v = seed_l
-            if Z0 != nothing
+            if Z0 !== nothing
                 copyto!(W.Z1tmp, out2)
             end
         else
             t0 = tmid
             copyto!(W.W0tmp, out1)
             seed_v = seed_r
-            if Z0 != nothing
+            if Z0 !== nothing
                 copyto!(W.Z0tmp, out2)
             end
         end
@@ -334,7 +334,7 @@ function search_VBT!(out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrow
 
         W.bridge(out1, W.dW, nothing, W.W0tmp, W.W1tmp, q, h, nothing, nothing, nothing,
                  rng)
-        if Z0 != nothing
+        if Z0 !== nothing
             W.bridge(out2, W.dW, nothing, W.Z0tmp, W.Z1tmp, q, h, nothing, nothing, nothing,
                      rng)
         end

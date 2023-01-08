@@ -6,14 +6,14 @@ function DiffEqBase.reinit!(W::Union{NoiseProcess, NoiseApproximation}, dt;
     if erase_sol
         resize!(W.t, 1)
         resize!(W.W, 1)
-        if W.Z != nothing
+        if W.Z !== nothing
             resize!(W.Z, 1)
         end
     end
 
     if typeof(W) <: NoiseApproximation
         reinit!(W.source1)
-        if W.source2 != nothing
+        if W.source2 !== nothing
             reinit!(W.source2)
         end
     elseif typeof(W) <: NoiseProcess
@@ -29,12 +29,12 @@ function DiffEqBase.reinit!(W::Union{NoiseProcess, NoiseApproximation}, dt;
 
     if isinplace(W)
         W.curW .= first(W.W)
-        if W.Z != nothing
+        if W.Z !== nothing
             W.curZ .= first(W.Z)
         end
     else
         W.curW = first(W.W)
-        if W.Z != nothing
+        if W.Z !== nothing
             W.curZ = first(W.Z)
         end
     end
@@ -64,12 +64,12 @@ function DiffEqBase.reinit!(W::VirtualBrownianTree, dt;
 
     if isinplace(W)
         W.curW .= first(W.W)
-        if W.Z != nothing
+        if W.Z !== nothing
             W.curZ .= first(W.Z)
         end
     else
         W.curW = first(W.W)
-        if W.Z != nothing
+        if W.Z !== nothing
             W.curZ = first(W.Z)
         end
     end
@@ -104,12 +104,12 @@ function DiffEqBase.reinit!(W::NoiseGrid, dt;
 
     if isinplace(W)
         W.curW .= W.W[idx]
-        if W.Z != nothing
+        if W.Z !== nothing
             W.curZ .= W.Z[idx]
         end
     else
         W.curW = W.W[idx]
-        if W.Z != nothing
+        if W.Z !== nothing
             W.curZ = W.Z[idx]
         end
     end

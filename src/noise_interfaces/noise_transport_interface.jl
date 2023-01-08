@@ -16,13 +16,13 @@ function calculate_step!(W::NoiseTransport, dt, u, p)
     if isinplace(W)
         W(W.dW, W.dZ, u, p, W.curt + dt, W.rv)
         W.dW .-= W.curW
-        if W.Z != nothing
+        if W.Z !== nothing
             W.dZ .-= W.curZ
         end
     else
         new_W, new_Z = W(u, p, W.curt + dt, W.rv)
         W.dW = new_W - W.curW
-        if W.Z != nothing
+        if W.Z !== nothing
             W.dZ = new_Z - W.curZ
         end
     end
@@ -37,7 +37,7 @@ function accept_step!(W::NoiseTransport, dt, u, p, setup_next = true)
         W.curW += W.dW
     end
     W.curt += W.dt
-    if W.Z != nothing
+    if W.Z !== nothing
         if isinplace(W)
             W.curZ .+= W.dZ
         else

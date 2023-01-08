@@ -634,7 +634,7 @@ end
 
 (W::NoiseFunction)(t) = W(nothing, nothing, t)
 function (W::NoiseFunction)(u, p, t)
-    if W.Z != nothing
+    if W.Z !== nothing
         if isinplace(W)
             out2 = similar(W.dZ)
             W.Z(out2, u, p, t)
@@ -654,7 +654,7 @@ function (W::NoiseFunction)(u, p, t)
 end
 function (W::NoiseFunction)(out1, out2, u, p, t)
     W.W(out1, u, p, t)
-    W.Z != nothing && W.Z(out2, u, p, t)
+    W.Z !== nothing && W.Z(out2, u, p, t)
 end
 
 function NoiseFunction(t0, W, Z = nothing; kwargs...)
@@ -734,7 +734,7 @@ function f!(out, u, p, t, v)
 end
 
 t0 = 0.0
-RV!(rng, v) = (v[1] = randn(rng); v[2] = rand(rng)) 
+RV!(rng, v) = (v[1] = randn(rng); v[2] = rand(rng))
 rv = zeros(2)
 
 W = NoiseTransport(t0, f!, RV!, rv, noise_prototype = zeros(3))
@@ -1138,7 +1138,7 @@ function VirtualBrownianTree{iip}(t0, W0, Z0, dist, bridge;
         Wend = curW + dist(dW, nothing, tend - t0, nothing, nothing, nothing, rng)
     end
 
-    if Zend == nothing && Z0 != nothing
+    if Zend == nothing && Z0 !== nothing
         Zend = curW + bridge(dZ, nothing, tend - t0, nothing, nothing, nothing, rng)
     end
 
@@ -1147,7 +1147,7 @@ function VirtualBrownianTree{iip}(t0, W0, Z0, dist, bridge;
 
     if iip
         W0tmp, W1tmp = copy(W0), copy(Wend)
-        if Z0 != nothing
+        if Z0 !== nothing
             Z0tmp, Z1tmp = copy(Z0), copy(Zend)
         else
             Z0tmp, Z1tmp = nothing, nothing
