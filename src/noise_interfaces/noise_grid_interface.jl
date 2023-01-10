@@ -24,7 +24,7 @@ function interpolate!(W::NoiseGrid, t)
         error("Solution interpolation cannot extrapolate before the first timepoint. Build a longer NoiseGrid to cover the integration.")
     tdir = sign(ts[end] - ts[1])
 
-    W.cur_time[] += tdir
+    W.cur_time[] += 1
     W.cur_time[] = min(max(W.cur_time[], 1), length(ts)) # make sure it's inbounds
 
     # check if guess W.cur_time[] += tdir returned t correctly
@@ -76,7 +76,7 @@ function interpolate!(out1, out2, W::NoiseGrid, t)
 
     tdir = sign(ts[end] - ts[1])
 
-    W.cur_time[] += tdir
+    W.cur_time[] += 1
     W.cur_time[] = min(max(W.cur_time[], 1), length(ts)) # make sure it's inbounds
 
     # check if guess W.cur_time[] += tdir returned t correctly
