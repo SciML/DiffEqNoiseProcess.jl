@@ -19,9 +19,9 @@ jobs:
           - {user: SciML, repo: StochasticDiffEq.jl, group: Interface}
           - {user: SciML, repo: StochasticDiffEq.jl, group: Interface2}
           - {user: SciML, repo: StochasticDiffEq.jl, group: Interface3}
-          - {user: SciML, repo: DiffEqSensitivity.jl, group: SDE1}
-          - {user: SciML, repo: DiffEqSensitivity.jl, group: SDE2}
-          - {user: SciML, repo: DiffEqSensitivity.jl, group: SDE3}
+          - {user: SciML, repo: SciMLSensitivity.jl, group: SDE1}
+          - {user: SciML, repo: SciMLSensitivity.jl, group: SDE2}
+          - {user: SciML, repo: SciMLSensitivity.jl, group: SDE3}
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
