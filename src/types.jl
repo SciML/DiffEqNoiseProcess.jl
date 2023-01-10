@@ -872,7 +872,7 @@ W = NoiseGrid(t,brownian_values)
 We can then pass `W` as the `noise` argument of an `SDEProblem` to use it in
 an SDE.
 """
-mutable struct NoiseGrid{T, N, Tt, T2, T3, ZType, inplace} <:
+mutable struct NoiseGrid{T, N, Tt, T2, T3, ZType, RefType, inplace} <:
                AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     t::Vector{Tt}
     u::Vector{T2}
@@ -886,6 +886,7 @@ mutable struct NoiseGrid{T, N, Tt, T2, T3, ZType, inplace} <:
     dZ::T3
     step_setup::Bool
     reset::Bool
+    cur_time::RefType
 end
 
 function NoiseGrid(t, W, Z = nothing; reset = true)
@@ -901,19 +902,28 @@ function NoiseGrid(t, W, Z = nothing; reset = true)
         curZ = copy(Z[1])
         dZ = copy(Z[1])
     end
+
+    if sign(t[end] - t[1]) == 1
+        cur_time = Ref(1)
+    else
+        cur_time = Ref(length(t))
+    end
+
     (typeof(val) <: AbstractArray && !(typeof(val) <: SArray)) ? iip = true : iip = false
-    NoiseGrid{typeof(val), ndims(val), typeof(dt), typeof(dW), typeof(dZ), typeof(Z), iip}(t,
-                                                                                           W,
-                                                                                           W,
-                                                                                           Z,
-                                                                                           curt,
-                                                                                           curW,
-                                                                                           curZ,
-                                                                                           dt,
-                                                                                           dW,
-                                                                                           dZ,
-                                                                                           true,
-                                                                                           reset)
+    NoiseGrid{typeof(val), ndims(val), typeof(dt), typeof(dW), typeof(dZ), typeof(Z),
+              typeof(cur_time), iip}(t,
+                                     W,
+                                     W,
+                                     Z,
+                                     curt,
+                                     curW,
+                                     curZ,
+                                     dt,
+                                     dW,
+                                     dZ,
+                                     true,
+                                     reset,
+                                     cur_time)
 end
 
 (W::NoiseGrid)(t) = interpolate!(W, t)

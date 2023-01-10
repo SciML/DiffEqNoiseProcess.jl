@@ -24,26 +24,45 @@ function interpolate!(W::NoiseGrid, t)
         error("Solution interpolation cannot extrapolate before the first timepoint. Build a longer NoiseGrid to cover the integration.")
     tdir = sign(ts[end] - ts[1])
 
-    if t isa Union{Rational, Integer}
-        @inbounds i = searchsortedfirst(ts, t, rev = tdir < 0) # It's in the interval ts[i-1] to ts[i]
-    else
-        @inbounds i = searchsortedfirst(ts, t - tdir * 10eps(typeof(t)), rev = tdir < 0)
-    end
+    W.cur_time[] += 1
+    W.cur_time[] = min(max(W.cur_time[], 1), length(ts)) # make sure it's inbounds
 
-    @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
-                 (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
-        val1 = timeseries[i]
-        timeseries2 !== nothing ? val2 = timeseries2[i] : val2 = nothing
-    elseif ts[i - 1] == t # Can happen if it's the first value!
-        val1 = timeseries[i - 1]
-        timeseries2 !== nothing ? val2 = timeseries2[i - 1] : val2 = nothing
+    # check if guess W.cur_time[] += tdir returned t correctly
+    good_guess = (t isa Union{Rational, Integer} && ts[W.cur_time[]] == t) ||
+                 (!(t isa Union{Rational, Integer}) &&
+                  (isapprox(t, ts[W.cur_time[]]; atol = 100eps(typeof(t)),
+                            rtol = 100eps(t))))
+
+    if good_guess
+        @inbounds val1 = timeseries[W.cur_time[]]
+        @inbounds timeseries2 !== nothing ? val2 = timeseries2[W.cur_time[]] :
+                  val2 = nothing
+    elseif ts[W.cur_time[] - 1] == t # Can happen if it's the first value!
+        val1 = timeseries[W.cur_time[] - 1]
+        timeseries2 !== nothing ? val2 = timeseries2[W.cur_time[] - 1] : val2 = nothing
     else
-        dt = ts[i] - ts[i - 1]
-        Θ = (t - ts[i - 1]) / dt
-        val1 = linear_interpolant(Θ, dt, timeseries[i - 1], timeseries[i])
-        timeseries2 !== nothing ?
-        val2 = linear_interpolant(Θ, dt, timeseries2[i - 1], timeseries2[i]) :
-        val2 = nothing
+        if t isa Union{Rational, Integer}
+            @inbounds i = searchsortedfirst(ts, t, rev = tdir < 0) # It's in the interval ts[i-1] to ts[i]
+        else
+            @inbounds i = searchsortedfirst(ts, t - tdir * 10eps(typeof(t)), rev = tdir < 0)
+        end
+        W.cur_time[] = i
+        @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
+                     (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
+            # guess was wrong but still on grid
+            val1 = timeseries[i]
+            timeseries2 !== nothing ? val2 = timeseries2[i] : val2 = nothing
+        elseif ts[i - 1] == t # Can happen if it's the first value!
+            val1 = timeseries[i - 1]
+            timeseries2 !== nothing ? val2 = timeseries2[i - 1] : val2 = nothing
+        else
+            dt = ts[i] - ts[i - 1]
+            Θ = (t - ts[i - 1]) / dt
+            val1 = linear_interpolant(Θ, dt, timeseries[i - 1], timeseries[i])
+            timeseries2 !== nothing ?
+            val2 = linear_interpolant(Θ, dt, timeseries2[i - 1], timeseries2[i]) :
+            val2 = nothing
+        end
     end
     val1, val2
 end
@@ -54,27 +73,46 @@ function interpolate!(out1, out2, W::NoiseGrid, t)
         error("Solution interpolation cannot extrapolate past the final timepoint. Build a longer NoiseGrid to cover the integration.")
     sign(W.dt) * t < sign(W.dt) * (ts[1] - 10 * sign(W.dt) * eps(typeof(t))) &&
         error("Solution interpolation cannot extrapolate before the first timepoint. Build a longer NoiseGrid to cover the integration.")
+
     tdir = sign(ts[end] - ts[1])
 
-    if t isa Union{Rational, Integer}
-        @inbounds i = searchsortedfirst(ts, t, rev = tdir < 0) # It's in the interval ts[i-1] to ts[i]
-    else
-        @inbounds i = searchsortedfirst(ts, t - tdir * 10eps(typeof(t)), rev = tdir < 0)
-    end
+    W.cur_time[] += 1
+    W.cur_time[] = min(max(W.cur_time[], 1), length(ts)) # make sure it's inbounds
 
-    @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
-                 (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
-        copyto!(out1, timeseries[i])
-        timeseries2 !== nothing && copyto!(out2, timeseries2[i])
-    elseif ts[i - 1] == t # Can happen if it's the first value!
-        copyto!(out1, timeseries[i - 1])
-        timeseries2 !== nothing && copyto!(out2, timeseries2[i - 1])
+    # check if guess W.cur_time[] += tdir returned t correctly
+    good_guess = (t isa Union{Rational, Integer} && ts[W.cur_time[]] == t) ||
+                 (!(t isa Union{Rational, Integer}) &&
+                  (isapprox(t, ts[W.cur_time[]]; atol = 100eps(typeof(t)),
+                            rtol = 100eps(t))))
+
+    if good_guess
+        @inbounds copyto!(out1, timeseries[W.cur_time[]])
+        @inbounds timeseries2 !== nothing && copyto!(out2, timeseries2[W.cur_time[]])
+    elseif ts[W.cur_time[] - 1] == t # Can happen if it's the first value!
+        copyto!(out1, timeseries[W.cur_time[] - 1])
+        timeseries2 !== nothing && copyto!(out2, timeseries2[W.cur_time[] - 1])
     else
-        dt = ts[i] - ts[i - 1]
-        Θ = (t - ts[i - 1]) / dt
-        linear_interpolant!(out1, Θ, dt, timeseries[i - 1], timeseries[i])
-        timeseries2 !== nothing &&
-            linear_interpolant!(out2, Θ, dt, timeseries2[i - 1], timeseries2[i])
+        if t isa Union{Rational, Integer}
+            @inbounds i = searchsortedfirst(ts, t, rev = tdir < 0) # It's in the interval ts[i-1] to ts[i]
+        else
+            @inbounds i = searchsortedfirst(ts, t - tdir * 10eps(typeof(t)), rev = tdir < 0)
+        end
+        W.cur_time[] = i
+        @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
+                     (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
+            # guess was wrong but still on grid
+            copyto!(out1, timeseries[i])
+            timeseries2 !== nothing && copyto!(out2, timeseries2[i])
+        elseif ts[i - 1] == t # Can happen if it's the first value!
+            copyto!(out1, timeseries[i - 1])
+            timeseries2 !== nothing && copyto!(out2, timeseries2[i - 1])
+        else
+            dt = ts[i] - ts[i - 1]
+            Θ = (t - ts[i - 1]) / dt
+            linear_interpolant!(out1, Θ, dt, timeseries[i - 1], timeseries[i])
+            timeseries2 !== nothing &&
+                linear_interpolant!(out2, Θ, dt, timeseries2[i - 1], timeseries2[i])
+        end
     end
 end
 
