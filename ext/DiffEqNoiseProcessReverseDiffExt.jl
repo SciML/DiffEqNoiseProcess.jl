@@ -1,6 +1,6 @@
 module DiffEqNoiseProcessReverseDiffExt
 
-using DiffEqNoiseProcess, DiffEqBase
+using DiffEqNoiseProcess, DiffEqBase, Random
 isdefined(Base, :get_extension) ? (import ReverseDiff) : (import ..ReverseDiff)
 
 @inline function DiffEqNoiseProcess.wiener_randn(rng::Random.AbstractRNG,
