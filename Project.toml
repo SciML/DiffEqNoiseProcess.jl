@@ -17,10 +17,17 @@ Random123 = "74087812-796a-5b5d-8853-05524746bad3"
 RandomNumbers = "e6cf234a-135c-5ec9-84dd-332b85af5143"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
+Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 ResettableStacks = "ae5879a3-cd67-5da8-be7f-38c6eb64a37b"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+
+[weakdeps]
+ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
+
+[extensions]
+DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
 
 [compat]
 DiffEqBase = "6.11"
@@ -43,6 +50,7 @@ Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 HypothesisTests = "09f84164-cd44-5f33-b23f-e6b0d136a0d5"
 RandomNumbers = "e6cf234a-135c-5ec9-84dd-332b85af5143"
+ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 SDEProblemLibrary = "c72e72a9-a271-4b2b-8966-303ed956772e"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"

@@ -43,6 +43,13 @@ include("noise_interfaces/common.jl")
 include("correlated_noisefunc.jl")
 include("pCN.jl")
 
+import Requires
+@static if !isdefined(Base, :get_extension)
+    function __init__()
+        Requires.@require ReverseDiff="37e2e3b7-166d-5795-8a7a-e32c996b4267" begin include("../ext/DiffEqNoiseProcessReverseDiffExt.jl") end
+    end
+end
+
 export RSWM
 
 export NoiseProcess, SimpleNoiseProcess, adaptive_alg
