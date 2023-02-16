@@ -3,7 +3,7 @@ const one_over_sqrt2 = 1 / sqrt(2)
 @inline function wiener_randn(rng::AbstractRNG, proto::Array{T}) where {T}
     randn(rng, size(proto))
 end
-@inline function wiener_randn(rng::AbstractRNG, proto::T) where {T <: SArray}
+@inline function wiener_randn(rng::AbstractRNG, proto::T) where {T <: StaticArraysCore.SArray}
     randn(rng, T)
 end
 @inline function wiener_randn(rng::AbstractRNG, proto)
@@ -32,7 +32,7 @@ end
 end
 
 @inline function WHITE_NOISE_DIST(dW, W, dt, u, p, t, rng)
-    if typeof(dW) <: AbstractArray && !(typeof(dW) <: SArray)
+    if typeof(dW) <: AbstractArray && !(typeof(dW) <: StaticArraysCore.SArray)
         return @fastmath sqrt(abs(dt)) * wiener_randn(rng, dW)
     else
         return @fastmath sqrt(abs(dt)) * wiener_randn(rng, typeof(dW))

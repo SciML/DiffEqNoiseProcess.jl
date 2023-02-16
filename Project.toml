@@ -20,7 +20,7 @@ RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 ResettableStacks = "ae5879a3-cd67-5da8-be7f-38c6eb64a37b"
 SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
-StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [weakdeps]
@@ -43,7 +43,7 @@ RecursiveArrayTools = "2"
 ResettableStacks = "0.6, 1.0"
 Requires = "1"
 SciMLBase = "1"
-StaticArrays = "0.10, 0.11, 0.12, 1.0"
+StaticArraysCore = "1.4"
 julia = "1.6"
 
 [extras]
