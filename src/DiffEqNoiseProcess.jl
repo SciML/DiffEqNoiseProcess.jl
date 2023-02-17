@@ -1,7 +1,7 @@
 module DiffEqNoiseProcess
 
 using ResettableStacks, DiffEqBase, RecipesBase
-using RecursiveArrayTools, StaticArrays, Random, Statistics
+using RecursiveArrayTools, StaticArraysCore, Random, Statistics
 using LinearAlgebra
 
 import RandomNumbers: Xorshifts
