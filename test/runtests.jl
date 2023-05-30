@@ -28,4 +28,5 @@ using Test
     include("reinit_test.jl")
     include("BWT_test.jl")
     include("pcn_test.jl")
+    include("savestep_test.jl")
 end
