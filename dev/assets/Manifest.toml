@@ -184,7 +184,7 @@ version = "6.125.0"
 deps = ["DiffEqBase", "Distributions", "GPUArraysCore", "LinearAlgebra", "Markdown", "Optim", "PoissonRandom", "QuadGK", "Random", "Random123", "RandomNumbers", "RecipesBase", "RecursiveArrayTools", "Requires", "ResettableStacks", "SciMLBase", "StaticArraysCore", "Statistics"]
 path = "/home/runner/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
-version = "5.16.0"
+version = "5.17.0"
 
     [deps.DiffEqNoiseProcess.extensions]
     DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
