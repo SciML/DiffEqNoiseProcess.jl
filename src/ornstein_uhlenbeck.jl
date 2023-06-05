@@ -10,9 +10,9 @@ function (X::OrnsteinUhlenbeck)(dW, W, dt, u, p, t, rng) #dist
     else
         rand_val = wiener_randn(rng, typeof(dW))
     end
-    drift = X.μ .+ (W[end] .- X.μ) .* exp.(-X.Θ * dt)
+    drift = X.μ .+ (W.curW .- X.μ) .* exp.(-X.Θ * dt)
     diffusion = X.σ .* sqrt.((1 .- exp.(-2X.Θ * dt)) ./ (2X.Θ))
-    drift .+ rand_val .* diffusion .- W[end]
+    drift .+ rand_val .* diffusion .- W.curW
 end
 
 #=
@@ -59,8 +59,8 @@ end
 
 function (X::OrnsteinUhlenbeck!)(rand_vec, W, dt, u, p, t, rng) #dist!
     wiener_randn!(rng, rand_vec)
-    @.. rand_vec = X.μ + (W[end] - X.μ) * exp(-X.Θ * dt) +
-                   rand_vec * X.σ * sqrt((1 - exp.(-2 * X.Θ .* dt)) / (2 * X.Θ)) - W[end]
+    @.. rand_vec = X.μ + (W.curW - X.μ) * exp(-X.Θ * dt) +
+                   rand_vec * X.σ * sqrt((1 - exp.(-2 * X.Θ .* dt)) / (2 * X.Θ)) - W.curW
 end
 
 @doc doc"""
