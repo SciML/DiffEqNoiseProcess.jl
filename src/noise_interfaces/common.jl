@@ -226,3 +226,4 @@ function Base.reverse(W::AbstractNoiseProcess)
     end
     return backwardnoise
 end
+Base.reverse(W::VirtualBrownianTree) = W

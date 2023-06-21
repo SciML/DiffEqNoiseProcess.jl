@@ -1,19 +1,17 @@
 const one_over_sqrt2 = 1 / sqrt(2)
 @inline wiener_randn(rng::AbstractRNG, ::Type{T}) where {T} = randn(rng, T)
-@inline function wiener_randn(rng::AbstractRNG, proto::Array{T}) where {T}
-    randn(rng, size(proto))
+
+@inline function wiener_randn(rng::AbstractRNG, proto::AbstractArray{T}) where {T<:Number}
+    randn(rng, T, size(proto))
 end
-@inline function wiener_randn(rng::AbstractRNG, proto::T) where {T <: SArray}
+@inline function wiener_randn(rng::AbstractRNG,
+                              proto::T) where {T <: StaticArraysCore.SArray}
     randn(rng, T)
 end
 @inline function wiener_randn(rng::AbstractRNG, proto)
     convert(typeof(proto), randn(rng, size(proto)))
 end
-@inline wiener_randn!(rng::AbstractRNG, rand_vec::Array) = randn!(rng, rand_vec)
-@inline function wiener_randn(y::AbstractRNG, ::Type{Complex{T}}) where {T}
-    convert(T, one_over_sqrt2) * (randn(y, T) + im * randn(y, T))
-end
-
+@inline wiener_randn!(rng::AbstractRNG, rand_vec::AbstractArray) = randn!(rng, rand_vec)
 @inline function wiener_randn!(rng::AbstractRNG, rand_vec)
     rand_vec .= Base.Broadcast.Broadcasted(randn, ())
 end
@@ -32,7 +30,7 @@ end
 end
 
 @inline function WHITE_NOISE_DIST(dW, W, dt, u, p, t, rng)
-    if typeof(dW) <: AbstractArray && !(typeof(dW) <: SArray)
+    if typeof(dW) <: AbstractArray && !(typeof(dW) <: StaticArraysCore.SArray)
         return @fastmath sqrt(abs(dt)) * wiener_randn(rng, dW)
     else
         return @fastmath sqrt(abs(dt)) * wiener_randn(rng, typeof(dW))
