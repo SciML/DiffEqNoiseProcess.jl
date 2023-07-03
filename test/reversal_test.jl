@@ -84,13 +84,13 @@ using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
     _sol = deepcopy(sol) # to make sure the plot is correct
     W1 = NoiseGrid(reverse!(_sol.t), reverse!(_sol.W.W))
     prob1 = SDEProblem(f!, gnd!, sol[end], reverse(tspan), noise = W1,
-                       noise_rate_prototype = zeros(2, 4))
+        noise_rate_prototype = zeros(2, 4))
     sol1 = solve(prob1, EulerHeun(), dt = dt)
 
     _sol = deepcopy(sol)
     W2 = NoiseWrapper(_sol.W, reverse = true)
     prob2 = SDEProblem(f!, gnd!, sol[end], reverse(tspan), noise = W2,
-                       noise_rate_prototype = zeros(2, 4))
+        noise_rate_prototype = zeros(2, 4))
     sol2 = solve(prob2, EulerHeun(), dt = dt)
 
     @test sol.u≈reverse(sol1.u) atol=5e-1
@@ -298,9 +298,9 @@ Some more Ito reversals
 
     _sol = deepcopy(sol) # to make sure the plot is correct
     W1 = NoiseGrid(reverse(_sol.t),
-                   reverse(_sol.W.W)
-                   # ,reverse(_sol.W.Z)
-                   )
+        reverse(_sol.W.W)
+        # ,reverse(_sol.W.Z)
+    )
     prob1 = SDEProblem(fcorrected!, g!, sol[end], reverse(tspan), noise = W1)
     sol1 = solve(prob1, EM(), dt = dt, adaptive = false)
 
@@ -325,9 +325,9 @@ Some more Ito reversals
 
     _sol = deepcopy(sol) # to make sure the plot is correct
     W1 = NoiseGrid(reverse(_sol.t),
-                   reverse(_sol.W.W)
-                   # ,reverse(_sol.W.Z)
-                   )
+        reverse(_sol.W.W)
+        # ,reverse(_sol.W.Z)
+    )
     prob1 = SDEProblem(fcorrected, g, sol[end], reverse(tspan), noise = W1)
     sol1 = solve(prob1, EM(), dt = dt, adaptive = false)
 
@@ -361,7 +361,7 @@ end
         W1 = reverse(sol.W)
 
         prob1 = SDEProblem(prob.f, prob.g, sol[end], reverse(prob.tspan), prob.p,
-                           noise = W1)
+            noise = W1)
         sol1 = solve(prob1, SOSRA2(), dt = dt, adaptive = false)
 
         @test sol.u≈reverse(sol1.u) rtol=1e-4
@@ -372,7 +372,7 @@ end
         W1 = reverse(sol.W)
 
         prob1 = SDEProblem(prob.f, prob.g, sol[end], reverse(prob.tspan), prob.p,
-                           noise = W1)
+            noise = W1)
         sol1 = solve(prob1, SOSRI(), dt = dt, adaptive = false)
 
         @test sol.u≈reverse(sol1.u) rtol=1e-4
@@ -385,7 +385,7 @@ end
         W1 = reverse(sol.W)
 
         prob1 = SDEProblem(prob.f, prob.g, sol[end], reverse(prob.tspan), prob.p,
-                           noise = W1)
+            noise = W1)
         sol1 = solve(prob1, SOSRA2(), dt = dt, adaptive = true)
 
         ts = prob.tspan[1]:0.1:prob.tspan[2]
@@ -397,7 +397,7 @@ end
         W1 = reverse(sol.W)
 
         prob1 = SDEProblem(prob.f, prob.g, sol[end], reverse(prob.tspan), prob.p,
-                           noise = W1)
+            noise = W1)
         sol1 = solve(prob1, SOSRI(), dt = dt, adaptive = true)
 
         ts = prob.tspan[1]:0.1:prob.tspan[2]
@@ -416,7 +416,7 @@ end
         W1 = reverse(sol.W)
 
         prob1 = SDEProblem(prob.f, prob.g, sol[end], reverse(prob.tspan), prob.p,
-                           noise = W1)
+            noise = W1)
         sol1 = solve(prob1, SOSRA2(), dt = dt, adaptive = false)
 
         @test sol.u≈reverse(sol1.u) rtol=1e-4
@@ -427,7 +427,7 @@ end
         W1 = reverse(sol.W)
 
         prob1 = SDEProblem(prob.f, prob.g, sol[end], reverse(prob.tspan), prob.p,
-                           noise = W1)
+            noise = W1)
         sol1 = solve(prob1, SOSRI(), dt = dt, adaptive = false)
 
         @test sol.u≈reverse(sol1.u) rtol=1e-4
@@ -440,13 +440,13 @@ end
 
         ### SOSRA2
         sol = solve(prob, SOSRA2(), dt = dt, save_noise = true, adaptive = true,
-                    abstol = abstol, reltol = reltol)
+            abstol = abstol, reltol = reltol)
         W1 = reverse(sol.W)
 
         prob1 = SDEProblem(prob.f, prob.g, sol[end], reverse(prob.tspan), prob.p,
-                           noise = W1)
+            noise = W1)
         sol1 = solve(prob1, SOSRA2(), dt = dt, adaptive = true, abstol = abstol,
-                     reltol = reltol)
+            reltol = reltol)
 
         ts = prob.tspan[1]:0.1:prob.tspan[2]
         @test sol(ts)≈sol1(ts) rtol=1e-4
@@ -454,13 +454,13 @@ end
 
         ### SOSRI
         sol = solve(prob, SOSRI(), dt = dt, save_noise = true, adaptive = true,
-                    abstol = abstol, reltol = reltol)
+            abstol = abstol, reltol = reltol)
         W1 = reverse(sol.W)
 
         prob1 = SDEProblem(prob.f, prob.g, sol[end], reverse(prob.tspan), prob.p,
-                           noise = W1)
+            noise = W1)
         sol1 = solve(prob1, SOSRI(), dt = dt, adaptive = true, abstol = abstol,
-                     reltol = reltol)
+            reltol = reltol)
 
         ts = prob.tspan[1]:0.1:prob.tspan[2]
         @test sol(ts)≈sol1(ts) rtol=1e-4

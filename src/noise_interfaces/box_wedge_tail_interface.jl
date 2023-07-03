@@ -236,7 +236,7 @@ end
 function joint_density_function(r, a, rtol)
     integral, err = QuadGK.quadgk(x -> r / π * (x / sinh(x)) *
                                        exp(-r^2 * x / (2 * tanh(x))) * cos(a * x), 0, Inf,
-                                  rtol = rtol)
+        rtol = rtol)
     return integral
 end
 
@@ -308,7 +308,7 @@ function generate_boxes1(densf, Δr, Δa, Δz, rM, aM, offset = nothing, scale =
 end
 
 function generate_boxes2(densf, Δrmin, Δamin, Δzmin, Δrmax, Δamax, Δzmax, rM, aM,
-                         offset = nothing)
+    offset = nothing)
     boxes = Array{typeof(Δrmin), 1}[]
     probability = Vector{typeof(Δrmin)}(undef, 0)
     # start with largest possible size, then subsequently decrease size and fill remaining space
@@ -384,7 +384,7 @@ function sample_box(W::BoxWedgeTail, Boxes::AbstractBoxGeneration)
     # boxes store r, a, Δr, Δa
     ri, ai, Δr, Δa = Boxes.boxes[indx]
     DU = Distributions.product_distribution(Distributions.Uniform.([ri, ai],
-                                                                   [ri + Δr, ai + Δa]))
+        [ri + Δr, ai + Δa]))
 
     r, a = rand(W.rng, DU)
     return r, a
@@ -412,9 +412,9 @@ function contrained_optimization_problem(densf, fij, fij2, fij3, fij4, ri, ai, �
         linear_interpolation_wedges(fij, fij2, fij3, fij4, x[1], x[2], ri, ai, Δr, Δa)
     end
     ϵijmax = Optim.optimize(x -> -difference(x), [ri, ai], [ri + Δr, ai + Δa],
-                            [ri + Δr / 2, ai + Δa / 2], Optim.Fminbox(Optim.NelderMead()))
+        [ri + Δr / 2, ai + Δa / 2], Optim.Fminbox(Optim.NelderMead()))
     ϵijmin = Optim.optimize(x -> difference(x), [ri, ai], [ri + Δr, ai + Δa],
-                            [ri + Δr / 2, ai + Δa / 2], Optim.Fminbox(Optim.NelderMead()))
+        [ri + Δr / 2, ai + Δa / 2], Optim.Fminbox(Optim.NelderMead()))
     return ϵijmin.minimum, ϵijmax.minimum
 end
 
@@ -439,7 +439,7 @@ function generate_wedges(densf, Δr, Δa, Δz, rM, aM, offset, sqeezing)
             # store position of top corner of box and width
             if sqeezing
                 ϵijmin, ϵijmax = contrained_optimization_problem(densf, fij, fij2, fij3,
-                                                                 fij4, r, a, Δr, Δa)
+                    fij4, r, a, Δr, Δa)
                 push!(boxes, [f̃ij, hij, abs(ϵijmin), abs(ϵijmax), r, a])
                 # store PDF values
                 push!(f, [fij, fij2, fij3, fij4])
@@ -460,17 +460,17 @@ function sample_wedge(W::BoxWedgeTail, wedges::Wedges)
     # wedges store f̃ij, hij, ϵijmin, ϵijmax, r, a, Δr
     f̃ij, hij, ϵijmin, ϵijmax, ri, ai = wedges.boxes[indx]
     DU = Distributions.product_distribution(Distributions.Uniform.([ri, ai, hij],
-                                                                   [
-                                                                       ri + W.Δr,
-                                                                       ai + W.Δa,
-                                                                       f̃ij,
-                                                                   ]))
+        [
+            ri + W.Δr,
+            ai + W.Δa,
+            f̃ij,
+        ]))
     if W.sqeezing
         fij, fij2, fij3, fij4 = wedges.fvalues[indx]
         while true
             r, a, z = rand(W.rng, DU)
             flin = linear_interpolation_wedges(fij, fij2, fij3, fij4, r, a, ri, ai, W.Δr,
-                                               W.Δa)
+                W.Δa)
             if z > flin + ϵijmax
                 continue
             elseif z < flin - ϵijmin
@@ -503,7 +503,7 @@ struct Tail1{pType, distType, pdfType, cType} <: AbstractTail
         p = convert(typeof(rM), 0.0002982405821953734)
         candpdf = (r, a) -> exp(-r^2 / 2)
         dist1 = Distributions.truncated(Distributions.Normal(zero(rM), one(rM)), rM,
-                                        12 * one(rM))
+            12 * one(rM))
         dist2 = Distributions.Uniform(zero(aM), aM)
 
         dist = Distributions.product_distribution([dist1, dist2])
@@ -527,7 +527,7 @@ struct Tail2{pType, distType, pdfType, cType, boundsType} <: AbstractTail
         candpdf = (r, a) -> 3 // 2 * exp(-r^2 / 2 - 3 * a^2 / (2 * r^2))
         # store only distribution of r, when sampling re-create distribution for a|r
         dist = Distributions.truncated(Distributions.Normal(zero(rM), one(rM)), rM,
-                                       8 * one(rM))
+            8 * one(rM))
 
         c = convert(typeof(rM), 2.0)
 
@@ -535,9 +535,9 @@ struct Tail2{pType, distType, pdfType, cType, boundsType} <: AbstractTail
         aupper = 2 * aM
 
         new{typeof(p), typeof(dist), typeof(candpdf), typeof(c), typeof(alower)}(p, dist,
-                                                                                 candpdf, c,
-                                                                                 alower,
-                                                                                 aupper)
+            candpdf, c,
+            alower,
+            aupper)
     end
 end
 
@@ -552,8 +552,8 @@ struct Tail3{pType, distType, pdfType, cType} <: AbstractTail
         candpdf = (r, a) -> exp(convert(typeof(rM), -pi / 2) * a)
         dist1 = Distributions.Uniform(2 * one(rM), rM)
         dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
-                                                                          2 / pi)), aM,
-                                        8 * one(aM))
+                2 / pi)), aM,
+            8 * one(aM))
 
         dist = Distributions.product_distribution([dist1, dist2])
 
@@ -574,8 +574,8 @@ struct Tail4{pType, distType, pdfType, cType} <: AbstractTail
         candpdf = (r, a) -> 15 * r * exp(convert(typeof(rM), -pi) * a)
         dist1 = Distributions.TriangularDist(zero(rM), one(rM) / 2, one(rM) / 2)
         dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
-                                                                          1 / pi)), aM,
-                                        6 * one(aM))
+                1 / pi)), aM,
+            6 * one(aM))
 
         dist = Distributions.product_distribution([dist1, dist2])
 
@@ -596,8 +596,8 @@ struct Tail5{pType, distType, pdfType, cType} <: AbstractTail
         candpdf = (r, a) -> 15 * r * exp(convert(typeof(rM), -2.8) * a)
         dist1 = Distributions.TriangularDist(one(rM) / 2, one(rM), one(rM))
         dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
-                                                                          1 / 2.8)), aM,
-                                        6 * one(aM))
+                1 / 2.8)), aM,
+            6 * one(aM))
 
         dist = Distributions.product_distribution([dist1, dist2])
 
@@ -618,8 +618,8 @@ struct Tail6{pType, distType, pdfType, cType} <: AbstractTail
         candpdf = (r, a) -> 25 * r * exp(convert(typeof(rM), -2.6) * a)
         dist1 = Distributions.TriangularDist(one(rM), 3 / 2 * one(rM), 3 / 2 * one(rM))
         dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
-                                                                          1 / 2.6)), aM,
-                                        6 * one(aM))
+                1 / 2.6)), aM,
+            6 * one(aM))
 
         dist = Distributions.product_distribution([dist1, dist2])
 
@@ -640,8 +640,8 @@ struct Tail7{pType, distType, pdfType, cType} <: AbstractTail
         candpdf = (r, a) -> 25 * r * exp(convert(typeof(rM), -2.4) * a)
         dist1 = Distributions.TriangularDist(3 / 2 * one(rM), 2 * one(rM), 2 * one(rM))
         dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
-                                                                          1 / 2.4)), aM,
-                                        6 * one(aM))
+                1 / 2.4)), aM,
+            6 * one(aM))
 
         dist = Distributions.product_distribution([dist1, dist2])
 
@@ -662,8 +662,8 @@ struct Tail8{pType, distType, pdfType, cType} <: AbstractTail
         candpdf = (r, a) -> 40 * r * exp(convert(typeof(rM), -2.4) * a)
         dist1 = Distributions.TriangularDist(one(rM), 2 * one(rM), 2 * one(rM))
         dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
-                                                                          1 / 2.4)),
-                                        6 * one(aM), 8 * one(aM))
+                1 / 2.4)),
+            6 * one(aM), 8 * one(aM))
 
         dist = Distributions.product_distribution([dist1, dist2])
 
@@ -684,8 +684,8 @@ struct Tail9{pType, distType, pdfType, cType} <: AbstractTail
         candpdf = (r, a) -> 7 // 10 * exp(convert(typeof(rM), -pi / 2) * a)
         dist1 = Distributions.Uniform(2 * one(rM), 5 * one(rM))
         dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
-                                                                          2 / pi)),
-                                        8 * one(aM), 10 * one(aM))
+                2 / pi)),
+            8 * one(aM), 10 * one(aM))
 
         dist = Distributions.product_distribution([dist1, dist2])
 
@@ -696,8 +696,8 @@ struct Tail9{pType, distType, pdfType, cType} <: AbstractTail
 end
 
 struct TailApproxs{T1 <: Tail1, T2 <: Tail2, T3 <: Tail3, T4 <: Tail4, T5 <: Tail5,
-                   T6 <: Tail6,
-                   T7 <: Tail7, T8 <: Tail8, T9 <: Tail9, distType}
+    T6 <: Tail6,
+    T7 <: Tail7, T8 <: Tail8, T9 <: Tail9, distType}
     tail1::T1
     tail2::T2
     tail3::T3
@@ -736,15 +736,15 @@ struct TailApproxs{T1 <: Tail1, T2 <: Tail2, T3 <: Tail3, T4 <: Tail4, T5 <: Tai
 
         new{typeof(tail1), typeof(tail2), typeof(tail3), typeof(tail4), typeof(tail5),
             typeof(tail6), typeof(tail7), typeof(tail8), typeof(tail9), typeof(dist)}(tail1,
-                                                                                      tail2,
-                                                                                      tail3,
-                                                                                      tail4,
-                                                                                      tail5,
-                                                                                      tail6,
-                                                                                      tail7,
-                                                                                      tail8,
-                                                                                      tail9,
-                                                                                      dist)
+            tail2,
+            tail3,
+            tail4,
+            tail5,
+            tail6,
+            tail7,
+            tail8,
+            tail9,
+            dist)
     end
 end
 
@@ -786,7 +786,7 @@ function sample_tail(rng, densf, T::Tail2)
         r = rand(rng, T.dist)
         # generate a from the conditional distribution
         dista = Distributions.truncated(Distributions.Normal(zero(r), sqrt(r / 3)),
-                                        T.alower, T.aupper)
+            T.alower, T.aupper)
         a = rand(rng, dista)
         if U <= densf(r, a) / (T.cvalue * T.candpdf(r, a))
             break

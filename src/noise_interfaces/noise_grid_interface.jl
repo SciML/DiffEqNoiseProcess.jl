@@ -31,7 +31,7 @@ function interpolate!(W::NoiseGrid, t)
     good_guess = (t isa Union{Rational, Integer} && ts[W.cur_time[]] == t) ||
                  (!(t isa Union{Rational, Integer}) &&
                   (isapprox(t, ts[W.cur_time[]]; atol = 100eps(typeof(t)),
-                            rtol = 100eps(t))))
+        rtol = 100eps(t))))
 
     if good_guess
         @inbounds val1 = timeseries[W.cur_time[]]
@@ -83,7 +83,7 @@ function interpolate!(out1, out2, W::NoiseGrid, t)
     good_guess = (t isa Union{Rational, Integer} && ts[W.cur_time[]] == t) ||
                  (!(t isa Union{Rational, Integer}) &&
                   (isapprox(t, ts[W.cur_time[]]; atol = 100eps(typeof(t)),
-                            rtol = 100eps(t))))
+        rtol = 100eps(t))))
 
     if good_guess
         @inbounds copyto!(out1, timeseries[W.cur_time[]])

@@ -1,8 +1,8 @@
 DiffEqBase.has_reinit(i::AbstractNoiseProcess) = true
 function DiffEqBase.reinit!(W::Union{NoiseProcess, NoiseApproximation}, dt;
-                            t0 = W.t[1],
-                            erase_sol = true,
-                            setup_next = false)
+    t0 = W.t[1],
+    erase_sol = true,
+    setup_next = false)
     if erase_sol
         resize!(W.t, 1)
         resize!(W.W, 1)
@@ -55,9 +55,9 @@ function DiffEqBase.reinit!(W::Union{NoiseProcess, NoiseApproximation}, dt;
 end
 
 function DiffEqBase.reinit!(W::VirtualBrownianTree, dt;
-                            t0 = W.t[1],
-                            erase_sol = false,
-                            setup_next = true)
+    t0 = W.t[1],
+    erase_sol = false,
+    setup_next = true)
 
     # Back to noise's starting state
     W.curt = first(W.t)
@@ -88,9 +88,9 @@ function DiffEqBase.reinit!(W::VirtualBrownianTree, dt;
 end
 
 function DiffEqBase.reinit!(W::NoiseGrid, dt;
-                            t0 = W.t[1],
-                            erase_sol = true,
-                            setup_next = false)
+    t0 = W.t[1],
+    erase_sol = true,
+    setup_next = false)
     W.curt = t0
     W.dt = dt
     if t0 == W.t[1]
@@ -98,7 +98,7 @@ function DiffEqBase.reinit!(W::NoiseGrid, dt;
     else
         tdir = sign(W.t[2] - W.t[1])
         @inbounds idx = searchsortedfirst(W.t, t0 - tdir * 10eps(typeof(t0)),
-                                          rev = tdir < 0)
+            rev = tdir < 0)
         # (tdir < 0) && (idx -= one(idx))
     end
 
@@ -119,9 +119,9 @@ function DiffEqBase.reinit!(W::NoiseGrid, dt;
 end
 
 function DiffEqBase.reinit!(W::AbstractNoiseProcess, dt;
-                            t0 = W.t[1],
-                            erase_sol = true,
-                            setup_next = false)
+    t0 = W.t[1],
+    erase_sol = true,
+    setup_next = false)
     W.curt = t0
     W.dt = dt
 
@@ -130,9 +130,9 @@ function DiffEqBase.reinit!(W::AbstractNoiseProcess, dt;
 end
 
 function DiffEqBase.reinit!(W::NoiseFunction, dt;
-                            t0 = W.t0,
-                            erase_sol = true,
-                            setup_next = false)
+    t0 = W.t0,
+    erase_sol = true,
+    setup_next = false)
     W.curt = t0
     W.dt = dt
 
@@ -156,9 +156,9 @@ function DiffEqBase.reinit!(W::NoiseFunction, dt;
 end
 
 function DiffEqBase.reinit!(W::NoiseTransport, dt;
-                            t0 = W.t0,
-                            erase_sol = true,
-                            setup_next = false)
+    t0 = W.t0,
+    erase_sol = true,
+    setup_next = false)
     W.curt = t0
     W.dt = dt
 
@@ -188,9 +188,9 @@ function DiffEqBase.reinit!(W::NoiseTransport, dt;
 end
 
 function DiffEqBase.reinit!(W::NoiseWrapper, dt;
-                            t0 = W.t[1],
-                            erase_sol = true,
-                            setup_next = false)
+    t0 = W.t[1],
+    erase_sol = true,
+    setup_next = false)
     W.curt = t0
     W.dt = dt
 

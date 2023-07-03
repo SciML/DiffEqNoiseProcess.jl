@@ -25,7 +25,7 @@
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
         ensemble_probW = EnsembleProblem(prob,
-                                         output_func = (sol, i) -> (sol.W.W[end], false))
+            output_func = (sol, i) -> (sol.W.W[end], false))
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
@@ -57,7 +57,7 @@
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
         ensemble_probW = EnsembleProblem(prob,
-                                         output_func = (sol, i) -> (sol.W.W[end], false))
+            output_func = (sol, i) -> (sol.W.W[end], false))
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
@@ -90,7 +90,7 @@
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
         ensemble_probW = EnsembleProblem(prob,
-                                         output_func = (sol, i) -> (sol.W.W[end], false))
+            output_func = (sol, i) -> (sol.W.W[end], false))
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
@@ -119,7 +119,7 @@
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
         ensemble_probW = EnsembleProblem(prob,
-                                         output_func = (sol, i) -> (sol.W.W[end], false))
+            output_func = (sol, i) -> (sol.W.W[end], false))
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
@@ -152,7 +152,7 @@
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
         ensemble_probW = EnsembleProblem(prob,
-                                         output_func = (sol, i) -> (sol.W.W[end], false))
+            output_func = (sol, i) -> (sol.W.W[end], false))
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
@@ -182,7 +182,7 @@
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
         ensemble_probW = EnsembleProblem(prob,
-                                         output_func = (sol, i) -> (sol.W.W[end], false))
+            output_func = (sol, i) -> (sol.W.W[end], false))
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
@@ -203,7 +203,7 @@
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob,
-                                        output_func = (sol, i) -> (first(sol(t)), false))
+            output_func = (sol, i) -> (first(sol(t)), false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
 
         @test mean(sol)≈expected_mean atol=0.1
@@ -212,7 +212,7 @@
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
         ensemble_probW = EnsembleProblem(prob,
-                                         output_func = (sol, i) -> (first(sol.W(t)), false))
+            output_func = (sol, i) -> (first(sol.W(t)), false))
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
         @test mean(solW_at_1)≈expected_mean atol=0.1

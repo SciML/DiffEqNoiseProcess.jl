@@ -37,7 +37,7 @@ using StaticArrays
 
     # with StaticArrays
     Γ = @SMatrix [1.0 ρ
-                  ρ 1.0]
+        ρ 1.0]
     W = CorrelatedWienerProcess(Γ, 0.0, @SVector(zeros(2)), @SVector(zeros(2)))
 
     dt = 0.1

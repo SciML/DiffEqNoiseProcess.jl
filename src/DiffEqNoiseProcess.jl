@@ -8,8 +8,9 @@ import RandomNumbers: Xorshifts
 
 import RandomNumbers, Random123
 
-import DiffEqBase: isinplace, solve, AbstractNoiseProcess,
-                   DEIntegrator, AbstractNoiseProblem
+import DiffEqBase: isinplace,
+    solve, AbstractNoiseProcess,
+    DEIntegrator, AbstractNoiseProblem
 
 import PoissonRandom, Distributions
 
@@ -46,7 +47,9 @@ include("pCN.jl")
 import Requires
 @static if !isdefined(Base, :get_extension)
     function __init__()
-        Requires.@require ReverseDiff="37e2e3b7-166d-5795-8a7a-e32c996b4267" begin include("../ext/DiffEqNoiseProcessReverseDiffExt.jl") end
+        Requires.@require ReverseDiff="37e2e3b7-166d-5795-8a7a-e32c996b4267" begin
+            include("../ext/DiffEqNoiseProcessReverseDiffExt.jl")
+        end
     end
 end
 

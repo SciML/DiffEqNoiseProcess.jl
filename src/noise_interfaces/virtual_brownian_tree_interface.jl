@@ -30,12 +30,12 @@ function interpolate!(W::VirtualBrownianTree, u, p, t)
     else
         if W.dZ !== nothing
             val1, val2 = search_VBT(t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
-                                    timeseries[i],
-                                    timeseries2[i - 1], timeseries2[i], W, W.rng)
+                timeseries[i],
+                timeseries2[i - 1], timeseries2[i], W, W.rng)
         else
             val1, val2 = search_VBT(t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
-                                    timeseries[i],
-                                    nothing, nothing, W, W.rng)
+                timeseries[i],
+                nothing, nothing, W, W.rng)
         end
     end
     val1, val2
@@ -65,12 +65,12 @@ function interpolate!(out1, out2, W::VirtualBrownianTree, u, p, t)
     else
         if W.dZ !== nothing
             search_VBT!(out1, out2, t, seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
-                        timeseries[i],
-                        timeseries2[i - 1], timeseries2[i], W, W.rng)
+                timeseries[i],
+                timeseries2[i - 1], timeseries2[i], W, W.rng)
         else
             search_VBT!(out1, out2, t, seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
-                        timeseries[i],
-                        nothing, nothing, W, W.rng)
+                timeseries[i],
+                nothing, nothing, W, W.rng)
         end
     end
     return nothing
@@ -162,7 +162,7 @@ end
 
 # create the cache of the VBT with depth tree_depth
 function create_VBT_cache(bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.AbstractR123,
-                          tree_depth, search_depth)
+    tree_depth, search_depth)
     # total number of cached time steps and W values
     Nt = Int(2^search_depth + 1)
 
@@ -230,7 +230,7 @@ function create_VBT_cache(bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.A
 end
 
 function search_VBT(t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
-                    rng::Random123.AbstractR123)
+    rng::Random123.AbstractR123)
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)
     seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
@@ -278,7 +278,7 @@ function search_VBT(t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
         out1 = W.bridge(W.dW, nothing, W0tmp, W1tmp, q, h, nothing, nothing, nothing, rng)
         if Z0 !== nothing
             out2 = W.bridge(W.dW, nothing, Z0tmp, Z1tmp, q, h, nothing, nothing, nothing,
-                            rng)
+                rng)
         end
     end
 
@@ -286,7 +286,7 @@ function search_VBT(t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
 end
 
 function search_VBT!(out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
-                     rng::Random123.AbstractR123)
+    rng::Random123.AbstractR123)
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)
     seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
@@ -307,7 +307,7 @@ function search_VBT!(out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrow
 
     if Z0 !== nothing
         W.bridge(out2, W.dW, nothing, W.Z0tmp, W.Z1tmp, q, h, nothing, nothing, nothing,
-                 rng)
+            rng)
     end
 
     while (abs(t - tmid) > W.atol && depth < W.search_depth)
@@ -333,10 +333,10 @@ function search_VBT!(out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrow
         h = t1 - t0
 
         W.bridge(out1, W.dW, nothing, W.W0tmp, W.W1tmp, q, h, nothing, nothing, nothing,
-                 rng)
+            rng)
         if Z0 !== nothing
             W.bridge(out2, W.dW, nothing, W.Z0tmp, W.Z1tmp, q, h, nothing, nothing, nothing,
-                     rng)
+                rng)
         end
     end
 
