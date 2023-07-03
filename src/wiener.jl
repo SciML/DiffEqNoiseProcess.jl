@@ -156,7 +156,7 @@ end
 @doc doc"""
 The `RealWienerProcess` is a Brownian motion that is forced to be
 real-valued. While the normal `WienerProcess` becomes complex valued
-if `W0` is complex, this verion is real valued for when you want to,
+if `W0` is complex, this version is real valued for when you want to,
 for example, solve an SDE defined by complex numbers where the noise
 is in the reals.
 
@@ -183,7 +183,7 @@ end
 @doc doc"""
 The `RealWienerProcess` is a Brownian motion that is forced to be
 real-valued. While the normal `WienerProcess` becomes complex valued
-if `W0` is complex, this verion is real valued for when you want to,
+if `W0` is complex, this version is real valued for when you want to,
 for example, solve an SDE defined by complex numbers where the noise
 is in the reals.
 

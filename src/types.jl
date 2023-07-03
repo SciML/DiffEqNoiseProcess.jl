@@ -18,7 +18,7 @@ NoiseProcess(t0, W0, Z0, dist, bridge;
   - `W0` is the first value of the process.
   - `Z0` is the first value of the pseudo-process. This is necessary for higher
     order algorithms. If it's not needed, set to `nothing`.
-  - `dist` the distribution for the steps over time.
+  - `dist` the distribution of the steps over time.
   - `bridge` the bridging distribution. Optional, but required for adaptivity and interpolating
     at new values.
   - `save_everystep` whether to save every step of the Brownian timeseries.
@@ -52,7 +52,7 @@ rand_vec = bridge!(W, W0, Wh, q, h, rng)
 
 Here, `W` is the noise process, `W0` is the left side of the current interval,
 `Wh` is the right side of the current interval, `h` is the interval length,
-and `q` is the proportion from the left where the interpolation is occuring.
+and `q` is the proportion from the left where the interpolation is occurring.
 
 ## Direct Construction Example
 
@@ -60,7 +60,7 @@ The easiest way to show how to directly construct a `NoiseProcess` is by example
 Here we will show how to directly construct a `NoiseProcess` which generates
 Gaussian white noise.
 
-This is the noise process which uses `randn!`. A special dispatch is added for
+This is the noise process, that uses `randn!`. A special dispatch is added for
 complex numbers for `(randn()+im*randn())/sqrt(2)`. This function is
 `DiffEqNoiseProcess.wiener_randn` (or with `!` respectively).
 
@@ -72,7 +72,7 @@ white noise, we know that
 W(dt) ∼ N(0,dt)
 ```
 
-for ``W(0)=0`` which defines the stepping distribution. Thus its noise distribution
+for ``W(0)=0`` which defines the stepping distribution. Thus, its noise distribution
 function is:
 
 ```julia
@@ -104,7 +104,7 @@ the distribution:
 W(qh) ∼ N(qWₕ,(1-q)qh)
 ```
 
-Thus we have the out-of-place and in-place versions as:
+Thus, we have the out-of-place and in-place versions as:
 
 ```julia
 function WHITE_NOISE_BRIDGE(W, W0, Wh, q, h, rng)
@@ -403,7 +403,7 @@ AbstractNoiseProcess{T, N, Vector{T2}, inplace}
 ```
 
 This produces a new noise process from an old one, which will use its interpolation
-to generate the noise. This allows you to re-use a previous noise process not just
+to generate the noise. This allows you to reuse a previous noise process not just
 with the same timesteps, but also with new (adaptive) timesteps as well. Thus
 this is very good for doing Multi-level Monte Carlo schemes and strong
 convergence testing.
@@ -419,11 +419,11 @@ NoiseWrapper(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace};
 
 In this example, we will solve an SDE three times:
 
-  - First to generate a noise process
-  - Second with the same timesteps to show the values are the same
-  - Third with half-sized timsteps
+  - First, to generate a noise process
+  - Second, with the same timesteps to show the values are the same
+  - Third, with half-sized timesteps
 
-First we will generate a noise process by solving an SDE:
+First, we will generate a noise process by solving an SDE:
 
 ```julia
 using StochasticDiffEq, DiffEqNoiseProcess
@@ -471,10 +471,10 @@ plot!(sol3)
 ![noise_process](../assets/noise_process.png)
 
 In this plot, `sol2` covers up `sol1` because they hit essentially the same
-values. You can see that `sol3` its similar to the others, because it's
-using the same underlying noise process just sampled much finer.
+values. You can see that `sol3` is similar to the others, because it's
+using the same underlying noise process, just sampled much finer.
 
-To double check, we see that:
+To double-check, we see that:
 
 ```julia
 plot(sol1.W)
@@ -491,7 +491,7 @@ timepoints were calculated according to a Brownian bridge.
 
 Here we will show that the same noise can be used with the adaptive methods
 using the `NoiseWrapper`. `SRI` and `SRIW1` use slightly different error
-estimators, and thus give slightly different stepping behavior. We can
+estimators, and thus have slightly different stepping behavior. We can
 see how they solve the same 2D SDE differently by using the noise
 wrapper:
 
@@ -570,7 +570,7 @@ AbstractNoiseProcess{T, N, nothing, inplace}
 
 This allows you to use any arbitrary function `W(t)` as a `NoiseProcess`. This
 will use the function lazily, only caching values required to minimize function
-calls, but not store the entire noise array. This requires an initial time point
+calls, but not storing the entire noise array. This requires an initial time point
 `t0` in the domain of `W`. A second function is needed if the desired SDE algorithm
 requires multiple processes.
 
@@ -581,7 +581,7 @@ NoiseFunction{iip}(t0, W, Z = nothing;
 ```
 
 Additionally, one can use an in-place function `W(out1,out2,t)` for more efficient
-generation of the arrays for multi-dimensional processes. When the in-place version
+generation of the arrays for mulitidimensional processes. When the in-place version
 is used without a dispatch for the out-of-place version, the `noise_prototype`
 needs to be set.
 
@@ -595,7 +595,7 @@ f(t) = exp(t)
 W = NoiseFunction(0.0, f)
 ```
 
-If it's multi-dimensional and an in-place function is used, the `noise_prototype`
+If it's mulitidimensional and an in-place function is used, the `noise_prototype`
 must be given. For example:
 
 ```julia
@@ -676,7 +676,7 @@ AbstractNoiseProcess{T, N, nothing, inplace}
 
 This allows you to define stochastic processes of the form `W(t) = f(u, p, t, RV)`, where `f` is a function and `RV` represents a random variable.
 This will use the function lazily, only caching values required to minimize function
-calls, but not store the entire noise array. This requires an initial time point
+calls, but not storing the entire noise array. This requires an initial time point
 `t0` in the domain of `W`. A second function is needed if the desired SDE algorithm
 requires multiple processes.
 
@@ -703,7 +703,7 @@ NoiseTransport(t0,
 ```
 
 Additionally, one can use an in-place function `W(out, u, p, t, rv)` for more efficient
-generation of the arrays for multi-dimensional processes. When the in-place version
+generation of the arrays for mulitidimensional processes. When the in-place version
 is used without a dispatch for the out-of-place version, the `noise_prototype`
 needs to be set.
 
@@ -721,7 +721,7 @@ t0 = 0.0
 W = NoiseTransport(t0, f, randn)
 ```
 
-If we want to build a scalar random process out of a random vector, then an in-place version for the random vector is required, as follows. We can also use parameters in the transport function, in which case the `noise_prototype` must be given.
+If we want to build a scalar random process out of a random vector, then an in-place version of the random vector is required, as follows. We can also use parameters in the transport function, in which case the `noise_prototype` must be given.
 
 ```julia
 using Random: randn!
@@ -732,7 +732,7 @@ p = (π, 2π)
 W = NoiseTransport(t0, f, randn!, rv, noise_prototype = f(nothing, p, t0, rv))
 ```
 
-If the random process is expected to be multi-dimensional, it is preferable to use an in-place transport function, and, in this case, the `noise_prototype` must be given. Here is an example with a scalar random vector with a beta distribution, from `Distributions.jl`.
+If the random process is expected to be mulitidimensional, it is preferable to use an in-place transport function, and, in this case, the `noise_prototype` must be given. Here is an example with a scalar random vector with a beta distribution, from `Distributions.jl`.
 
 ```julia
 f!(out, u, p, t, rv) = (out .= sin.(rv * t))
@@ -742,7 +742,7 @@ rv = 0.0
 W = NoiseTransport(t0, f!, RV, rv, noise_prototype = zeros(4))
 ```
 
-We can also have a random vector with a multi-dimensional process, in which case an in-place version of `RV` is required. For example.
+We can also have a random vector with a mulitidimensional process, in which case an in-place version of `RV` is required. For example.
 
 ```julia
 using Random: randn!
@@ -761,7 +761,7 @@ rv = zeros(2)
 W = NoiseTransport(t0, f!, RV!, rv, noise_prototype = zeros(3))
 ```
 
-A `NoiseTransport` can be uses as driving noise for SDEs and RODEs. Have fun!
+A `NoiseTransport` can be used as driving noise for SDEs and RODEs. Have fun!
 """
 mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType, inplace} <:
                AbstractNoiseProcess{T, N, nothing, inplace}
@@ -854,23 +854,23 @@ NoiseGrid(t, W, Z = nothing; reset = true)
 
 to build the associated noise process. This process comes with a linear
 interpolation of the given points, and thus the grid does not have to match
-the grid of integration. Thus this can be used for adaptive solutions as
-well. However, one must make note that the fidelity of the noise process
+the grid of integration. Thus, this can be used for adaptive solutions as
+well. However, one must take note that the fidelity of the noise process
 is linked to how fine the noise grid is determined: if the noise grid is
 sparse on points compared to the integration, then its distributional
-properties may be slightly perturbed by the linear interpolation. Thus its
-suggested that the grid size at least approximately match the number of
+properties may be slightly perturbed by the linear interpolation. Thus, it's
+suggested that the grid size at least approximates the number of
 time steps in the integration to ensure accuracy.
 
 For a one-dimensional process, `W` should be an `AbstractVector` of `Number`s.
-For multi-dimensional processes, `W` should be an `AbstractVector` of the
+For mulitidimensional processes, `W` should be an `AbstractVector` of the
 `noise_prototype`.
 
 ## NoiseGrid
 
 In this example, we will show you how to define your own version of Brownian
-motion using an array of pre-calculated points. In normal usage you should use
-`WienerProcess` instead since this will have distributionally-exact interpolations
+motion using an array of pre-calculated points. In normal usage, you should use
+`WienerProcess` instead, since this will have distributionally-exact interpolations
 while the noise grid uses linear interpolations, but this is a nice example
 of the workflow.
 
@@ -955,8 +955,8 @@ end
 In many cases, one would like to define a noise process directly by a stochastic
 differential equation which does not have an analytical solution. Of course,
 this will not be distributionally-exact and how well the properties match
-depends on how well the differential equation is integrated, but in many
-cases this can be used as a good approximation when other methods are much
+depends on how well the differential equation is integrated, but in many cases
+, this can be used as a good approximation when other methods are much
 more difficult.
 
 A `NoiseApproximation` is defined by a `DEIntegrator`. The constructor for a
@@ -968,22 +968,22 @@ NoiseApproximation(source1::DEIntegrator,
     reset = true)
 ```
 
-The `DEIntegrator` should have a final time point of integration far enough such
+The `DEIntegrator` should have a final time point of integration far enough away, such
 that it will not halt during the integration. For ease of use, you can use a
 final time point as `Inf`. Note that the time points do not have to match the
-time points of the future integration since the interpolant of the SDE solution
-will be used. Thus the limiting factor is error tolerance and not hitting specific
+time points of the future integration, since the interpolant of the SDE solution
+will be used. Thus, the limiting factor is error tolerance, and not hitting specific
 points.
 
 ## NoiseApproximation Example
 
-In this example we will show how to use the `NoiseApproximation` in order to
+In this example, we will show how to use the `NoiseApproximation` to
 build our own Geometric Brownian Motion from its stochastic differential
 equation definition. In normal usage, you should use the `GeometricBrownianMotionProcess`
 instead since that is more efficient and distributionally-exact.
 
-First, let's define the `SDEProblem`. Here will use a timespan `(0.0,Inf)` so
-that way the noise can be used over an indefinite integral.
+First, let's define the `SDEProblem`. Here, we use a timespan `(0.0,Inf)` so
+that the noise can be used over an indefinite integral.
 
 ```julia
 const μ = 1.5
@@ -1063,7 +1063,7 @@ end
 
 """
 A `VirtualBrownianTree` builds the noise process starting from an initial
-time `t0`, the first value of the proces `W0`, and (optionally) the first
+time `t0`, the first value of the process `W0`, and (optionally) the first
 value `Z0` for an auxiliary pseudo-process. The constructor is given as
 
 ```julia
@@ -1094,7 +1094,7 @@ as a keyword argument. The following keyword arguments are available:
 
 ## VirtualBrownianTree Example
 
-In this example, we define a multi-dimensional Brownian process based on a
+In this example, we define a mulitidimensional Brownian process based on a
 `VirtualBrownianTree` with a minimal `tree_depth=0` such that memory consumption
 is minimized.
 
@@ -1232,10 +1232,10 @@ based on Marsaglia's "rectangle-wedge-tail" approach for two dimensions.
 
   - box_grouping = :Columns (full, i.e., as large as possible, columns on a square spanned by dr and da)
   - box_grouping = :none (no grouping)
-  - box_grouping = :MinEntropy (default, grouping that achieves a smaller entropy than the column wise grouping and thus allows for slightly faster sampling -- but has a slightly larger amount of groups)
+  - box_grouping = :MinEntropy (default, grouping that achieves a smaller entropy than the column wise grouping and thus allows for slightly faster sampling -- but has a slightly larger number of groups)
 
 The sampling is based on the Distributions.jl package, i.e., to sample from one of the many distributions,
-a uni-/bi-variate distribution from Distributions.jl is constructed and then rand(..) is used.
+a uni-/bi-variate distribution from Distributions.jl is constructed, and then rand(..) is used.
 
 ## Constructor
 

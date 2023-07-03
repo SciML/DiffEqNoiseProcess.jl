@@ -2,7 +2,7 @@
 
 Noise processes are essential in continuous stochastic modeling. The `NoiseProcess`
 types are distributionally-exact, meaning they are not solutions of
-stochastic differential equations and instead are directly generated according
+stochastic differential equations but instead are directly generated according
 to their analytical distributions. These processes are used as the noise term
 in the SDE and RODE solvers. Additionally, the noise processes themselves can
 be simulated and solved using the DiffEq common interface (including the Monte
@@ -42,13 +42,13 @@ can get its `i`th timepoint like `W[i]` and the associated time `W.t[i]`. If the
 `NoiseProcess` has a bridging distribution defined, it can be interpolated to
 arbitrary time points using `W(t)`. Note that every interpolated value is saved
 to the `NoiseProcess` so that way it can stay distributionally correct. A plot
-recipe is provided which plots the timeseries.
+recipe is provided that plots the timeseries.
 
 ### Direct Simulation of the Noise Process
 
 Since the `NoiseProcess` types are distribution-exact and do not require the
 stochastic differential equation solvers, many times one would like to directly
-simulate trajectories from these proecesses. The `NoiseProcess` has a
+simulate trajectories from these processes. The `NoiseProcess` has a
 `NoiseProcessProblem` type:
 
 ```julia
@@ -66,7 +66,7 @@ prob = NoiseProblem(W, (0.0, 1.0))
 sol = solve(prob; dt = 0.1)
 ```
 
-`solve` requires the `dt` is given, the solution it returns is a `NoiseProcess`
+`solve` requires that the `dt` is given, and that the solution it returns is a `NoiseProcess`
 which has stepped through the timespan. Because this follows the common interface,
 all of the normal functionality works. For example, we can use the Monte Carlo
 functionality as follows:
@@ -100,6 +100,7 @@ for i in 1:10
     accept_step!(W, dt, u, p)
 end
 ```
+
 ## Contributing
 
   - Please refer to the

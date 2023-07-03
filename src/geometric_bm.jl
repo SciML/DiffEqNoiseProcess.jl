@@ -47,7 +47,7 @@ dX_t = \mu X_t dt + \sigma X_t dW_t
 ```
 
 The `GeometricBrownianMotionProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, and instead follows the exact
+solution of the stochastic differential equation, but instead follows the exact
 distribution properties). It can be back interpolated exactly as well. The constructor is:
 
 ```julia
@@ -82,7 +82,7 @@ dX_t = \mu X_t dt + \sigma X_t dW_t
 ```
 
 The `GeometricBrownianMotionProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, and instead follows the exact
+solution of the stochastic differential equation, but instead follows the exact
 distribution properties). It can be back interpolated exactly as well. The constructor is:
 
 ```julia

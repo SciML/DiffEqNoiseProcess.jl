@@ -8,11 +8,11 @@ equation. While these methods are only approximate, they are more general and
 allow the user to easily define their own colored noise to use in simulations.
 
 The `NoiseWrapper` allows one to wrap a `NoiseProcess` from a previous simulation
-to re-use it in a new simulation in a way that follows the same stochastic
-trajectory (even if different points are hit, for example solving with a
+to reuse it in a new simulation in a way that follows the same stochastic
+trajectory (even if different points are hit, for example by solving with a
 smaller `dt`) in a distributionally-exact manner. It is demonstrated how the
 `NoiseWrapper` can be used to wrap the `NoiseProcess` of one SDE/RODE solution
-in order to re-use the same noise process in another simulation.
+to reuse the same noise process in another simulation.
 
 The `VirtualBrownianTree` allows one to trade speed for O(1) memory usage.
 Instead of storing Brownian motion increments, the `VirtualBrownianTree` samples
@@ -22,7 +22,7 @@ with `tmid` or when the maximum depth of the tree is reached.
 
 Lastly, the `NoiseFunction` allows you to use any function of time as the
 noise process, while `NoiseTransport` lets you define a random process as the transport of a random variable or a random vector by a time-dependent function. Together, these functionalities allow you to define any colored
-noise process and use this efficiently and accurately in your simulations.
+noise process and use it efficiently and accurately in your simulations.
 
 ## The Standard `AbstractNoiseProcess`
 

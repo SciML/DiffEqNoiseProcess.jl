@@ -30,7 +30,7 @@ function ou_bridge(dW, ou, W, W0, Wh, q, hu, p, t, rng) end
 function ou_bridge!(rand_vec, ou, W, W0, Wh, q, h, u, p, t, rng) end
 
 @doc doc"""
-a `Ornstein-Uhlenbeck` process which is a Wiener process defined
+a `Ornstein-Uhlenbeck` process, which is a Wiener process defined
 by the stochastic differential equation
 
 ```math
@@ -38,7 +38,7 @@ dX_t = \theta (\mu - X_t) dt + \sigma dW_t
 ```
 
 The `OrnsteinUhlenbeckProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, and instead follows the exact
+solution of the stochastic differential equation, but instead follows the exact
 distribution properties). The constructor is:
 
 ```julia
@@ -64,7 +64,7 @@ function (X::OrnsteinUhlenbeck!)(rand_vec, W, dt, u, p, t, rng) #dist!
 end
 
 @doc doc"""
-A `Ornstein-Uhlenbeck` process which is a Wiener process defined
+A `Ornstein-Uhlenbeck` process, which is a Wiener process defined
 by the stochastic differential equation
 
 ```math
@@ -72,7 +72,7 @@ dX_t = \theta (\mu - X_t) dt + \sigma dW_t
 ```
 
 The `OrnsteinUhlenbeckProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, and instead follows the exact
+solution of the stochastic differential equation, but instead follows the exact
 distribution properties). The constructor is:
 
 ```julia
