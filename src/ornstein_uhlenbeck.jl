@@ -25,9 +25,24 @@ http://www.tandfonline.com/doi/full/10.1080/14697688.2014.941913?src=recsys
 q = -Θ
 r = Θμ
 https://arxiv.org/pdf/1011.0067.pdf page 18
+note that in the paper there is a typo in the formula for σ^2
 =#
-function ou_bridge(dW, ou, W, W0, Wh, q, hu, p, t, rng) end
-function ou_bridge!(rand_vec, ou, W, W0, Wh, q, h, u, p, t, rng) end
+function ou_bridge(dW, ou, W, W0, Wh, q, h, u, p, t, rng) 
+    var = ou.σ^2 * sinh(ou.Θ*(h*(1. -q))) * (sinh(ou.Θ*(q*h))) /( ou.Θ * sinh(ou.Θ * h))
+
+    if typeof(dW) <: AbstractArray
+        @. (W0-ou.μ)*(sinh(ou.Θ*(h*(1. -q)))/sinh(ou.Θ*h) - 1.) + (Wh+W0-ou.μ)*sinh(ou.Θ*q*h)/sinh(ou.Θ*h) + sqrt(var) * wiener_randn(rng, dW)
+    else
+        (W0-ou.μ)*(sinh(ou.Θ*(h*(1. -q)))/sinh(ou.Θ*h) - 1.) + (Wh+W0-ou.μ)*sinh(ou.Θ*q*h)/sinh(ou.Θ*h) + sqrt(var) * wiener_randn(rng, typeof(dW))
+    end
+end
+
+function ou_bridge!(rand_vec, ou, W, W0, Wh, q, h, u, p, t, rng) 
+    var = ou.σ^2 * sinh(ou.Θ*(h*(1. -q))) * (sinh(ou.Θ*(q*h))) /( ou.Θ * sinh(ou.Θ * h))
+
+    wiener_randn!(rng, rand_vec)
+    @.. (W0-ou.μ)*(sinh(ou.Θ*(h*(1. -q)))/sinh(ou.Θ*h) - 1.) + (Wh+W0-ou.μ)*sinh(ou.Θ*q*h)/sinh(ou.Θ*h) + sqrt(var) * rand_vec(rng, dW)
+end
 
 @doc doc"""
 a `Ornstein-Uhlenbeck` process, which is a Wiener process defined
@@ -48,7 +63,8 @@ OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
 """
 function OrnsteinUhlenbeckProcess(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
     ou = OrnsteinUhlenbeck(Θ, μ, σ)
-    NoiseProcess{false}(t0, W0, Z0, ou, nothing; kwargs...)
+    NoiseProcess{false}(t0, W0, Z0, ou, 
+    (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> ou_bridge(rand_vec, ou , W, W0, Wh, q, h, u, p, t, rng); kwargs...)
 end
 
 struct OrnsteinUhlenbeck!{T1, T2, T3}
