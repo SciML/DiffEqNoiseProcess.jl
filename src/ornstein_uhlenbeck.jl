@@ -27,18 +27,6 @@ r = Θμ
 https://arxiv.org/pdf/1011.0067.pdf page 18
 note that in the paper there is a typo in the formula for σ^2
 =#
-#=
-function ou_bridge(dW, ou, W, W0, Wh, q, h, u, p, t, rng)
-    #var = ou.σ^2/(2*ou.Θ) * (cosh(ou.Θ*h) - cosh(ou.Θ*(h - 2*h*q))) / sinh(ou.Θ*h) #following https://www.researchgate.net/publication/250917470_On_the_Pricing_of_Storable_Commodities 
-    var = ou.σ^2 * sinh(ou.Θ*(h*(1. -q))) * (sinh(ou.Θ*(q*h))) /( ou.Θ * sinh(ou.Θ * h))
-    #println("foo")
-    if typeof(dW) <: AbstractArray
-        @.  (W0-ou.μ)*(sinh(ou.Θ*(h*(1. -q)))/sinh(ou.Θ*h) - 1.) + (Wh+W0-ou.μ)*sinh(ou.Θ*q*h)/sinh(ou.Θ*h) + sqrt(var) * wiener_randn(rng, dW)
-    else
-            (W0-ou.μ)*(sinh(ou.Θ*(h*(1. -q)))/sinh(ou.Θ*h) - 1.) + (Wh+W0-ou.μ)*sinh(ou.Θ*q*h)/sinh(ou.Θ*h) + sqrt(var) * wiener_randn(rng, typeof(dW))
-    end
-end
-=#
 function ou_bridge(dW, ou, W, W0, Wh, q, h, u, p, t, rng)
     if typeof(dW) <: AbstractArray
         rand_vec = wiener_randn(rng, dW)
