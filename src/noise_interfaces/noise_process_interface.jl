@@ -439,11 +439,11 @@ end
                 if W.Z !== nothing
                     new_curZ = similar(W.dZ)
                     W.bridge(new_curZ, W, Z0, Zh, q, h, u, p, W.t[i-1], W.rng)
-                    if iscontinuous(W)
-                        @. new_curZ += (1 - q) * Z0
-                    else
+                    #if iscontinuous(W)
+                     #   @. new_curZ += (1 - q) * Z0
+                    #else
                         @. new_curZ += Z0
-                    end
+                    #end
                 else
                     new_curZ = nothing
                 end
@@ -458,12 +458,12 @@ end
                     new_curW += W0
                 #end
                 if W.Z !== nothing
-                    new_curZ = W.bridge(W.dZ, W, Z0, Zh, q, h, u, p, t, W.rng)
-                    if iscontinuous(W)
-                        new_curZ += (1 - q) * Z0
-                    else
+                    new_curZ = W.bridge(W.dZ, W, Z0, Zh, q, h, u, p, W.t[i-1], W.rng)
+                    #if iscontinuous(W)
+                    #    new_curZ += (1 - q) * Z0
+                    #else
                         new_curZ += Z0
-                    end
+                    #end
                 else
                     new_curZ = nothing
                 end
