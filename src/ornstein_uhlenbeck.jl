@@ -60,7 +60,7 @@ end
 function (X::OrnsteinUhlenbeck!)(rand_vec, W, dt, u, p, t, rng) #dist!
     wiener_randn!(rng, rand_vec)
     @.. rand_vec = X.μ + (W.curW - X.μ) * exp(-X.Θ * dt) +
-                   rand_vec * X.σ * sqrt((- expm1.(-2 * X.Θ .* dt)) / (2 * X.Θ)) - W.curW
+                   rand_vec * X.σ * sqrt((-expm1.(-2 * X.Θ .* dt)) / (2 * X.Θ)) - W.curW
 end
 
 @doc doc"""
