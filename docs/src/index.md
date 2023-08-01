@@ -2,7 +2,7 @@
 
 Noise processes are essential in continuous stochastic modeling. The `NoiseProcess`
 types are distributionally-exact, meaning they are not solutions of
-stochastic differential equations and instead are directly generated according
+stochastic differential equations but instead are directly generated according
 to their analytical distributions. These processes are used as the noise term
 in the SDE and RODE solvers. Additionally, the noise processes themselves can
 be simulated and solved using the DiffEq common interface (including the Monte
@@ -28,11 +28,11 @@ this, simply construct the noise and pass it to the `noise` keyword argument:
 ```julia
 μ = 1.0
 σ = 2.0
-W = GeometricBrownianMotionProcess(μ,σ,0.0,1.0,1.0)
+W = GeometricBrownianMotionProcess(μ, σ, 0.0, 1.0, 1.0)
 # ...
 # Define f,g,u0,tspan for a SDEProblem
 # ...
-prob = SDEProblem(f,g,u0,tspan,noise=W)
+prob = SDEProblem(f, g, u0, tspan, noise = W)
 ```
 
 ### Basic Interface
@@ -42,17 +42,17 @@ can get its `i`th timepoint like `W[i]` and the associated time `W.t[i]`. If the
 `NoiseProcess` has a bridging distribution defined, it can be interpolated to
 arbitrary time points using `W(t)`. Note that every interpolated value is saved
 to the `NoiseProcess` so that way it can stay distributionally correct. A plot
-recipe is provided which plots the timeseries.
+recipe is provided that plots the timeseries.
 
 ### Direct Simulation of the Noise Process
 
 Since the `NoiseProcess` types are distribution-exact and do not require the
 stochastic differential equation solvers, many times one would like to directly
-simulate trajectories from these proecesses. The `NoiseProcess` has a
+simulate trajectories from these processes. The `NoiseProcess` has a
 `NoiseProcessProblem` type:
 
 ```julia
-NoiseProblem(noise,tspan)
+NoiseProblem(noise, tspan)
 ```
 
 for which `solve` works. For example, we can simulate a distributionally-exact
@@ -61,19 +61,19 @@ Geometric Brownian Motion solution by:
 ```julia
 μ = 1.0
 σ = 2.0
-W = GeometricBrownianMotionProcess(μ,σ,0.0,1.0,1.0)
-prob = NoiseProblem(W,(0.0,1.0))
-sol = solve(prob;dt=0.1)
+W = GeometricBrownianMotionProcess(μ, σ, 0.0, 1.0, 1.0)
+prob = NoiseProblem(W, (0.0, 1.0))
+sol = solve(prob; dt = 0.1)
 ```
 
-`solve` requires the `dt` is given, the solution it returns is a `NoiseProcess`
+`solve` requires that the `dt` is given, and that the solution it returns is a `NoiseProcess`
 which has stepped through the timespan. Because this follows the common interface,
 all of the normal functionality works. For example, we can use the Monte Carlo
 functionality as follows:
 
 ```julia
 monte_prob = MonteCarloProblem(prob)
-sol = solve(monte_prob;dt=0.1,num_monte=100)
+sol = solve(monte_prob; dt = 0.1, num_monte = 100)
 ```
 
 simulates 100 Geometric Brownian Motions.
@@ -90,78 +90,100 @@ are rejected, the Rejection Sampling with Memory algorithm is applied to keep
 the solution distributionally exact. This kind of stepping is done via:
 
 ```julia
-W = WienerProcess(0.0,1.0,1.0)
+W = WienerProcess(0.0, 1.0, 1.0)
 dt = 0.1
 W.dt = dt
-u = nothing; p = nothing # for state-dependent distributions
-calculate_step!(W,dt,u,p)
+u = nothing;
+p = nothing; # for state-dependent distributions
+calculate_step!(W, dt, u, p)
 for i in 1:10
-  accept_step!(W,dt,u,p)
+    accept_step!(W, dt, u, p)
 end
 ```
 
 ## Contributing
 
-- Please refer to the
-  [SciML ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://github.com/SciML/ColPrac/blob/master/README.md)
-  for guidance on PRs, issues, and other matters relating to contributing to ModelingToolkit.
-- There are a few community forums:
-    - the #diffeq-bridged channel in the [Julia Slack](https://julialang.org/slack/)
-    - [JuliaDiffEq](https://gitter.im/JuliaDiffEq/Lobby) on Gitter
-    - on the [Julia Discourse forums](https://discourse.julialang.org)
-    - see also [SciML Community page](https://sciml.ai/community/)
+  - Please refer to the
+    [SciML ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://github.com/SciML/ColPrac/blob/master/README.md)
+    for guidance on PRs, issues, and other matters relating to contributing to SciML.
+
+  - See the [SciML Style Guide](https://github.com/SciML/SciMLStyle) for common coding practices and other style decisions.
+  - There are a few community forums:
+    
+      + The #diffeq-bridged and #sciml-bridged channels in the
+        [Julia Slack](https://julialang.org/slack/)
+      + The #diffeq-bridged and #sciml-bridged channels in the
+        [Julia Zulip](https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged)
+      + On the [Julia Discourse forums](https://discourse.julialang.org)
+      + See also [SciML Community page](https://sciml.ai/community/)
 
 ## Reproducibility
+
 ```@raw html
 <details><summary>The documentation of this SciML package was built using these direct dependencies,</summary>
 ```
+
 ```@example
 using Pkg # hide
 Pkg.status() # hide
 ```
+
 ```@raw html
 </details>
 ```
+
 ```@raw html
 <details><summary>and using this machine and Julia version.</summary>
 ```
+
 ```@example
 using InteractiveUtils # hide
 versioninfo() # hide
 ```
+
 ```@raw html
 </details>
 ```
+
 ```@raw html
 <details><summary>A more complete overview of all dependencies and their versions is also provided.</summary>
 ```
+
 ```@example
 using Pkg # hide
-Pkg.status(;mode = PKGMODE_MANIFEST) # hide
+Pkg.status(; mode = PKGMODE_MANIFEST) # hide
 ```
+
 ```@raw html
 </details>
 ```
+
 ```@raw html
 You can also download the 
 <a href="
 ```
+
 ```@eval
 using TOML
-version = TOML.parse(read("../../Project.toml",String))["version"]
-name = TOML.parse(read("../../Project.toml",String))["name"]
-link = "https://github.com/SciML/"*name*".jl/tree/gh-pages/v"*version*"/assets/Manifest.toml"
+version = TOML.parse(read("../../Project.toml", String))["version"]
+name = TOML.parse(read("../../Project.toml", String))["name"]
+link = "https://github.com/SciML/" * name * ".jl/tree/gh-pages/v" * version *
+       "/assets/Manifest.toml"
 ```
+
 ```@raw html
 ">manifest</a> file and the
 <a href="
 ```
+
 ```@eval
 using TOML
-version = TOML.parse(read("../../Project.toml",String))["version"]
-name = TOML.parse(read("../../Project.toml",String))["name"]
-link = "https://github.com/SciML/"*name*".jl/tree/gh-pages/v"*version*"/assets/Project.toml"
+version = TOML.parse(read("../../Project.toml", String))["version"]
+name = TOML.parse(read("../../Project.toml", String))["name"]
+link = "https://github.com/SciML/" * name * ".jl/tree/gh-pages/v" * version *
+       "/assets/Project.toml"
 ```
+
 ```@raw html
 ">project</a> file.
 ```

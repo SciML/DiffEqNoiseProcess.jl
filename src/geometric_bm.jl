@@ -47,7 +47,7 @@ dX_t = \mu X_t dt + \sigma X_t dW_t
 ```
 
 The `GeometricBrownianMotionProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, and instead follows the exact
+solution of the stochastic differential equation, but instead follows the exact
 distribution properties). It can be back interpolated exactly as well. The constructor is:
 
 ```julia
@@ -58,9 +58,9 @@ GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
 function GeometricBrownianMotionProcess(μ, σ, t0, W0, Z0 = nothing; kwargs...)
     gbm = GeometricBrownianMotion(μ, σ)
     NoiseProcess{false}(t0, W0, Z0, gbm,
-                        (dW, W, W0, Wh, q, h, u, p, t, rng) -> gbm_bridge(dW, gbm, W, W0,
-                                                                          Wh, q, h, u, p, t,
-                                                                          rng); kwargs...)
+        (dW, W, W0, Wh, q, h, u, p, t, rng) -> gbm_bridge(dW, gbm, W, W0,
+            Wh, q, h, u, p, t,
+            rng); kwargs...)
 end
 
 struct GeometricBrownianMotion!{T1, T2}
@@ -82,7 +82,7 @@ dX_t = \mu X_t dt + \sigma X_t dW_t
 ```
 
 The `GeometricBrownianMotionProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, and instead follows the exact
+solution of the stochastic differential equation, but instead follows the exact
 distribution properties). It can be back interpolated exactly as well. The constructor is:
 
 ```julia
@@ -93,9 +93,9 @@ GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
 function GeometricBrownianMotionProcess!(μ, σ, t0, W0, Z0 = nothing; kwargs...)
     gbm = GeometricBrownianMotion!(μ, σ)
     NoiseProcess{true}(t0, W0, Z0, gbm,
-                       (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> gbm_bridge!(rand_vec,
-                                                                                gbm, W, W0,
-                                                                                Wh, q, h, u,
-                                                                                p, t, rng);
-                       kwargs...)
+        (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> gbm_bridge!(rand_vec,
+            gbm, W, W0,
+            Wh, q, h, u,
+            p, t, rng);
+        kwargs...)
 end

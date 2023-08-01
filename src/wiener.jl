@@ -1,11 +1,11 @@
 const one_over_sqrt2 = 1 / sqrt(2)
 @inline wiener_randn(rng::AbstractRNG, ::Type{T}) where {T} = randn(rng, T)
 
-@inline function wiener_randn(rng::AbstractRNG, proto::AbstractArray{T}) where {T<:Number}
+@inline function wiener_randn(rng::AbstractRNG, proto::AbstractArray{T}) where {T <: Number}
     randn(rng, T, size(proto))
 end
 @inline function wiener_randn(rng::AbstractRNG,
-                              proto::T) where {T <: StaticArraysCore.SArray}
+    proto::T) where {T <: StaticArraysCore.SArray}
     randn(rng, T)
 end
 @inline function wiener_randn(rng::AbstractRNG, proto)
@@ -22,7 +22,7 @@ end
 end
 
 @inline function wiener_randn!(y::AbstractRNG,
-                               x::AbstractArray{<:Complex{T}}) where {T <: Number}
+    x::AbstractArray{<:Complex{T}}) where {T <: Number}
     # Remove loop
     @inbounds for i in eachindex(x)
         x[i] = convert(T, one_over_sqrt2) * (randn(y, T) + im * randn(y, T))
@@ -116,7 +116,7 @@ WienerProcess!(t0,W0,Z0=nothing;kwargs...)
 """
 function WienerProcess!(t0, W0, Z0 = nothing; kwargs...)
     NoiseProcess{true}(t0, W0, Z0, INPLACE_WHITE_NOISE_DIST, INPLACE_WHITE_NOISE_BRIDGE;
-                       kwargs...)
+        kwargs...)
 end
 
 @doc doc"""
@@ -134,7 +134,7 @@ support adaptivity, but is slightly more lightweight.
 """
 function SimpleWienerProcess!(t0, W0, Z0 = nothing; kwargs...)
     SimpleNoiseProcess{true}(t0, W0, Z0, INPLACE_WHITE_NOISE_DIST,
-                             INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
+        INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
 end
 
 #### Real Valued Wiener Process. Ignores complex and the like
@@ -156,7 +156,7 @@ end
 @doc doc"""
 The `RealWienerProcess` is a Brownian motion that is forced to be
 real-valued. While the normal `WienerProcess` becomes complex valued
-if `W0` is complex, this verion is real valued for when you want to,
+if `W0` is complex, this version is real valued for when you want to,
 for example, solve an SDE defined by complex numbers where the noise
 is in the reals.
 
@@ -167,7 +167,7 @@ RealWienerProcess!(t0,W0,Z0=nothing;kwargs...)
 """
 function RealWienerProcess(t0, W0, Z0 = nothing; kwargs...)
     NoiseProcess{false}(t0, W0, Z0, REAL_WHITE_NOISE_DIST, REAL_WHITE_NOISE_BRIDGE;
-                        kwargs...)
+        kwargs...)
 end
 
 function REAL_INPLACE_WHITE_NOISE_DIST(rand_vec, W, dt, u, p, t, rng)
@@ -183,7 +183,7 @@ end
 @doc doc"""
 The `RealWienerProcess` is a Brownian motion that is forced to be
 real-valued. While the normal `WienerProcess` becomes complex valued
-if `W0` is complex, this verion is real valued for when you want to,
+if `W0` is complex, this version is real valued for when you want to,
 for example, solve an SDE defined by complex numbers where the noise
 is in the reals.
 
@@ -194,5 +194,5 @@ RealWienerProcess!(t0,W0,Z0=nothing;kwargs...)
 """
 function RealWienerProcess!(t0, W0, Z0 = nothing; kwargs...)
     NoiseProcess{true}(t0, W0, Z0, REAL_INPLACE_WHITE_NOISE_DIST,
-                       REAL_INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
+        REAL_INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
 end

@@ -147,30 +147,30 @@
 
     # scalar
     Ws = cumsum([0.0;
-                 [sqrt(trange[i + 1] - ti) * randn()
-                  for (i, ti) in enumerate(trange[1:(end - 1)])]])
+        [sqrt(trange[i + 1] - ti) * randn()
+         for (i, ti) in enumerate(trange[1:(end - 1)])]])
     NG = NoiseGrid(trange, Ws)
     NG2 = pCN(NG, 1.0) # ρ = 1.0
     NG3 = pCN(NG, 0.5) # ρ = 0.5
 
     @test ≈(cor(diff(NG.W) ./ sqrt.(diff(NG.t)), diff(NG2.W) ./ sqrt.(diff(NG2.t))), 1,
-            atol = 1e-2)
+        atol = 1e-2)
     @test ≈(cor(diff(NG.W) ./ sqrt.(diff(NG.t)), diff(NG3.W) ./ sqrt.(diff(NG3.t))), 0.5,
-            atol = 1e-2)
+        atol = 1e-2)
 
     # array
     dim = 4
     Ws = cumsum([[zeros(dim)];
-                 [sqrt(trange[i + 1] - ti) * randn(dim)
-                  for (i, ti) in enumerate(trange[1:(end - 1)])]])
+        [sqrt(trange[i + 1] - ti) * randn(dim)
+         for (i, ti) in enumerate(trange[1:(end - 1)])]])
     NG = NoiseGrid(trange, Ws)
     NG1 = pCN(NG, 1.0) # ρ = 1.0
     NG2 = pCN(NG, 0.5) # ρ = 0.5
 
     for i in 1:dim
         @test ≈(cor(getindex.(diff(NG.W) ./ sqrt.(diff(NG.t)), i),
-                    getindex.(diff(NG1.W) ./ sqrt.(diff(NG1.t)), i)), 1.0, atol = 1e-2)
+                getindex.(diff(NG1.W) ./ sqrt.(diff(NG1.t)), i)), 1.0, atol = 1e-2)
         @test ≈(cor(getindex.(diff(NG.W) ./ sqrt.(diff(NG.t)), i),
-                    getindex.(diff(NG2.W) ./ sqrt.(diff(NG2.t)), i)), 0.5, atol = 1e-2)
+                getindex.(diff(NG2.W) ./ sqrt.(diff(NG2.t)), i)), 0.5, atol = 1e-2)
     end
 end

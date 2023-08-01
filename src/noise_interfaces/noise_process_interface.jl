@@ -98,7 +98,7 @@ end
                     W.dWtilde = W.bridge(W.dW, W, W.curW, L₂, qtmp, L₁, u, p, W.curt, W.rng)
                     if W.Z !== nothing
                         W.dZtilde = W.bridge(W.dZ, W, W.curZ, L₃, qtmp, L₁, u, p, W.curt,
-                                             W.rng)
+                            W.rng)
                     end
                 end
                 if isinplace(W)
@@ -132,12 +132,12 @@ end
                     if adaptive_alg(W) == :RSwM3 && qtmp * L₁ > W.rswm.discard_length
                         if W.Z == nothing
                             ResettableStacks.copyat_or_push!(W.S₂,
-                                                             (qtmp * L₁, W.dWtilde,
-                                                              nothing))
+                                (qtmp * L₁, W.dWtilde,
+                                    nothing))
                         else
                             ResettableStacks.copyat_or_push!(W.S₂,
-                                                             (qtmp * L₁, W.dWtilde,
-                                                              W.dZtilde))
+                                (qtmp * L₁, W.dWtilde,
+                                    W.dZtilde))
                         end
                     end
                 end

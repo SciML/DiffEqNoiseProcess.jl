@@ -17,7 +17,7 @@
     Random.seed!(seed)
     prob = SDEProblem(f!, σ!, u₀, trange)
     sol = solve(prob, EulerHeun(), dt = dt1, adaptive = false, save_noise = true,
-                saveat = collect(trange[1]:dt1:trange[2]))
+        saveat = collect(trange[1]:dt1:trange[2]))
 
     # choose a random interval
     interval = (0.35, 0.87)
@@ -29,9 +29,9 @@
     forwardnoise2 = DiffEqNoiseProcess.NoiseWrapper(sol.W, indx = idx1)
 
     cpsol = solve(remake(prob, tspan = interval, u0 = sol(interval[1]),
-                         noise = forwardnoise), sol.alg, save_noise = false; dt = dt1)
+            noise = forwardnoise), sol.alg, save_noise = false; dt = dt1)
     cpsol2 = solve(remake(prob, tspan = interval, u0 = sol(interval[1]),
-                          noise = forwardnoise2), sol.alg, save_noise = false; dt = dt1)
+            noise = forwardnoise2), sol.alg, save_noise = false; dt = dt1)
 
     sola = vcat(sol.u[idx1:idx2]...)
     cpsola = vcat(cpsol.u...)

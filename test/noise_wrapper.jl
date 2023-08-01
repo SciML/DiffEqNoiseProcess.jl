@@ -137,8 +137,8 @@ end
 
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = 1000)
     checkWrapper = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-                                noise = forwardnoise), _sol.alg, save_noise = false;
-                         dt = abs(_sol.W.dt))
+            noise = forwardnoise), _sol.alg, save_noise = false;
+        dt = abs(_sol.W.dt))
 
     @test checkWrapper.u[end - 1]≈soloop.u[end] rtol=1e-10
     @test checkWrapper.W.W[end]≈soloop.W.W[end] rtol=1e-16
@@ -147,8 +147,8 @@ end
 
     forwardnoise = DiffEqNoiseProcess.NoiseGrid(_sol.W.t[1000:1001], _sol.W.W[1000:1001])
     checkGrid = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-                             noise = forwardnoise), _sol.alg, save_noise = false;
-                      dt = abs(_sol.W.dt))
+            noise = forwardnoise), _sol.alg, save_noise = false;
+        dt = abs(_sol.W.dt))
 
     @test checkGrid.u[end - 1]≈soloop.u[end] rtol=1e-10
     @test checkGrid.W.W[end]≈soloop.W.W[end] rtol=1e-16
@@ -163,8 +163,8 @@ end
 
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = 1000)
     checkWrapper = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-                                noise = forwardnoise), _sol.alg, save_noise = false;
-                         dt = abs(_sol.W.dt))
+            noise = forwardnoise), _sol.alg, save_noise = false;
+        dt = abs(_sol.W.dt))
 
     @test checkWrapper.u[end - 1]≈sol.u[end] rtol=1e-10
     @test checkWrapper.W.W[end]≈sol.W.W[end] rtol=1e-16
@@ -173,8 +173,8 @@ end
 
     forwardnoise = DiffEqNoiseProcess.NoiseGrid(_sol.W.t[1000:1001], _sol.W.W[1000:1001])
     checkGrid = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-                             noise = forwardnoise), _sol.alg, save_noise = false;
-                      dt = abs(_sol.W.dt))
+            noise = forwardnoise), _sol.alg, save_noise = false;
+        dt = abs(_sol.W.dt))
 
     @test checkGrid.u[end - 1]≈sol.u[end] rtol=1e-10
     @test checkGrid.W.W[end]≈sol.W.W[end] rtol=1e-16
@@ -233,9 +233,9 @@ end
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = indx1)
 
     checkWrapper = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-                                noise = forwardnoise), _sol.alg, save_noise = false;
-                         dt = abs(_sol.W.t[end - 1] - _sol.W.t[end - 2]),
-                         tstops = sol.t[indx1:end])
+            noise = forwardnoise), _sol.alg, save_noise = false;
+        dt = abs(_sol.W.t[end - 1] - _sol.W.t[end - 2]),
+        tstops = sol.t[indx1:end])
 
     @test length(checkWrapper.u) != length(sol.u)
 
@@ -252,9 +252,9 @@ end
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = indx1)
 
     checkWrapper = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-                                noise = forwardnoise), _sol.alg, save_noise = false;
-                         dt = abs(_sol.W.t[end - 1] - _sol.W.t[end - 2]),
-                         tstops = sol.t[indx1:end])
+            noise = forwardnoise), _sol.alg, save_noise = false;
+        dt = abs(_sol.W.t[end - 1] - _sol.W.t[end - 2]),
+        tstops = sol.t[indx1:end])
 
     @test length(checkWrapper.u) != length(soloop.u)
 
@@ -274,12 +274,12 @@ end
 
     if VERSION > v"1.6"
         W = WienerProcess(t, rand_prototype,
-                          save_everystep = save_noise,
-                          rng = Xorshifts.Xoroshiro128Plus(_seed))
+            save_everystep = save_noise,
+            rng = Xorshifts.Xoroshiro128Plus(_seed))
     else
         W = WienerProcess(t, rand_prototype,
-                          save_everystep = save_noise,
-                          rng = MersenneTwisters.MT19937(_seed))
+            save_everystep = save_noise,
+            rng = MersenneTwisters.MT19937(_seed))
     end
     prob = NoiseProblem(W, (0.0, 1.0))
     W2 = solve(prob; dt = 0.1)
