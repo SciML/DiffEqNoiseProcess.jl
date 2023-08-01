@@ -1,3 +1,5 @@
+isinplace(W::AbstractNoiseProcess{T, N, S, inplace}) where {T, N, S, inplace} = inplace
+
 """
 ```julia
 NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSWM, C, RNGType} <:
