@@ -97,3 +97,21 @@ function CompoundPoissonBridge!(rate, t0, tend, W0, Wh; kwargs...)
     push!(W.reinitS₁, (h, Wh, nothing))
     W
 end
+
+function OrnsteinUhlenbeckBridge(Θ, μ, σ, t0, tend, W0, Wend, Z0 = nothing; kwargs...)
+    ou = OrnsteinUhlenbeckProcess(Θ, μ, σ, t0, W0, Z0; kwargs...)
+    h = tend - t0
+    Wh = Wend .- W0
+    push!(ou.S₁, (h, Wh, nothing))
+    push!(ou.reinitS₁, (h, Wh, nothing))
+    ou
+end
+
+function OrnsteinUhlenbeckBridge!(Θ, μ, σ, t0, tend, W0, Wend, Z0 = nothing; kwargs...)
+    ou = OrnsteinUhlenbeckProcess!(Θ, μ, σ, t0, W0, Z0; kwargs...)
+    h = tend - t0
+    Wh = Wend .- W0
+    push!(ou.S₁, (h, Wh, nothing))
+    push!(ou.reinitS₁, (h, Wh, nothing))
+    ou
+end

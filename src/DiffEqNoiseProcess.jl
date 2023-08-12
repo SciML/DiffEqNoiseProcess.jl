@@ -69,6 +69,8 @@ export CompoundPoissonProcess, CompoundPoissonProcess!
 
 export GeometricBrownianBridge, GeometricBrownianBridge!
 
+export OrnsteinUhlenbeckBridge, OrnsteinUhlenbeckBridge!
+
 export CompoundPoissonBridge, CompoundPoissonBridge!
 
 export OrnsteinUhlenbeckProcess, OrnsteinUhlenbeckProcess!
