@@ -72,8 +72,8 @@ all of the normal functionality works. For example, we can use the Monte Carlo
 functionality as follows:
 
 ```julia
-monte_prob = MonteCarloProblem(prob)
-sol = solve(monte_prob; dt = 0.1, num_monte = 100)
+enprob = EnsembleProblem(prob)
+sol = solve(enprob; dt = 0.1, num_monte = 100)
 ```
 
 simulates 100 Geometric Brownian Motions.
