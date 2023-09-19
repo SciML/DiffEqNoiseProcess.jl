@@ -49,7 +49,7 @@ recipe is provided that plots the timeseries.
 Since the `NoiseProcess` types are distribution-exact and do not require the
 stochastic differential equation solvers, many times one would like to directly
 simulate trajectories from these processes. The `NoiseProcess` has a
-`NoiseProcessProblem` type:
+`NoiseProblem` type:
 
 ```julia
 NoiseProblem(noise, tspan)
