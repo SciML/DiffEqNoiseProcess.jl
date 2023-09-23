@@ -470,7 +470,7 @@ plot!(sol2)
 plot!(sol3)
 ```
 
-![noise_process](../assets/noise_process.png)
+![noise_process](assets/noise_process.png)
 
 In this plot, `sol2` covers up `sol1` because they hit essentially the same
 values. You can see that `sol3` is similar to the others, because it's
@@ -484,7 +484,7 @@ plot!(sol2.W)
 plot!(sol3.W)
 ```
 
-![coupled_wiener](../assets/coupled_wiener.png)
+![coupled_wiener](assets/coupled_wiener.png)
 
 the coupled Wiener processes coincide at every other time point, and the intermediate
 timepoints were calculated according to a Brownian bridge.
@@ -510,7 +510,7 @@ plot(sol4)
 plot!(sol5)
 ```
 
-![SRI_SRIW1_diff](../assets/SRI_SRIW1_diff.png)
+![SRI_SRIW1_diff](assets/SRI_SRIW1_diff.png)
 """
 mutable struct NoiseWrapper{T, N, Tt, T2, T3, T4, ZType, inplace} <:
                AbstractNoiseProcess{T, N, Vector{T2}, inplace}
