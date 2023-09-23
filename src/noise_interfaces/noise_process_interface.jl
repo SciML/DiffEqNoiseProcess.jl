@@ -420,7 +420,7 @@ end
                 h = W.t[i - 1] - W.t[i]
                 q = (t - W.t[i]) / h
             else
-                W0, Wh = W.W[i - 1], W.W[i] - W.W[i-1]
+                W0, Wh = W.W[i - 1], W.W[i] - W.W[i - 1]
                 if W.Z !== nothing
                     Z0, Zh = W.Z[i - 1], W.Z[i]
                 end
@@ -430,7 +430,7 @@ end
 
             if isinplace(W)
                 new_curW = similar(W.dW)
-                W.bridge(new_curW, W, W0, Wh, q, h, u, p, W.t[i-1], W.rng)
+                W.bridge(new_curW, W, W0, Wh, q, h, u, p, W.t[i - 1], W.rng)
                 #if iscontinuous(W)
                 #    @. new_curW += (1 - q) * W0
                 #else
@@ -438,31 +438,31 @@ end
                 #end
                 if W.Z !== nothing
                     new_curZ = similar(W.dZ)
-                    W.bridge(new_curZ, W, Z0, Zh, q, h, u, p, W.t[i-1], W.rng)
+                    W.bridge(new_curZ, W, Z0, Zh, q, h, u, p, W.t[i - 1], W.rng)
                     #if iscontinuous(W)
-                     #   @. new_curZ += (1 - q) * Z0
+                    #   @. new_curZ += (1 - q) * Z0
                     #else
-                        @. new_curZ += Z0
+                    @. new_curZ += Z0
                     #end
                 else
                     new_curZ = nothing
                 end
             else
-                new_curW = W.bridge(W.dW, W, W0, Wh, q, h, u, p, W.t[i-1], W.rng)
+                new_curW = W.bridge(W.dW, W, W0, Wh, q, h, u, p, W.t[i - 1], W.rng)
                 #if iscontinuous(W)
-                    # This should actually be based on the function for computing the mean
-                    # flow of the noise process, but for now we'll just handle Wiener and
-                    # Poisson
+                # This should actually be based on the function for computing the mean
+                # flow of the noise process, but for now we'll just handle Wiener and
+                # Poisson
                 #    new_curW += (1 - q) * W0
                 #else
-                    new_curW += W0
+                new_curW += W0
                 #end
                 if W.Z !== nothing
-                    new_curZ = W.bridge(W.dZ, W, Z0, Zh, q, h, u, p, W.t[i-1], W.rng)
+                    new_curZ = W.bridge(W.dZ, W, Z0, Zh, q, h, u, p, W.t[i - 1], W.rng)
                     #if iscontinuous(W)
                     #    new_curZ += (1 - q) * Z0
                     #else
-                        new_curZ += Z0
+                    new_curZ += Z0
                     #end
                 else
                     new_curZ = nothing

@@ -44,5 +44,3 @@ end
         include("bridge_test.jl")
     end
 end
-
-

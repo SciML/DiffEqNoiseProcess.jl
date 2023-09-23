@@ -20,4 +20,3 @@ For information on using the package,
 [see the stable documentation](https://docs.sciml.ai/DiffEqNoiseProcess/stable/). Use the
 [in-development documentation](https://docs.sciml.ai/DiffEqNoiseProcess/dev/) for the version of
 the documentation, which contains the unreleased features.
-

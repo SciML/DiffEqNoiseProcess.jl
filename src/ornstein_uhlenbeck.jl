@@ -30,20 +30,26 @@ note that in the paper there is a typo in the formula for σ^2
 function ou_bridge(dW, ou, W, W0, Wh, q, h, u, p, t, rng)
     if typeof(dW) <: AbstractArray
         rand_vec = wiener_randn(rng, dW)
-        var = @.   ou.σ^2 * sinh(ou.Θ*(h*(1. -q))) * (sinh(ou.Θ*(q*h))) /( ou.Θ * sinh(ou.Θ * h))
-        @. (W0-ou.μ)*(sinh(ou.Θ*(h*(1. -q)))/sinh(ou.Θ*h) - 1.) + (Wh+W0-ou.μ)*sinh(ou.Θ*q*h)/sinh(ou.Θ*h) + sqrt(var) * rand_vec
-         
+        var = @. ou.σ^2 * sinh(ou.Θ * (h * (1.0 - q))) * (sinh(ou.Θ * (q * h))) /
+                 (ou.Θ * sinh(ou.Θ * h))
+        @. (W0 - ou.μ) * (sinh(ou.Θ * (h * (1.0 - q))) / sinh(ou.Θ * h) - 1.0) +
+           (Wh + W0 - ou.μ) * sinh(ou.Θ * q * h) / sinh(ou.Θ * h) + sqrt(var) * rand_vec
+
     else
-        var = ou.σ^2 * sinh(ou.Θ*(h*(1. -q))) * (sinh(ou.Θ*(q*h))) /( ou.Θ * sinh(ou.Θ * h))
-        (W0-ou.μ)*(sinh(ou.Θ*(h*(1. -q)))/sinh(ou.Θ*h) - 1.) + (Wh+W0-ou.μ)*sinh(ou.Θ*q*h)/sinh(ou.Θ*h) + sqrt(var) * wiener_randn(rng, typeof(dW))
+        var = ou.σ^2 * sinh(ou.Θ * (h * (1.0 - q))) * (sinh(ou.Θ * (q * h))) /
+              (ou.Θ * sinh(ou.Θ * h))
+        (W0 - ou.μ) * (sinh(ou.Θ * (h * (1.0 - q))) / sinh(ou.Θ * h) - 1.0) +
+        (Wh + W0 - ou.μ) * sinh(ou.Θ * q * h) / sinh(ou.Θ * h) +
+        sqrt(var) * wiener_randn(rng, typeof(dW))
     end
 end
 
-
-
-function ou_bridge!(rand_vec, ou, W, W0, Wh, q, h, u, p, t, rng) 
+function ou_bridge!(rand_vec, ou, W, W0, Wh, q, h, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
-    @.. rand_vec = (W0-ou.μ)*(sinh(ou.Θ*(h*(1. -q)))/sinh(ou.Θ*h) - 1.) + (Wh+W0-ou.μ)*sinh(ou.Θ*q*h)/sinh(ou.Θ*h) + sqrt(ou.σ^2 * sinh(ou.Θ*(h*(1. -q))) * (sinh(ou.Θ*(q*h))) /( ou.Θ * sinh(ou.Θ * h))) * rand_vec
+    @.. rand_vec = (W0 - ou.μ) * (sinh(ou.Θ * (h * (1.0 - q))) / sinh(ou.Θ * h) - 1.0) +
+                   (Wh + W0 - ou.μ) * sinh(ou.Θ * q * h) / sinh(ou.Θ * h) +
+                   sqrt(ou.σ^2 * sinh(ou.Θ * (h * (1.0 - q))) * (sinh(ou.Θ * (q * h))) /
+                        (ou.Θ * sinh(ou.Θ * h))) * rand_vec
 end
 
 @doc doc"""
@@ -65,8 +71,18 @@ OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
 """
 function OrnsteinUhlenbeckProcess(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
     ou = OrnsteinUhlenbeck(Θ, μ, σ)
-    NoiseProcess{false}(t0, W0, Z0, ou, 
-    (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> ou_bridge(rand_vec, ou , W, W0, Wh, q, h, u, p, t, rng); kwargs...)
+    NoiseProcess{false}(t0, W0, Z0, ou,
+        (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> ou_bridge(rand_vec,
+            ou,
+            W,
+            W0,
+            Wh,
+            q,
+            h,
+            u,
+            p,
+            t,
+            rng); kwargs...)
 end
 
 struct OrnsteinUhlenbeck!{T1, T2, T3}
@@ -100,5 +116,20 @@ OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
 """
 function OrnsteinUhlenbeckProcess!(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
     ou = OrnsteinUhlenbeck!(Θ, μ, σ)
-    NoiseProcess{true}(t0, W0, Z0, ou, (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> ou_bridge!(rand_vec, ou , W, W0, Wh, q, h, u, p, t, rng); kwargs...)
+    NoiseProcess{true}(t0,
+        W0,
+        Z0,
+        ou,
+        (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> ou_bridge!(rand_vec,
+            ou,
+            W,
+            W0,
+            Wh,
+            q,
+            h,
+            u,
+            p,
+            t,
+            rng);
+        kwargs...)
 end
