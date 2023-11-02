@@ -79,7 +79,7 @@ function is:
 
 ```julia
 @inline function WHITE_NOISE_DIST(W, dt, rng)
-    if typeof(W.dW) <: AbstractArray && !(typeof(W.dW) <: SArray)
+    if W.dW isa AbstractArray && !(W.dW isa SArray)
         return @fastmath sqrt(abs(dt)) * wiener_randn(rng, W.dW)
     else
         return @fastmath sqrt(abs(dt)) * wiener_randn(rng, typeof(W.dW))
@@ -110,7 +110,7 @@ Thus, we have the out-of-place and in-place versions as:
 
 ```julia
 function WHITE_NOISE_BRIDGE(W, W0, Wh, q, h, rng)
-    if typeof(W.dW) <: AbstractArray
+    if W.dW isa AbstractArray
         return @fastmath sqrt((1 - q) * q * abs(h)) * wiener_randn(rng, W.dW) + q * Wh
     else
         return @fastmath sqrt((1 - q) * q * abs(h)) * wiener_randn(rng, typeof(W.dW)) +
@@ -932,7 +932,7 @@ function NoiseGrid(t, W, Z = nothing; reset = true)
         cur_time = Ref(length(t))
     end
 
-    (typeof(val) <: AbstractArray && !(typeof(val) <: SArray)) ? iip = true : iip = false
+    (val isa AbstractArray && !(val isa SArray)) ? iip = true : iip = false
     NoiseGrid{typeof(val), ndims(val), typeof(dt), typeof(dW), typeof(dZ), typeof(Z),
         typeof(cur_time), iip}(t,
         W,

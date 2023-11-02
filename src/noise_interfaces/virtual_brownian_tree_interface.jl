@@ -78,7 +78,7 @@ end
 
 function calculate_step!(W::VirtualBrownianTree, dt, u, p)
     t = W.curt + dt
-    if typeof(t) <: AbstractFloat && abs(t - W.t[end]) < 100eps(typeof(dt))
+    if t isa AbstractFloat && abs(t - W.t[end]) < 100eps(typeof(dt))
         t = W.t[end]
     end
     if isinplace(W)

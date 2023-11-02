@@ -2,7 +2,7 @@ function construct_correlated_noisefunc(Γ)
     γ = svd(Γ)
     A = γ.U * Diagonal(sqrt.(γ.S))
     dist = function (dW, W, dt, u, p, t, rng)
-        if typeof(dW) <: AbstractArray
+        if dW isa AbstractArray
             return A * sqrt.(abs(dt)) * wiener_randn(rng, dW)
         else
             return A * sqrt.(abs(dt)) * wiener_randn(rng, typeof(dW))

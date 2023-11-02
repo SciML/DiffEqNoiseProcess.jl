@@ -30,7 +30,7 @@ end
 end
 
 @inline function WHITE_NOISE_DIST(dW, W, dt, u, p, t, rng)
-    if typeof(dW) <: AbstractArray && !(typeof(dW) <: StaticArraysCore.SArray)
+    if dW isa AbstractArray && !(dW isa StaticArraysCore.SArray)
         return @fastmath sqrt(abs(dt)) * wiener_randn(rng, dW)
     else
         return @fastmath sqrt(abs(dt)) * wiener_randn(rng, typeof(dW))
@@ -38,7 +38,7 @@ end
 end
 
 function WHITE_NOISE_BRIDGE(dW, W, W0, Wh, q, h, u, p, t, rng)
-    if typeof(dW) <: AbstractArray
+    if dW isa AbstractArray
         return @fastmath sqrt((1 - q) * q * abs(h)) * wiener_randn(rng, dW) + q * Wh
     else
         return @fastmath sqrt((1 - q) * q * abs(h)) * wiener_randn(rng, typeof(dW)) + q * Wh
@@ -46,7 +46,7 @@ function WHITE_NOISE_BRIDGE(dW, W, W0, Wh, q, h, u, p, t, rng)
 end
 
 function VBT_BRIDGE(dW, W, W0, Wh, q, h, u, p, t, rng)
-    if typeof(dW) <: AbstractArray
+    if dW isa AbstractArray
         return @fastmath sqrt((1 - q) * q * abs(h)) * wiener_randn(rng, dW) + q * (Wh + W0)
     else
         return @fastmath sqrt((1 - q) * q * abs(h)) * wiener_randn(rng, typeof(dW)) +
@@ -139,14 +139,14 @@ end
 
 #### Real Valued Wiener Process. Ignores complex and the like
 function REAL_WHITE_NOISE_DIST(dW, W, dt, u, p, t, rng)
-    if typeof(dW) <: AbstractArray
+    if dW isa AbstractArray
         return @fastmath sqrt(abs(dt)) * randn(rng, size(dW))
     else
         return @fastmath sqrt(abs(dt)) * randn(rng)
     end
 end
 function REAL_WHITE_NOISE_BRIDGE(dW, W, W0, Wh, q, h, u, p, t, rng)
-    if typeof(dW) <: AbstractArray
+    if dW isa AbstractArray
         return @fastmath sqrt((1 - q) * q * abs(h)) * randn(rng, size(dW)) + q * Wh
     else
         return @fastmath sqrt((1 - q) * q * abs(h)) * randn(rng) + q * Wh
