@@ -5,7 +5,7 @@ struct OrnsteinUhlenbeck{T1, T2, T3}
 end
 # http://www.math.ku.dk/~susanne/StatDiff/Overheads1b.pdf
 function (X::OrnsteinUhlenbeck)(dW, W, dt, u, p, t, rng) #dist
-    if typeof(dW) <: AbstractArray
+    if dW isa AbstractArray
         rand_val = wiener_randn(rng, dW)
     else
         rand_val = wiener_randn(rng, typeof(dW))
@@ -28,7 +28,7 @@ https://arxiv.org/pdf/1011.0067.pdf page 18
 note that in the paper there is a typo in the formula for σ^2
 =#
 function ou_bridge(dW, ou, W, W0, Wh, q, h, u, p, t, rng)
-    if typeof(dW) <: AbstractArray
+    if dW isa AbstractArray
         rand_vec = wiener_randn(rng, dW)
         var = @. ou.σ^2 * sinh(ou.Θ * (h * (1.0 - q))) * (sinh(ou.Θ * (q * h))) /
                  (ou.Θ * sinh(ou.Θ * h))

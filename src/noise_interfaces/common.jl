@@ -11,12 +11,12 @@ function DiffEqBase.reinit!(W::Union{NoiseProcess, NoiseApproximation}, dt;
         end
     end
 
-    if typeof(W) <: NoiseApproximation
+    if W isa NoiseApproximation
         reinit!(W.source1)
         if W.source2 !== nothing
             reinit!(W.source2)
         end
-    elseif typeof(W) <: NoiseProcess
+    elseif W isa NoiseProcess
         ResettableStacks.reset!(W.S₁)
         while length(W.S₁) < length(W.reinitS₁)
             push!(W.S₁, W.reinitS₁.data[W.S₁.cur + 1])
@@ -162,7 +162,7 @@ function DiffEqBase.reinit!(W::NoiseTransport, dt;
     W.curt = t0
     W.dt = dt
 
-    if typeof(W.rv) <: AbstractArray
+    if W.rv isa AbstractArray
         W.RV(W.rng, W.rv)
     else
         W.rv = W.RV(W.rng)
@@ -214,7 +214,7 @@ function DiffEqBase.reinit!(W::NoiseWrapper, dt;
 end
 
 function Base.reverse(W::AbstractNoiseProcess)
-    if typeof(W) <: NoiseGrid
+    if W isa NoiseGrid
         if W.Z === nothing
             backwardnoise = NoiseGrid(reverse(W.t), reverse(W.W))
         else
