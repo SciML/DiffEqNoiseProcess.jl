@@ -69,7 +69,7 @@
 
     @test W3.source.W != W.W
     @test W3.source.u != W.u
-    @test W3.source.Z == W.Z # no action on auxilary process
+    @test W3.source.Z == W.Z # no action on auxiliary process
     @test W3.source.W == W3a.source.W
     @test W3.source.u == W3a.source.u
     @test W3.source.Z == W3a.source.Z
