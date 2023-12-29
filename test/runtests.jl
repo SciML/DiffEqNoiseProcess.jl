@@ -1,4 +1,5 @@
 
+"CI TRIGGER"
 using Test, Pkg
 
 const GROUP = get(ENV, "GROUP", "All")
