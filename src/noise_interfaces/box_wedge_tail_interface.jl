@@ -308,7 +308,7 @@ function generate_boxes1(densf, Δr, Δa, Δz, rM, aM, offset = nothing, scale =
 end
 
 function generate_boxes2(densf, Δrmin, Δamin, Δzmin, Δrmax, Δamax, Δzmax, rM, aM,
-    offset = nothing)
+        offset = nothing)
     boxes = Array{typeof(Δrmin), 1}[]
     probability = Vector{typeof(Δrmin)}(undef, 0)
     # start with largest possible size, then subsequently decrease size and fill remaining space

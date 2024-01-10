@@ -5,7 +5,7 @@ const one_over_sqrt2 = 1 / sqrt(2)
     randn(rng, T, size(proto))
 end
 @inline function wiener_randn(rng::AbstractRNG,
-    proto::T) where {T <: StaticArraysCore.SArray}
+        proto::T) where {T <: StaticArraysCore.SArray}
     randn(rng, T)
 end
 @inline function wiener_randn(rng::AbstractRNG, proto)
@@ -22,7 +22,7 @@ end
 end
 
 @inline function wiener_randn!(y::AbstractRNG,
-    x::AbstractArray{<:Complex{T}}) where {T <: Number}
+        x::AbstractArray{<:Complex{T}}) where {T <: Number}
     # Remove loop
     @inbounds for i in eachindex(x)
         x[i] = convert(T, one_over_sqrt2) * (randn(y, T) + im * randn(y, T))
