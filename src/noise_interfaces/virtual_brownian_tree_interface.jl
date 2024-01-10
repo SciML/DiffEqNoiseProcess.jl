@@ -162,7 +162,7 @@ end
 
 # create the cache of the VBT with depth tree_depth
 function create_VBT_cache(bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.AbstractR123,
-    tree_depth, search_depth)
+        tree_depth, search_depth)
     # total number of cached time steps and W values
     Nt = Int(2^search_depth + 1)
 
@@ -230,7 +230,7 @@ function create_VBT_cache(bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.A
 end
 
 function search_VBT(t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
-    rng::Random123.AbstractR123)
+        rng::Random123.AbstractR123)
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)
     seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
@@ -286,7 +286,7 @@ function search_VBT(t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
 end
 
 function search_VBT!(out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
-    rng::Random123.AbstractR123)
+        rng::Random123.AbstractR123)
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)
     seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)

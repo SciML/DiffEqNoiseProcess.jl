@@ -24,7 +24,7 @@ External links
  * [Preconditioned Crank–Nicolson algorithm on Wikipedia](https://en.wikipedia.org/wiki/Preconditioned_Crank–Nicolson_algorithm)
 """
 function pCN!(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace}, ρ;
-    reset = true, reverse = false, indx = nothing) where {T, N, T2, inplace}
+        reset = true, reverse = false, indx = nothing) where {T, N, T2, inplace}
 
     # generate new Wiener process similar to the one in source
     Wnew = generate_innovation(source.W[1], source.t, source.rng)
@@ -40,7 +40,7 @@ end
 Create a new, but correlated noise process from `noise` and additional entropy with correlation ρ.
 """
 function pCN(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace}, ρ;
-    reset = true, reverse = false, indx = nothing) where {T, N, T2, inplace}
+        reset = true, reverse = false, indx = nothing) where {T, N, T2, inplace}
     source′ = deepcopy(source)
 
     # generate new Wiener process similar to the one in source
@@ -62,7 +62,7 @@ External links
   - [Preconditioned Crank–Nicolson algorithm on Wikipedia](https://en.wikipedia.org/wiki/Preconditioned_Crank%E2%80%93Nicolson_algorithm)
 """
 function pCN(source::NoiseGrid, ρ; reset = true,
-    rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)))
+        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)))
 
     # generate new Wiener process similar to the one in source
     t = source.t
