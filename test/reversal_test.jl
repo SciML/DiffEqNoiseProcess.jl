@@ -449,7 +449,7 @@ end
             reltol = reltol)
 
         ts = prob.tspan[1]:0.1:prob.tspan[2]
-        @test sol(ts)≈sol1(ts) rtol=1e-4
+        @test sol(ts).u≈sol1(ts).u rtol=1e-4
         @test length(sol.t) != length(sol1.t)
 
         ### SOSRI
@@ -463,7 +463,7 @@ end
             reltol = reltol)
 
         ts = prob.tspan[1]:0.1:prob.tspan[2]
-        @test sol(ts)≈sol1(ts) rtol=1e-4
+        @test sol(ts).u≈sol1(ts).u rtol=1e-4
         @test length(sol.t) != length(sol1.t)
     end
 end
