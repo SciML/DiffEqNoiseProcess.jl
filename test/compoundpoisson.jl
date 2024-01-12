@@ -28,7 +28,7 @@
     u0 = 1.0
     expected_mean = 1 + t * r
     expected_variance = t * r
-    ensemble_prob = EnsembleProblem(prob; output_func = (sol, i) -> (sol[end], false))
+    ensemble_prob = EnsembleProblem(prob; output_func = (sol, i) -> (sol.u[end], false))
     sol = solve(ensemble_prob; dt = 0.1, trajectories = 40000)
     @test abs(mean(sol) - expected_mean) < 0.4
     @test abs(var(sol) - expected_variance) < 0.4 # Converges slowly
@@ -38,7 +38,7 @@
     prob = NoiseProblem(W, (0.0, 1.0))
     sol = solve(prob; dt = 0.1)
 
-    ensemble_prob = EnsembleProblem(prob; output_func = (sol, i) -> (sol[end], false))
+    ensemble_prob = EnsembleProblem(prob; output_func = (sol, i) -> (sol.u[end], false))
     sol = solve(ensemble_prob; dt = 0.1, trajectories = 40000)
     @test abs(mean(sol) - expected_mean) < 0.4
     @test abs(var(sol) - expected_variance) < 0.4 # Converges slowly
