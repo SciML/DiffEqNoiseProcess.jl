@@ -11,7 +11,7 @@ function (X::GeometricBrownianMotion)(dW, W, dt, u, p, t, rng) #dist
         rand_val = wiener_randn(rng, typeof(dW))
     end
     new_val = @.. exp(drift * dt + X.σ * sqrt(dt) * rand_val)
-    return W[end] * (new_val - 1)
+    return W.u[end] * (new_val - 1)
 end
 
 #=

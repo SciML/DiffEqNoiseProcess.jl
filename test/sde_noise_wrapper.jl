@@ -57,5 +57,5 @@
     sol5 = solve(prob2, SRIW1(), abstol = 1e-8)
 
     @test sol4.t != sol5.t
-    @test ≈(sol5[end], sol4[end], atol = 1e-1)
+    @test ≈(sol5.u[end], sol4.u[end], atol = 1e-1)
 end
