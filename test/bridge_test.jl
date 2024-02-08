@@ -19,12 +19,29 @@
     @test ≈(timestep_mean(sol, 11)[1], 1.0, atol = 1e-16)
     @test ≈(timestep_meanvar(sol, 11)[2], 0.0, atol = 1e-16)
 
-    μ = 1.2
-    σ = 2.2
-    W = GeometricBrownianBridge(μ, σ, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0)
-    prob = NoiseProblem(W, (0.0, 1.0))
+    μ = 0.10500000000000001
+    σ = 0.1
+    t0 = 0.0
+    tend = 10.0
+    GB0 = 1.0
+    GBend = 4.0
+
+    W = GeometricBrownianBridge(μ, σ, t0, tend, GB0, GBend)
+    prob = NoiseProblem(W, (t0, tend))
     ensemble_prob = EnsembleProblem(prob)
-    @time sol = solve(ensemble_prob, dt = 0.1, trajectories = 100)
+    @time sol = solve(ensemble_prob, dt=1.0, trajectories=100000)
+    ts = t0:1.0:tend
+    for i = 2:10
+        t = ts[i]
+        mean = log(GB0) + (t - t0) / (tend - t0) * (log(GBend) - log(GB0))
+        var = (t - t0) / (tend - t0) * (tend - t) * σ^2
+
+        m, v = timestep_meanvar(sol, i)
+
+        @test ≈(m, exp(mean + var / 2), atol=1e-2)
+        @test ≈(v, (exp(var) - 1) * exp(2 * mean + var), atol=1e-2)
+    end
+
 
     Random.seed!(100)
     r = 100 # should be independent of the rate, so make it crazy
