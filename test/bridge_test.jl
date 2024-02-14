@@ -29,19 +29,18 @@
     W = GeometricBrownianBridge(μ, σ, t0, tend, GB0, GBend)
     prob = NoiseProblem(W, (t0, tend))
     ensemble_prob = EnsembleProblem(prob)
-    @time sol = solve(ensemble_prob, dt=1.0, trajectories=100000)
+    @time sol = solve(ensemble_prob, dt = 1.0, trajectories = 100000)
     ts = t0:1.0:tend
-    for i = 2:10
+    for i in 2:10
         t = ts[i]
         mean = log(GB0) + (t - t0) / (tend - t0) * (log(GBend) - log(GB0))
         var = (t - t0) / (tend - t0) * (tend - t) * σ^2
 
         m, v = timestep_meanvar(sol, i)
 
-        @test ≈(m, exp(mean + var / 2), atol=1e-2)
-        @test ≈(v, (exp(var) - 1) * exp(2 * mean + var), atol=1e-2)
+        @test ≈(m, exp(mean + var / 2), atol = 1e-2)
+        @test ≈(v, (exp(var) - 1) * exp(2 * mean + var), atol = 1e-2)
     end
-
 
     Random.seed!(100)
     r = 100 # should be independent of the rate, so make it crazy
@@ -91,7 +90,7 @@ end
 
 @testset "Scalar Ou-Bridge" begin
     using DiffEqNoiseProcess,
-        DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis, StatsBase, Statistics
+          DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis, StatsBase, Statistics
     sols_forward = []
     dt = 0.125
     t_max = 20.0

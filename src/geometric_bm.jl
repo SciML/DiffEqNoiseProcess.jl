@@ -33,7 +33,7 @@ function gbm_bridge(dW, gbm, W, W0, Wh, q, h, u, p, t, rng)
         x = gbb_mean + gbb_std * wiener_randn(rng, dW)
         return exp.(x) - W0
     else
-        gbb_mean = log(W0) + q * (log(W0+Wh) - log(W0))
+        gbb_mean = log(W0) + q * (log(W0 + Wh) - log(W0))
         gbb_std = sqrt((1 - q) * q * abs(h)) * gbm.σ
 
         x = gbb_mean + gbb_std * wiener_randn(rng, typeof(dW))
@@ -42,7 +42,8 @@ function gbm_bridge(dW, gbm, W, W0, Wh, q, h, u, p, t, rng)
 end
 function gbm_bridge!(rand_vec, gbm, W, W0, Wh, q, h, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
-    @.. rand_vec = gbm.σ * sqrt((1 - q) * q * abs(h)) * rand_vec + (log(W0) + q * (log(W0 + Wh) - log(W0)))
+    @.. rand_vec = gbm.σ * sqrt((1 - q) * q * abs(h)) * rand_vec +
+                   (log(W0) + q * (log(W0 + Wh) - log(W0)))
     @.. rand_vec = exp(rand_vec) - W0
 end
 

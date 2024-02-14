@@ -4,7 +4,7 @@
     processes = [OrnsteinUhlenbeckProcess(1.0, 1.0, 0.3, 0.0, 0.0, nothing),
         WienerProcess(0.0, 0.0, nothing),
         CorrelatedWienerProcess([1.0 0.0; 0.0 1.0], 0.0, [0.0; 0.0], nothing),
-        GeometricBrownianMotionProcess(1.0, 1.0, 0.0, 0.0, nothing),
+        GeometricBrownianMotionProcess(1.0, 1.0, 0.0, 0.0, nothing)
     ]
 
     @testset "Noise_process = $(proc.dist)" for proc in processes

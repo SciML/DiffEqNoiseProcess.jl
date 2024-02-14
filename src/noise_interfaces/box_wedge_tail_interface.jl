@@ -234,8 +234,9 @@ end
 
 # joint probability density function
 function joint_density_function(r, a, rtol)
-    integral, err = QuadGK.quadgk(x -> r / π * (x / sinh(x)) *
-                                       exp(-r^2 * x / (2 * tanh(x))) * cos(a * x), 0, Inf,
+    integral, err = QuadGK.quadgk(
+        x -> r / π * (x / sinh(x)) *
+             exp(-r^2 * x / (2 * tanh(x))) * cos(a * x), 0, Inf,
         rtol = rtol)
     return integral
 end
@@ -308,7 +309,7 @@ function generate_boxes1(densf, Δr, Δa, Δz, rM, aM, offset = nothing, scale =
 end
 
 function generate_boxes2(densf, Δrmin, Δamin, Δzmin, Δrmax, Δamax, Δzmax, rM, aM,
-    offset = nothing)
+        offset = nothing)
     boxes = Array{typeof(Δrmin), 1}[]
     probability = Vector{typeof(Δrmin)}(undef, 0)
     # start with largest possible size, then subsequently decrease size and fill remaining space
@@ -463,7 +464,7 @@ function sample_wedge(W::BoxWedgeTail, wedges::Wedges)
         [
             ri + W.Δr,
             ai + W.Δa,
-            f̃ij,
+            f̃ij
         ]))
     if W.sqeezing
         fij, fij2, fij3, fij4 = wedges.fvalues[indx]
@@ -551,7 +552,8 @@ struct Tail3{pType, distType, pdfType, cType} <: AbstractTail
         p = convert(typeof(rM), 0.0018026889941638695)
         candpdf = (r, a) -> exp(convert(typeof(rM), -pi / 2) * a)
         dist1 = Distributions.Uniform(2 * one(rM), rM)
-        dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
+        dist2 = Distributions.truncated(
+            Distributions.Exponential(convert(typeof(rM),
                 2 / pi)), aM,
             8 * one(aM))
 
@@ -573,7 +575,8 @@ struct Tail4{pType, distType, pdfType, cType} <: AbstractTail
         p = convert(typeof(rM), 1.6145323459108908e-6)
         candpdf = (r, a) -> 15 * r * exp(convert(typeof(rM), -pi) * a)
         dist1 = Distributions.TriangularDist(zero(rM), one(rM) / 2, one(rM) / 2)
-        dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
+        dist2 = Distributions.truncated(
+            Distributions.Exponential(convert(typeof(rM),
                 1 / pi)), aM,
             6 * one(aM))
 
@@ -595,7 +598,8 @@ struct Tail5{pType, distType, pdfType, cType} <: AbstractTail
         p = convert(typeof(rM), 1.9637270929071978e-5)
         candpdf = (r, a) -> 15 * r * exp(convert(typeof(rM), -2.8) * a)
         dist1 = Distributions.TriangularDist(one(rM) / 2, one(rM), one(rM))
-        dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
+        dist2 = Distributions.truncated(
+            Distributions.Exponential(convert(typeof(rM),
                 1 / 2.8)), aM,
             6 * one(aM))
 
@@ -617,7 +621,8 @@ struct Tail6{pType, distType, pdfType, cType} <: AbstractTail
         p = convert(typeof(rM), 0.00012022274714710923)
         candpdf = (r, a) -> 25 * r * exp(convert(typeof(rM), -2.6) * a)
         dist1 = Distributions.TriangularDist(one(rM), 3 / 2 * one(rM), 3 / 2 * one(rM))
-        dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
+        dist2 = Distributions.truncated(
+            Distributions.Exponential(convert(typeof(rM),
                 1 / 2.6)), aM,
             6 * one(aM))
 
@@ -639,7 +644,8 @@ struct Tail7{pType, distType, pdfType, cType} <: AbstractTail
         p = convert(typeof(rM), 0.00038595770876898326)
         candpdf = (r, a) -> 25 * r * exp(convert(typeof(rM), -2.4) * a)
         dist1 = Distributions.TriangularDist(3 / 2 * one(rM), 2 * one(rM), 2 * one(rM))
-        dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
+        dist2 = Distributions.truncated(
+            Distributions.Exponential(convert(typeof(rM),
                 1 / 2.4)), aM,
             6 * one(aM))
 
@@ -661,7 +667,8 @@ struct Tail8{pType, distType, pdfType, cType} <: AbstractTail
         p = convert(typeof(rM), 6.566973361922312e-6)
         candpdf = (r, a) -> 40 * r * exp(convert(typeof(rM), -2.4) * a)
         dist1 = Distributions.TriangularDist(one(rM), 2 * one(rM), 2 * one(rM))
-        dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
+        dist2 = Distributions.truncated(
+            Distributions.Exponential(convert(typeof(rM),
                 1 / 2.4)),
             6 * one(aM), 8 * one(aM))
 
@@ -683,7 +690,8 @@ struct Tail9{pType, distType, pdfType, cType} <: AbstractTail
         p = convert(typeof(rM), 4.149989421681627e-6)
         candpdf = (r, a) -> 7 // 10 * exp(convert(typeof(rM), -pi / 2) * a)
         dist1 = Distributions.Uniform(2 * one(rM), 5 * one(rM))
-        dist2 = Distributions.truncated(Distributions.Exponential(convert(typeof(rM),
+        dist2 = Distributions.truncated(
+            Distributions.Exponential(convert(typeof(rM),
                 2 / pi)),
             8 * one(aM), 10 * one(aM))
 
@@ -729,13 +737,14 @@ struct TailApproxs{T1 <: Tail1, T2 <: Tail2, T3 <: Tail3, T4 <: Tail4, T5 <: Tai
             tail6.p,
             tail7.p,
             tail8.p,
-            tail9.p,
+            tail9.p
         ]
 
         dist = Distributions.Categorical(probability / sum(probability))
 
         new{typeof(tail1), typeof(tail2), typeof(tail3), typeof(tail4), typeof(tail5),
-            typeof(tail6), typeof(tail7), typeof(tail8), typeof(tail9), typeof(dist)}(tail1,
+            typeof(tail6), typeof(tail7), typeof(tail8), typeof(tail9), typeof(dist)}(
+            tail1,
             tail2,
             tail3,
             tail4,

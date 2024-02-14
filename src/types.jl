@@ -183,16 +183,16 @@ mutable struct NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSW
 end
 
 function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
-    rswm = RSWM(), save_everystep = true,
-    rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
-    reset = true, reseed = true, continuous = true,
-    cache = nothing) where {iip}
+        rswm = RSWM(), save_everystep = true,
+        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+        reset = true, reseed = true, continuous = true,
+        cache = nothing) where {iip}
     S₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
     })
     S₂ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
     })
     reinitS₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0),
-        typeof(Z0),
+        typeof(Z0)
     })
     if Z0 == nothing
         Z = nothing
@@ -214,7 +214,7 @@ function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
         iip, typeof(S₁), typeof(S₂), typeof(rswm), typeof(cache), typeof(rng)}(dist,
         bridge,
         [
-            t0,
+            t0
         ],
         W,
         W,
@@ -271,7 +271,7 @@ function vec_NoiseProcess(W::NoiseProcess{T, N, Tt}) where {T, N, Tt}
 
     NoiseProcess{T, N, Tt, Wtype, typeof(dZ), typeof(Z),
         typeof(W.dist), typeof(W.bridge),
-        iip, typeof(S₁), typeof(S₂), typeof(W.rswm), typeof(W.cache), typeof(W.rng),
+        iip, typeof(S₁), typeof(S₂), typeof(W.rswm), typeof(W.cache), typeof(W.rng)
     }(W.dist,
         W.bridge,
         W.t, _W,
@@ -362,9 +362,9 @@ mutable struct SimpleNoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, RNGTy
     reseed::Bool
 
     function SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge;
-        save_everystep = true,
-        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
-        reset = true, reseed = true) where {iip}
+            save_everystep = true,
+            rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+            reset = true, reseed = true) where {iip}
         if Z0 == nothing
             Z = nothing
             curZ = nothing
@@ -381,7 +381,8 @@ mutable struct SimpleNoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, RNGTy
         W = [copy(W0)]
         N = length((size(W0)..., length(W)))
         new{eltype(eltype(W0)), N, typeof(t0), typeof(W0), typeof(dZ), typeof(Z),
-            typeof(dist), typeof(bridge), iip, typeof(rng)}(dist, bridge, [t0], W, W, Z, t0,
+            typeof(dist), typeof(bridge), iip, typeof(rng)}(
+            dist, bridge, [t0], W, W, Z, t0,
             copy(W0), curZ, t0, copy(W0),
             dZ, copy(W0), dZtilde, copy(W0),
             dZtmp,
@@ -530,8 +531,8 @@ mutable struct NoiseWrapper{T, N, Tt, T2, T3, T4, ZType, inplace} <:
 end
 
 function NoiseWrapper(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace};
-    reset = true, reverse = false,
-    indx = nothing) where {T, N, T2, inplace}
+        reset = true, reverse = false,
+        indx = nothing) where {T, N, T2, inplace}
     if indx === nothing
         if reverse
             indx = length(source.t)
@@ -551,7 +552,8 @@ function NoiseWrapper(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace};
     end
     W = [copy(source.W[indx])]
 
-    NoiseWrapper{T, N, typeof(source.t[1]), typeof(source.W[1]), typeof(dZ), typeof(source),
+    NoiseWrapper{
+        T, N, typeof(source.t[1]), typeof(source.W[1]), typeof(dZ), typeof(source),
         typeof(Z), inplace}([source.t[indx]], W, W, Z, source.t[indx],
         copy(source.W[indx]), curZ, source.t[indx],
         copy(source.W[indx]), dZ, source, reset, reverse)
@@ -621,8 +623,8 @@ mutable struct NoiseFunction{T, N, wType, zType, Tt, T2, T3, inplace} <:
     reset::Bool
 
     function NoiseFunction{iip}(t0, W, Z = nothing;
-        noise_prototype = W(nothing, nothing, t0),
-        reset = true) where {iip}
+            noise_prototype = W(nothing, nothing, t0),
+            reset = true) where {iip}
         curt = t0
         dt = t0
         curW = copy(noise_prototype)
@@ -783,9 +785,9 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
     reseed::Bool
 
     function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing;
-        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
-        reset = true, reseed = true,
-        noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
+            rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+            reset = true, reseed = true,
+            noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
         curt = t0
         dt = t0
         curW = copy(noise_prototype)
@@ -831,14 +833,14 @@ function (W::NoiseTransport)(out1, out2, u, p, t, rv)
 end
 
 function NoiseTransport(t0, W, RV, rv, Z = nothing;
-    rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true,
-    reseed = true, kwargs...)
+        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true,
+        reseed = true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
     NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
 end
 
 function NoiseTransport(t0, W, RV; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
-    reset = true, reseed = true, kwargs...)
+        reset = true, reseed = true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
     rv = RV(rng)
     Z = nothing
@@ -1031,8 +1033,8 @@ mutable struct NoiseApproximation{T, N, Tt, T2, T3, S1, S2, ZType, inplace} <:
 end
 
 function NoiseApproximation(source1::DEIntegrator,
-    source2::Union{DEIntegrator, Nothing} = nothing;
-    reset = true)
+        source2::Union{DEIntegrator, Nothing} = nothing;
+        reset = true)
     _source1 = deepcopy(source1)
     _source2 = deepcopy(source2)
     if _source2 == nothing
@@ -1112,7 +1114,8 @@ Using a look-up cache by increasing `tree_depth` can significantly reduce the
 runtime. Thus, the `VirtualBrownianTree` allows for trading off speed for memory
 in a simple manner.
 """
-mutable struct VirtualBrownianTree{T, N, F, F2, Tt, T2, T3, T2tmp, T3tmp, seedType, tolType,
+mutable struct VirtualBrownianTree{
+    T, N, F, F2, Tt, T2, T3, T2tmp, T3tmp, seedType, tolType,
     RNGType, inplace} <:
                AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     dist::F
@@ -1141,11 +1144,11 @@ mutable struct VirtualBrownianTree{T, N, F, F2, Tt, T2, T3, T2tmp, T3tmp, seedTy
 end
 
 function VirtualBrownianTree{iip}(t0, W0, Z0, dist, bridge;
-    tend = nothing, Wend = nothing, Zend = nothing,
-    atol = 1e-10, tree_depth::Int = 4,
-    search_depth = nothing,
-    rng = RandomNumbers.Random123.Threefry4x(),
-    reset = true) where {iip}
+        tend = nothing, Wend = nothing, Zend = nothing,
+        atol = 1e-10, tree_depth::Int = 4,
+        search_depth = nothing,
+        rng = RandomNumbers.Random123.Threefry4x(),
+        reset = true) where {iip}
     if search_depth == nothing
         if atol < 1e-10
             search_depth = 50 # maximum search depth
@@ -1182,7 +1185,8 @@ function VirtualBrownianTree{iip}(t0, W0, Z0, dist, bridge;
         Zend = curW + bridge(dZ, nothing, tend - t0, nothing, nothing, nothing, rng)
     end
 
-    t, W, Z, seeds = create_VBT_cache(bridge, t0, W0, Z0, tend, Wend, Zend, rng, tree_depth,
+    t, W, Z, seeds = create_VBT_cache(
+        bridge, t0, W0, Z0, tend, Wend, Zend, rng, tree_depth,
         search_depth)
 
     if iip
@@ -1212,12 +1216,12 @@ end
 (W::VirtualBrownianTree)(out1, out2, u, p, t) = interpolate!(out1, out2, W, u, p, t)
 
 function VirtualBrownianTree(t0, W0, Z0 = nothing, dist = WHITE_NOISE_DIST,
-    bridge = VBT_BRIDGE; kwargs...)
+        bridge = VBT_BRIDGE; kwargs...)
     VirtualBrownianTree{false}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
 function VirtualBrownianTree!(t0, W0, Z0 = nothing, dist = INPLACE_WHITE_NOISE_DIST,
-    bridge = INPLACE_VBT_BRIDGE; kwargs...)
+        bridge = INPLACE_VBT_BRIDGE; kwargs...)
     VirtualBrownianTree{true}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
@@ -1294,12 +1298,12 @@ mutable struct BoxWedgeTail{T, N, Tt, TA, T2, T3, ZType, F, F2, inplace, RNGType
 end
 
 function BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
-    rtol = 1e-8, nr = 4, na = 4, nz = 10,
-    box_grouping = :MinEntropy,
-    sqeezing = true,
-    save_everystep = true,
-    rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
-    reset = true, reseed = true) where {iip}
+        rtol = 1e-8, nr = 4, na = 4, nz = 10,
+        box_grouping = :MinEntropy,
+        sqeezing = true,
+        save_everystep = true,
+        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+        reset = true, reseed = true) where {iip}
     if Z0 === nothing
         Z = nothing
         curZ = nothing
@@ -1382,7 +1386,7 @@ function BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
         distBWT = Distributions.Categorical([
             0.9118576049804688,
             0.08546645498798722,
-            0.002675940031544033,
+            0.002675940031544033
         ])
     else
         error("Cubature not implemented but needed for a different discretization. Please report this error.")
@@ -1409,11 +1413,11 @@ end
 (W::BoxWedgeTail)(out1, out2, u, p, t) = interpolate!(out1, out2, W, u, p, t)
 
 function BoxWedgeTail(t0, W0, Z0 = nothing, dist = WHITE_NOISE_DIST,
-    bridge = WHITE_NOISE_BRIDGE; kwargs...)
+        bridge = WHITE_NOISE_BRIDGE; kwargs...)
     BoxWedgeTail{false}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
 function BoxWedgeTail!(t0, W0, Z0 = nothing, dist = INPLACE_WHITE_NOISE_DIST,
-    bridge = INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
+        bridge = INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
     BoxWedgeTail{true}(t0, W0, Z0, dist, bridge; kwargs...)
 end
