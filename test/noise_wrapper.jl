@@ -136,8 +136,10 @@ end
     _sol.W.save_everystep = false
 
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = 1000)
-    checkWrapper = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise), _sol.alg, save_noise = false;
+    checkWrapper = solve(
+        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise),
+        _sol.alg, save_noise = false;
         dt = abs(_sol.W.dt))
 
     @test checkWrapper.u[end - 1]≈soloop.u[end] rtol=1e-10
@@ -146,8 +148,10 @@ end
     @show checkWrapper.u[end] - soloop.u[end]
 
     forwardnoise = DiffEqNoiseProcess.NoiseGrid(_sol.W.t[1000:1001], _sol.W.W[1000:1001])
-    checkGrid = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise), _sol.alg, save_noise = false;
+    checkGrid = solve(
+        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise),
+        _sol.alg, save_noise = false;
         dt = abs(_sol.W.dt))
 
     @test checkGrid.u[end - 1]≈soloop.u[end] rtol=1e-10
@@ -162,8 +166,10 @@ end
     _sol.W.save_everystep = false
 
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = 1000)
-    checkWrapper = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise), _sol.alg, save_noise = false;
+    checkWrapper = solve(
+        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise),
+        _sol.alg, save_noise = false;
         dt = abs(_sol.W.dt))
 
     @test checkWrapper.u[end - 1]≈sol.u[end] rtol=1e-10
@@ -172,8 +178,10 @@ end
     @show checkWrapper.u[end] - sol.u[end]
 
     forwardnoise = DiffEqNoiseProcess.NoiseGrid(_sol.W.t[1000:1001], _sol.W.W[1000:1001])
-    checkGrid = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise), _sol.alg, save_noise = false;
+    checkGrid = solve(
+        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise),
+        _sol.alg, save_noise = false;
         dt = abs(_sol.W.dt))
 
     @test checkGrid.u[end - 1]≈sol.u[end] rtol=1e-10
@@ -232,8 +240,10 @@ end
 
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = indx1)
 
-    checkWrapper = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise), _sol.alg, save_noise = false;
+    checkWrapper = solve(
+        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise),
+        _sol.alg, save_noise = false;
         dt = abs(_sol.W.t[end - 1] - _sol.W.t[end - 2]),
         tstops = sol.t[indx1:end])
 
@@ -251,8 +261,10 @@ end
 
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = indx1)
 
-    checkWrapper = solve(remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise), _sol.alg, save_noise = false;
+    checkWrapper = solve(
+        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise),
+        _sol.alg, save_noise = false;
         dt = abs(_sol.W.t[end - 1] - _sol.W.t[end - 2]),
         tstops = sol.t[indx1:end])
 

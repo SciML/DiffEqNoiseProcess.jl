@@ -4,8 +4,8 @@ mutable struct RSWM{T}
 end
 
 Base.@pure function RSWM(;
-    discard_length = 1e-15,
-    adaptivealg::Symbol = :RSwM3)
+        discard_length = 1e-15,
+        adaptivealg::Symbol = :RSwM3)
     RSWM{typeof(discard_length)}(discard_length, adaptivealg)
 end
 

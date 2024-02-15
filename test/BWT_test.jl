@@ -17,7 +17,8 @@
     @test length(W.boxes.boxes) == 119519
     @test minimum(2 * W.Δr * W.Δa * W.Δz .== W.boxes.probability)
     @test sum(W.boxes.probability)≈0.911857 rtol=1e-5
-    @test DiffEqNoiseProcess.entropy(W.boxes.probability)≈Distributions.entropy(W.boxes.dist,
+    @test DiffEqNoiseProcess.entropy(W.boxes.probability)≈Distributions.entropy(
+        W.boxes.dist,
         2) rtol=1e-5
 
     W = BoxWedgeTail(0.0, zeros(2), box_grouping = :MinEntropy)
@@ -216,7 +217,7 @@
     # compare samples with pdf and check some statistics
 
     samples = [DiffEqNoiseProcess.sample_distribution(W, one(W.dt), nothing, nothing,
-        nothing, W.rng) for i in 1:100_000]
+                   nothing, W.rng) for i in 1:100_000]
 
     dW1 = getindex.(getindex.(samples, 1), 1)
     dW2 = getindex.(getindex.(samples, 1), 2)

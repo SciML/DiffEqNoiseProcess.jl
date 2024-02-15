@@ -9,8 +9,8 @@ import RandomNumbers: Xorshifts
 import RandomNumbers, Random123
 
 import DiffEqBase: isinplace,
-    solve, AbstractNoiseProcess,
-    DEIntegrator, AbstractNoiseProblem
+                   solve, AbstractNoiseProcess,
+                   DEIntegrator, AbstractNoiseProblem
 
 import PoissonRandom, Distributions
 

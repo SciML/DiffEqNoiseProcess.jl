@@ -51,7 +51,7 @@ function BrownianBridge!(t0, tend, W0, Wh, Z0 = nothing, Zh = nothing; kwargs...
 end
 
 function GeometricBrownianBridge(μ, σ, t0, tend, W0, Wend, Z0 = nothing, Zend = nothing;
-    kwargs...)
+        kwargs...)
     W = GeometricBrownianMotionProcess(μ, σ, t0, W0, Z0; kwargs...)
     h = tend - t0
     Wh = Wend - W0
@@ -66,7 +66,7 @@ function GeometricBrownianBridge(μ, σ, t0, tend, W0, Wend, Z0 = nothing, Zend 
 end
 
 function GeometricBrownianBridge!(μ, σ, t0, tend, W0, Wh, Z0 = nothing, Zh = nothing;
-    kwargs...)
+        kwargs...)
     W = GeometricBrownianMotionProcess!(μ, σ, t0, W0, Z0; kwargs...)
     h = tend - t0
     Wh .-= W0

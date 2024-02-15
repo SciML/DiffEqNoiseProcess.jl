@@ -298,8 +298,7 @@ Some more Ito reversals
 
     _sol = deepcopy(sol) # to make sure the plot is correct
     W1 = NoiseGrid(reverse(_sol.t),
-        reverse(_sol.W.W)
-        # ,reverse(_sol.W.Z)
+        reverse(_sol.W.W)        # ,reverse(_sol.W.Z)
     )
     prob1 = SDEProblem(fcorrected!, g!, sol[end], reverse(tspan), noise = W1)
     sol1 = solve(prob1, EM(), dt = dt, adaptive = false)
@@ -325,8 +324,7 @@ Some more Ito reversals
 
     _sol = deepcopy(sol) # to make sure the plot is correct
     W1 = NoiseGrid(reverse(_sol.t),
-        reverse(_sol.W.W)
-        # ,reverse(_sol.W.Z)
+        reverse(_sol.W.W)        # ,reverse(_sol.W.Z)
     )
     prob1 = SDEProblem(fcorrected, g, sol[end], reverse(tspan), noise = W1)
     sol1 = solve(prob1, EM(), dt = dt, adaptive = false)

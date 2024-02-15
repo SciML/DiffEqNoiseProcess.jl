@@ -53,7 +53,7 @@ function Base.copy(W::SimpleNoiseProcess)
 end
 
 function Base.copy(W::Union{NoiseWrapper, NoiseGrid, NoiseApproximation,
-    VirtualBrownianTree, BoxWedgeTail})
+        VirtualBrownianTree, BoxWedgeTail})
     Wnew = typeof(W)((getfield(W, x) for x in fieldnames(typeof(W)))...)
     copy!(Wnew, W)
 end

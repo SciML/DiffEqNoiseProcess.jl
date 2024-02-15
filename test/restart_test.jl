@@ -28,10 +28,14 @@
     forwardnoise = DiffEqNoiseProcess.NoiseGrid(sol.t[idx1:idx2], sol.W.W[idx1:idx2])
     forwardnoise2 = DiffEqNoiseProcess.NoiseWrapper(sol.W, indx = idx1)
 
-    cpsol = solve(remake(prob, tspan = interval, u0 = sol(interval[1]),
-            noise = forwardnoise), sol.alg, save_noise = false; dt = dt1)
-    cpsol2 = solve(remake(prob, tspan = interval, u0 = sol(interval[1]),
-            noise = forwardnoise2), sol.alg, save_noise = false; dt = dt1)
+    cpsol = solve(
+        remake(prob, tspan = interval, u0 = sol(interval[1]),
+            noise = forwardnoise),
+        sol.alg, save_noise = false; dt = dt1)
+    cpsol2 = solve(
+        remake(prob, tspan = interval, u0 = sol(interval[1]),
+            noise = forwardnoise2),
+        sol.alg, save_noise = false; dt = dt1)
 
     sola = vcat(sol.u[idx1:idx2]...)
     cpsola = vcat(cpsol.u...)
