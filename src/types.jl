@@ -1227,8 +1227,9 @@ end
 
 """
 ```julia
-BoxWedgeTail{T, N, Tt, TA, T2, T3, ZType, F, F2, inplace, RNGType, tolType,
-    spacingType, jpdfType, boxType, wedgeType, tailType, distBWTType, distΠType} <: AbstractNoiseProcess{T, N, Vector{T2}, inplace}
+BoxWedgeTail{T, N, Tt, TA, T2, T3, ZType, F, F2, inplace, RNGType, tolType, spacingType,
+    jpdfType, boxType, wedgeType, tailType, distBWTType, distΠType} <:
+AbstractNoiseProcess{T, N, Vector{T2}, inplace}
 ```
 
 The method for random generation of stochastic area integrals due to Gaines and Lyons. The method is
