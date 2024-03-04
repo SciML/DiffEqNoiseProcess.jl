@@ -25,14 +25,15 @@ Pkg.add("DiffEqNoiseProcess")
 the standard Wiener process (Brownian motion) with your choice of noise. To do
 this, simply construct the noise and pass it to the `noise` keyword argument:
 
-```julia
+```@example index
+using DiffEqNoiseProcess, SciMLBase
 μ = 1.0
 σ = 2.0
 W = GeometricBrownianMotionProcess(μ, σ, 0.0, 1.0, 1.0)
 # ...
 # Define f,g,u0,tspan for a SDEProblem
 # ...
-prob = SDEProblem(f, g, u0, tspan, noise = W)
+# prob = SDEProblem(f, g, u0, tspan, noise = W)
 ```
 
 ### Basic Interface
@@ -58,7 +59,7 @@ NoiseProblem(noise, tspan)
 for which `solve` works. For example, we can simulate a distributionally-exact
 Geometric Brownian Motion solution by:
 
-```julia
+```@example index
 μ = 1.0
 σ = 2.0
 W = GeometricBrownianMotionProcess(μ, σ, 0.0, 1.0, 1.0)
@@ -71,9 +72,9 @@ which has stepped through the timespan. Because this follows the common interfac
 all of the normal functionality works. For example, we can use the Monte Carlo
 functionality as follows:
 
-```julia
+```@example index
 enprob = EnsembleProblem(prob)
-sol = solve(enprob; dt = 0.1, num_monte = 100)
+sol = solve(enprob; dt = 0.1, trajectories = 100)
 ```
 
 simulates 100 Geometric Brownian Motions.
@@ -89,7 +90,7 @@ to calculate a future time point, and `accept_step!` to accept the step. If step
 are rejected, the Rejection Sampling with Memory algorithm is applied to keep
 the solution distributionally exact. This kind of stepping is done via:
 
-```julia
+```@example index
 W = WienerProcess(0.0, 1.0, 1.0)
 dt = 0.1
 W.dt = dt

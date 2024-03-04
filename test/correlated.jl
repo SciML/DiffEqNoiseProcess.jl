@@ -49,6 +49,6 @@ using StaticArrays
     prob = NoiseProblem(W, (0.0, 1.0))
     sol = solve(prob; dt = 0.1)
 
-    @test sol[1] isa SArray
-    @test sol[end] isa SArray
+    @test sol.u[1] isa SArray
+    @test sol.u[end] isa SArray
 end
