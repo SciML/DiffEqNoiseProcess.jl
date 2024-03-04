@@ -26,7 +26,7 @@ the standard Wiener process (Brownian motion) with your choice of noise. To do
 this, simply construct the noise and pass it to the `noise` keyword argument:
 
 ```@example index
-using DiffEqNoiseProcess
+using DiffEqNoiseProcess, SciMLBase
 μ = 1.0
 σ = 2.0
 W = GeometricBrownianMotionProcess(μ, σ, 0.0, 1.0, 1.0)
@@ -110,7 +110,7 @@ end
 
   - See the [SciML Style Guide](https://github.com/SciML/SciMLStyle) for common coding practices and other style decisions.
   - There are a few community forums:
-
+    
       + The #diffeq-bridged and #sciml-bridged channels in the
         [Julia Slack](https://julialang.org/slack/)
       + The #diffeq-bridged and #sciml-bridged channels in the

@@ -1,7 +1,9 @@
 [deps]
 DiffEqNoiseProcess = "77a26b50-5914-5dd7-bc55-306e6241c503"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+SciMLBase = "0bca4576-84f4-4d90-8ffe-ffa030f20462"
 
 [compat]
 DiffEqNoiseProcess = "5"
 Documenter = "1"
+SciMLBase = "2"

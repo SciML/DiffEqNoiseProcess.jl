@@ -595,7 +595,7 @@ The `NoiseFunction` is pretty simple: pass a function. As a silly example, we
 can use `exp` as a noise process by doing:
 
 ```julia
-f(u,p,t) = exp(t)
+f(u, p, t) = exp(t)
 W = NoiseFunction(0.0, f)
 ```
 
@@ -603,7 +603,7 @@ If it's mulitidimensional and an in-place function is used, the `noise_prototype
 must be given. For example:
 
 ```julia
-f(out,u,p,t) = (out .= exp(t))
+f(out, u, p, t) = (out .= exp(t))
 W = NoiseFunction(0.0, f, noise_prototype = rand(4))
 ```
 
