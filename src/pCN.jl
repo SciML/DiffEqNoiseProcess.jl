@@ -27,7 +27,7 @@ function pCN!(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace}, ρ;
         reset = true, reverse = false, indx = nothing) where {T, N, T2, inplace}
 
     # generate new Wiener process similar to the one in source
-    Wnew = generate_innovation(source.W.W[1], source.t, source.rng)
+    Wnew = generate_innovation(source.W[1], source.t, source.rng)
 
     source.W = ρ * source.W + sqrt(one(ρ) - ρ^2) * Wnew
     source.u = ρ * source.u + sqrt(one(ρ) - ρ^2) * Wnew
@@ -66,7 +66,7 @@ function pCN(source::NoiseGrid, ρ; reset = true,
 
     # generate new Wiener process similar to the one in source
     t = source.t
-    Wnew = generate_innovation(source.W.W[1], source.t, rng)
+    Wnew = generate_innovation(source.W[1], source.t, rng)
 
     W = ρ * source.W + sqrt(one(ρ) - ρ^2) * Wnew
     NoiseGrid(t, W, source.Z; reset = reset)
