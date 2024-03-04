@@ -553,7 +553,7 @@ function NoiseWrapper(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace};
     W = [copy(source.W[indx])]
 
     NoiseWrapper{
-        T, N, typeof(source.t[1]), typeof(source.W.W[1]), typeof(dZ), typeof(source),
+        T, N, typeof(source.t[1]), typeof(source.W[1]), typeof(dZ), typeof(source),
         typeof(Z), inplace}([source.t[indx]], W, W, Z, source.t[indx],
         copy(source.W[indx]), curZ, source.t[indx],
         copy(source.W[indx]), dZ, source, reset, reverse)
