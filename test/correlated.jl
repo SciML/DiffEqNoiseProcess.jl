@@ -50,5 +50,5 @@ using StaticArrays
     sol = solve(prob; dt = 0.1)
 
     @test sol[1] isa SArray
-    @test sol[end] isa SArray
+    @test sol.u[end] isa SArray
 end
