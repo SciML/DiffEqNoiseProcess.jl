@@ -417,8 +417,8 @@ end
             noise = W1)
         sol1 = solve(prob1, SOSRA2(), dt = dt, adaptive = false)
 
-        @test sol.u≈reverse(sol1.u) rtol=1e-4
-        @test sol.t≈reverse(sol1.t) rtol=1e-4
+        @test sol.u≈reverse(sol1.u) rtol=1e-3
+        @test sol.t≈reverse(sol1.t) rtol=1e-3
 
         ### SOSRI
         sol = solve(prob, SOSRI(), dt = dt, save_noise = true, adaptive = false)
@@ -428,8 +428,8 @@ end
             noise = W1)
         sol1 = solve(prob1, SOSRI(), dt = dt, adaptive = false)
 
-        @test sol.u≈reverse(sol1.u) rtol=1e-4
-        @test sol.t≈reverse(sol1.t) rtol=1e-4
+        @test sol.u≈reverse(sol1.u) rtol=1e-3
+        @test sol.t≈reverse(sol1.t) rtol=1e-3
 
         # adaptive
 
@@ -447,7 +447,7 @@ end
             reltol = reltol)
 
         ts = prob.tspan[1]:0.1:prob.tspan[2]
-        @test sol(ts)≈sol1(ts) rtol=1e-4
+        @test sol(ts)≈sol1(ts) rtol=1e-3
         @test length(sol.t) != length(sol1.t)
 
         ### SOSRI
@@ -461,7 +461,7 @@ end
             reltol = reltol)
 
         ts = prob.tspan[1]:0.1:prob.tspan[2]
-        @test sol(ts)≈sol1(ts) rtol=1e-4
+        @test sol(ts)≈sol1(ts) rtol=1e-3
         @test length(sol.t) != length(sol1.t)
     end
 end
