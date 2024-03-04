@@ -11,7 +11,7 @@ function (X::GeometricBrownianMotion)(dW, W, dt, u, p, t, rng) #dist
         rand_val = wiener_randn(rng, typeof(dW))
     end
     new_val = @.. exp(drift * dt + X.σ * sqrt(dt) * rand_val)
-    return W[end] * (new_val - 1)
+    return W.W[end] * (new_val - 1)
 end
 
 #=
@@ -79,7 +79,7 @@ struct GeometricBrownianMotion!{T1, T2}
 end
 function (X::GeometricBrownianMotion!)(rand_vec, W, dt, u, p, t, rng) #dist!
     wiener_randn!(rng, rand_vec)
-    @.. rand_vec = W[end] * expm1(X.μ - (1 / 2) * X.σ * dt + X.σ * sqrt(dt) * rand_vec)
+    @.. rand_vec = W.W[end] * expm1(X.μ - (1 / 2) * X.σ * dt + X.σ * sqrt(dt) * rand_vec)
 end
 
 @doc doc"""

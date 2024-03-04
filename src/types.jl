@@ -553,7 +553,7 @@ function NoiseWrapper(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace};
     W = [copy(source.W[indx])]
 
     NoiseWrapper{
-        T, N, typeof(source.t[1]), typeof(source.W[1]), typeof(dZ), typeof(source),
+        T, N, typeof(source.t[1]), typeof(source.W.W[1]), typeof(dZ), typeof(source),
         typeof(Z), inplace}([source.t[indx]], W, W, Z, source.t[indx],
         copy(source.W[indx]), curZ, source.t[indx],
         copy(source.W[indx]), dZ, source, reset, reverse)
@@ -915,7 +915,7 @@ mutable struct NoiseGrid{T, N, Tt, T2, T3, ZType, RefType, inplace} <:
 end
 
 function NoiseGrid(t, W, Z = nothing; reset = true)
-    val = W[1]
+    val = W.W[1]
     curt = t[1]
     dt = t[1]
     curW = copy(val)
