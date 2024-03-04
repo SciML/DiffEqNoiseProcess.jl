@@ -915,7 +915,7 @@ mutable struct NoiseGrid{T, N, Tt, T2, T3, ZType, RefType, inplace} <:
 end
 
 function NoiseGrid(t, W, Z = nothing; reset = true)
-    val = W.W[1]
+    val = W[1]
     curt = t[1]
     dt = t[1]
     curW = copy(val)
