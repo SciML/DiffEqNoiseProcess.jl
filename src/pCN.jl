@@ -44,7 +44,7 @@ function pCN(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace}, ρ;
     source′ = deepcopy(source)
 
     # generate new Wiener process similar to the one in source
-    Wnew = generate_innovation(source′.W.W[1], source′.t, source′.rng)
+    Wnew = generate_innovation(source′.W[1], source′.t, source′.rng)
 
     source′.W = ρ * source′.W + sqrt(one(ρ) - ρ^2) * Wnew
     source′.u = ρ * source′.u + sqrt(one(ρ) - ρ^2) * Wnew
