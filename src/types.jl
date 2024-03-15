@@ -850,11 +850,7 @@ function NoiseTransport(t0, W, RV; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)
         reset = true, reseed = true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
 
-    if rv isa AbstractArray
-        RV(rng, rv)
-    else
-        rv = RV(rng)
-    end
+    rv = RV(rng)
 
     Z = nothing
     NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
