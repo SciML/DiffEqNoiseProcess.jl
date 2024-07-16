@@ -149,7 +149,8 @@ end
 
 These will generate a Wiener process, which can be stepped with `step!(W,dt)`, and interpolated as `W(t)`.
 """
-mutable struct NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSWM, C,
+mutable struct NoiseProcess{
+    T, N, Tt, T2, T3, ZType, F, F2, CovType, inplace, S1, S2, RSWM, C,
     RNGType} <: AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     dist::F
     bridge::F2
@@ -167,6 +168,7 @@ mutable struct NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSW
     dZtilde::T3
     dWtmp::T2
     dZtmp::T3
+    covariance::CovType
     S₁::S1
     S₂::S2
     reinitS₁::S1
@@ -183,7 +185,7 @@ mutable struct NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSW
 end
 
 function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
-        rswm = RSWM(), save_everystep = true,
+        rswm = RSWM(), save_everystep = true, covariance = nothing,
         rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
         reset = true, reseed = true, continuous = true,
         cache = nothing) where {iip}
@@ -210,7 +212,7 @@ function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
     W = [copy(W0)]
     N = length((size(W0)..., length(W)))
     NoiseProcess{eltype(eltype(W0)), N, typeof(t0), typeof(W0), typeof(dZ), typeof(Z),
-        typeof(dist), typeof(bridge),
+        typeof(dist), typeof(bridge), typeof(covariance),
         iip, typeof(S₁), typeof(S₂), typeof(rswm), typeof(cache), typeof(rng)}(dist,
         bridge,
         [
@@ -229,6 +231,7 @@ function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
         dZtilde,
         copy(W0),
         dZtmp,
+        covariance,
         S₁,
         S₂,
         reinitS₁,
@@ -270,7 +273,7 @@ function vec_NoiseProcess(W::NoiseProcess{T, N, Tt}) where {T, N, Tt}
     reinitS₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(W.curt), Wtype, Ztype})
 
     NoiseProcess{T, N, Tt, Wtype, typeof(dZ), typeof(Z),
-        typeof(W.dist), typeof(W.bridge),
+        typeof(W.dist), typeof(W.bridge), typeof(W.covariance),
         iip, typeof(S₁), typeof(S₂), typeof(W.rswm), typeof(W.cache), typeof(W.rng)
     }(W.dist,
         W.bridge,
@@ -284,6 +287,7 @@ function vec_NoiseProcess(W::NoiseProcess{T, N, Tt}) where {T, N, Tt}
         dZtilde,
         vec(W.dWtmp),
         dZtmp,
+        W.covariance,
         S₁, S₂,
         reinitS₁,
         W.rswm, W.maxstacksize,
@@ -337,7 +341,8 @@ SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge;
   - `reset` whether to reset the process with each solve.
   - `reseed` whether to reseed the process with each solve.
 """
-mutable struct SimpleNoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, RNGType} <:
+mutable struct SimpleNoiseProcess{
+    T, N, Tt, T2, T3, ZType, F, F2, CovType, inplace, RNGType} <:
                AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     dist::F
     bridge::F2
@@ -355,6 +360,7 @@ mutable struct SimpleNoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, RNGTy
     dZtilde::T3
     dWtmp::T2
     dZtmp::T3
+    covariance::CovType
     save_everystep::Bool
     iter::Int
     rng::RNGType
@@ -362,7 +368,7 @@ mutable struct SimpleNoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, RNGTy
     reseed::Bool
 
     function SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge;
-            save_everystep = true,
+            save_everystep = true, covariance = nothing,
             rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
             reset = true, reseed = true) where {iip}
         if Z0 == nothing
@@ -381,11 +387,11 @@ mutable struct SimpleNoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, RNGTy
         W = [copy(W0)]
         N = length((size(W0)..., length(W)))
         new{eltype(eltype(W0)), N, typeof(t0), typeof(W0), typeof(dZ), typeof(Z),
-            typeof(dist), typeof(bridge), iip, typeof(rng)}(
+            typeof(dist), typeof(bridge), typeof(covariance), iip, typeof(rng)}(
             dist, bridge, [t0], W, W, Z, t0,
             copy(W0), curZ, t0, copy(W0),
             dZ, copy(W0), dZtilde, copy(W0),
-            dZtmp,
+            dZtmp, covariance,
             save_everystep, 0, rng, reset,
             reseed)
     end

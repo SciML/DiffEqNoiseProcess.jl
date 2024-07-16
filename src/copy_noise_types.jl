@@ -38,7 +38,7 @@ end
 function Base.copy(W::NoiseProcess)
     Wnew = NoiseProcess{isinplace(W)}(W.curt, W.curW, W.curZ, W.dist, W.bridge;
         rswm = W.rswm, save_everystep = W.save_everystep,
-        rng = W.rng,
+        rng = W.rng, covariance = W.covariance,
         reset = W.reset, reseed = W.reseed,
         continuous = W.continuous, cache = W.cache)
     copy!(Wnew, W)
@@ -47,7 +47,7 @@ end
 function Base.copy(W::SimpleNoiseProcess)
     Wnew = SimpleNoiseProcess{isinplace(W)}(W.curt, W.curW, W.curZ, W.dist, W.bridge;
         save_everystep = W.save_everystep,
-        rng = W.rng,
+        rng = W.rng, covariance = W.covariance,
         reset = W.reset, reseed = W.reseed)
     copy!(Wnew, W)
 end
