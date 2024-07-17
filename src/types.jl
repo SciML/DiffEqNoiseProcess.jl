@@ -23,6 +23,8 @@ NoiseProcess(t0, W0, Z0, dist, bridge;
   - `dist` the distribution of the steps over time.
   - `bridge` the bridging distribution. Optional, but required for adaptivity and interpolating
     at new values.
+  - `covariance` is the covariance matrix of the noise process. If not provided, the noise
+    is assumed to be uncorrelated in each variable.
   - `save_everystep` whether to save every step of the Brownian timeseries.
   - `rng` the local RNG used for generating the random numbers.
   - `reset` whether to reset the process with each solve.
