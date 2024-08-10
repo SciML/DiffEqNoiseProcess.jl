@@ -44,7 +44,7 @@ ReverseDiff = "1"
 SciMLBase = "1, 2"
 StaticArraysCore = "1.4"
 Statistics = "1"
-julia = "1.9"
+julia = "1.10"
 
 [extras]
 Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
