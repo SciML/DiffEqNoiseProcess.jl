@@ -28,16 +28,16 @@ sol = solve(prob; dt = 0.1)</code></pre><pre class="documenter-example-output"><
  0.9999999999999999
 u: 11-element Vector{Float64}:
  1.0
- 1.5244305875646844
- 0.9152517502482115
- 1.439114384138798
- 0.6994920177566675
- 0.2885537560514921
- 0.2906408068624295
- 0.6750120196808417
- 0.46510749900036474
- 0.553271170684973
- 0.7138865883716139</code></pre><p><code>solve</code> requires that the <code>dt</code> is given, and that the solution it returns is a <code>NoiseProcess</code> which has stepped through the timespan. Because this follows the common interface, all of the normal functionality works. For example, we can use the Monte Carlo functionality as follows:</p><pre><code class="language-julia hljs">enprob = EnsembleProblem(prob)
+ 0.17238945526648397
+ 0.2785126494894875
+ 0.8067844526161718
+ 0.8677051823541146
+ 0.6077169955252857
+ 0.5480651797642635
+ 0.40442118836546925
+ 0.5012602344747125
+ 0.47670970864963474
+ 0.9428161699318114</code></pre><p><code>solve</code> requires that the <code>dt</code> is given, and that the solution it returns is a <code>NoiseProcess</code> which has stepped through the timespan. Because this follows the common interface, all of the normal functionality works. For example, we can use the Monte Carlo functionality as follows:</p><pre><code class="language-julia hljs">enprob = EnsembleProblem(prob)
 sol = solve(enprob; dt = 0.1, trajectories = 100)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EnsembleSolution Solution of length 100 with uType:
 NoiseProcess{Float64, 1, Float64, Float64, Float64, Vector{Float64}, DiffEqNoiseProcess.GeometricBrownianMotion{Float64, Float64}, DiffEqNoiseProcess.var&quot;#34#35&quot;{DiffEqNoiseProcess.GeometricBrownianMotion{Float64, Float64}}, Nothing, false, ResettableStacks.ResettableStack{Tuple{Float64, Float64, Float64}, false}, ResettableStacks.ResettableStack{Tuple{Float64, Float64, Float64}, false}, RSWM{Float64}, Nothing, RandomNumbers.Xorshifts.Xoroshiro128Plus}</code></pre><p>simulates 100 Geometric Brownian Motions.</p><h3 id="Direct-Interface"><a class="docs-heading-anchor" href="#Direct-Interface">Direct Interface</a><a id="Direct-Interface-1"></a><a class="docs-heading-anchor-permalink" href="#Direct-Interface" title="Permalink"></a></h3><p>Most of the time, a <code>NoiseProcess</code> is received from the solution of a stochastic or random differential equation, in which case <code>sol.W</code> gives the <code>NoiseProcess</code> and it is already defined along some timeseries. In other cases, <code>NoiseProcess</code> types are directly simulated (see below). However, <code>NoiseProcess</code> types can also be directly acted on. The basic functionality is given by <code>calculate_step!</code> to calculate a future time point, and <code>accept_step!</code> to accept the step. If steps are rejected, the Rejection Sampling with Memory algorithm is applied to keep the solution distributionally exact. This kind of stepping is done via:</p><pre><code class="language-julia hljs">W = WienerProcess(0.0, 1.0, 1.0)
 dt = 0.1
@@ -49,9 +49,9 @@ for i in 1:10
     accept_step!(W, dt, u, p)
 end</code></pre><h2 id="Contributing"><a class="docs-heading-anchor" href="#Contributing">Contributing</a><a id="Contributing-1"></a><a class="docs-heading-anchor-permalink" href="#Contributing" title="Permalink"></a></h2><ul><li><p>Please refer to the <a href="https://github.com/SciML/ColPrac/blob/master/README.md">SciML ColPrac: Contributor&#39;s Guide on Collaborative Practices for Community Packages</a> for guidance on PRs, issues, and other matters relating to contributing to SciML.</p></li><li><p>See the <a href="https://github.com/SciML/SciMLStyle">SciML Style Guide</a> for common coding practices and other style decisions.</p></li><li><p>There are a few community forums:</p><ul><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.org/slack/">Julia Slack</a></li><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged">Julia Zulip</a></li><li>On the <a href="https://discourse.julialang.org">Julia Discourse forums</a></li><li>See also <a href="https://sciml.ai/community/">SciML Community page</a></li></ul></li></ul><h2 id="Reproducibility"><a class="docs-heading-anchor" href="#Reproducibility">Reproducibility</a><a id="Reproducibility-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducibility" title="Permalink"></a></h2><details><summary>The documentation of this SciML package was built using these direct dependencies,</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl/docs/Project.toml`
   [77a26b50] DiffEqNoiseProcess v5.23.0 `~/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl`
-  [e30172f5] Documenter v1.5.0
-  [0bca4576] SciMLBase v2.48.1</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.10.4
-Commit 48d4fd48430 (2024-06-04 10:41 UTC)
+  [e30172f5] Documenter v1.6.0
+  [0bca4576] SciMLBase v2.52.0</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.10.5
+Commit 6f3fdf7b362 (2024-08-27 14:19 UTC)
 Build Info:
   Official https://julialang.org/ release
 Platform Info:
@@ -67,51 +67,49 @@ Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</code></pre></detai
   [7d9f7c33] Accessors v0.1.37
   [79e6a3ab] Adapt v4.0.4
   [66dad0bd] AliasTables v1.1.3
-  [4fba245c] ArrayInterface v7.15.0
+  [4fba245c] ArrayInterface v7.16.0
   [62783981] BitTwiddlingConvenienceFunctions v0.1.6
   [2a0fbf3d] CPUSummary v0.2.6
-  [49dc2e85] Calculus v0.5.1
   [fb6a15b2] CloseOpenIntervals v0.1.13
-  [944b1d66] CodecZlib v0.7.5
+  [944b1d66] CodecZlib v0.7.6
   [38540f10] CommonSolve v0.2.4
-  [bbf7d656] CommonSubexpressions v0.3.0
+  [bbf7d656] CommonSubexpressions v0.3.1
   [f70d9fcc] CommonWorldInvalidations v1.0.0
   [34da2185] Compat v4.16.0
   [a33af91c] CompositionsBase v0.1.2
   [2569d6c7] ConcreteStructs v0.2.3
-  [187b0558] ConstructionBase v1.5.6
+  [187b0558] ConstructionBase v1.5.7
   [adafc99b] CpuId v0.3.1
   [9a962f9c] DataAPI v1.16.0
   [864edb3b] DataStructures v0.18.20
   [e2d170a0] DataValueInterfaces v1.0.0
-  [2b5f629d] DiffEqBase v6.152.2
+  [2b5f629d] DiffEqBase v6.154.0
   [77a26b50] DiffEqNoiseProcess v5.23.0 `~/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl`
   [163ba53b] DiffResults v1.1.0
   [b552c78f] DiffRules v1.15.1
-  [31c24e10] Distributions v0.25.110
+  [31c24e10] Distributions v0.25.111
   [ffbed154] DocStringExtensions v0.9.3
-  [e30172f5] Documenter v1.5.0
-  [fa6b7ba4] DualNumbers v0.6.8
+  [e30172f5] Documenter v1.6.0
   [4e289a0a] EnumX v1.0.4
   [f151be2c] EnzymeCore v0.7.8
   [e2ba6199] ExprTools v0.1.10
 ⌅ [6b7a57c9] Expronicon v0.8.5
   [7034ab61] FastBroadcast v0.3.5
   [9aa1b823] FastClosures v0.3.2
-  [1a297f60] FillArrays v1.11.0
+  [1a297f60] FillArrays v1.13.0
   [6a86dc24] FiniteDiff v2.24.0
   [f6369f11] ForwardDiff v0.10.36
   [069b7b12] FunctionWrappers v1.1.3
   [77dc65aa] FunctionWrappersWrappers v0.1.3
   [46192b85] GPUArraysCore v0.1.6
   [d7ba0133] Git v1.3.1
-  [34004b35] HypergeometricFunctions v0.3.23
+  [34004b35] HypergeometricFunctions v0.3.24
   [b5f81e59] IOCapture v0.2.5
   [615f187c] IfElse v0.1.1
-  [3587e190] InverseFunctions v0.1.15
+  [3587e190] InverseFunctions v0.1.16
   [92d709cd] IrrationalConstants v0.2.2
   [82899510] IteratorInterfaceExtensions v1.0.0
-  [692b3bcd] JLLWrappers v1.5.0
+  [692b3bcd] JLLWrappers v1.6.0
   [682c06a0] JSON v0.21.4
   [10f19ff3] LayoutPointers v0.1.17
   [0e77f7df] LazilyInitializedFields v1.2.2
@@ -134,13 +132,13 @@ Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</code></pre></detai
   [f517fe37] Polyester v0.7.16
   [1d0040c9] PolyesterWeave v0.2.2
   [85a6dd25] PositiveFactorizations v0.2.4
-  [d236fae5] PreallocationTools v0.4.23
+  [d236fae5] PreallocationTools v0.4.24
   [aea7be01] PrecompileTools v1.2.1
   [21216c6a] Preferences v1.4.3
-  [43287f4e] PtrArrays v1.2.0
-  [1fd47b50] QuadGK v2.10.1
+  [43287f4e] PtrArrays v1.2.1
+  [1fd47b50] QuadGK v2.11.0
   [74087812] Random123 v1.7.0
-  [e6cf234a] RandomNumbers v1.5.3
+  [e6cf234a] RandomNumbers v1.6.0
   [3cdcf5f2] RecipesBase v1.3.4
   [731186ca] RecursiveArrayTools v3.27.0
   [189a3867] Reexport v1.2.2
@@ -150,14 +148,14 @@ Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</code></pre></detai
   [79098fc4] Rmath v0.7.1
   [7e49a35a] RuntimeGeneratedFunctions v0.5.13
   [94e857df] SIMDTypes v0.1.0
-  [0bca4576] SciMLBase v2.48.1
-  [c0aeaf25] SciMLOperators v0.3.9
-  [53ae85a6] SciMLStructures v1.4.2
+  [0bca4576] SciMLBase v2.52.0
+  [c0aeaf25] SciMLOperators v0.3.10
+  [53ae85a6] SciMLStructures v1.5.0
   [efcf1570] Setfield v1.1.1
   [a2af1166] SortingAlgorithms v1.2.1
   [276daf66] SpecialFunctions v2.4.0
   [aedffcd0] Static v1.1.1
-  [0d7ed370] StaticArrayInterface v1.7.0
+  [0d7ed370] StaticArrayInterface v1.8.0
   [90137ffa] StaticArrays v1.9.7
   [1e83bf80] StaticArraysCore v1.4.3
   [82ae8749] StatsAPI v1.7.0
@@ -168,7 +166,7 @@ Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</code></pre></detai
   [3783bdb8] TableTraits v1.0.1
   [bd369af6] Tables v1.12.0
   [8290d209] ThreadingUtilities v0.5.2
-  [3bb67fe8] TranscodingStreams v0.11.1
+  [3bb67fe8] TranscodingStreams v0.11.2
   [410a4b4d] Tricks v0.1.9
   [781d530d] TruncatedStacktraces v1.4.0
   [3a884ed6] UnPack v1.0.2
@@ -177,7 +175,7 @@ Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</code></pre></detai
   [94ce4f54] Libiconv_jll v1.17.0+0
   [458c3c95] OpenSSL_jll v3.0.14+0
   [efe28fd5] OpenSpecFun_jll v0.5.5+0
-  [f50d1b31] Rmath_jll v0.4.3+0
+⌅ [f50d1b31] Rmath_jll v0.4.3+0
   [0dad84c5] ArgTools v1.1.1
   [56f22d72] Artifacts
   [2a0f44e3] Base64
@@ -221,7 +219,7 @@ Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</code></pre></detai
   [efcefdf7] PCRE2_jll v10.42.0+1
   [bea87d4a] SuiteSparse_jll v7.2.1+1
   [83775a58] Zlib_jll v1.2.13+1
-  [8e850b90] libblastrampoline_jll v5.8.0+1
+  [8e850b90] libblastrampoline_jll v5.11.0+0
   [8e850ede] nghttp2_jll v1.52.0+1
   [3f19e933] p7zip_jll v17.4.0+2
-Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.23.0/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.23.0/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="noise_processes/">Classic Noise Processes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.5.0 on <span class="colophon-date" title="Saturday 10 August 2024 17:29">Saturday 10 August 2024</span>. Using Julia version 1.10.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.23.0/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.23.0/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="noise_processes/">Classic Noise Processes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.6.0 on <span class="colophon-date" title="Monday 2 September 2024 03:34">Monday 2 September 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
