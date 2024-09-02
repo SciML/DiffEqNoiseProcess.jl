@@ -8,7 +8,7 @@ function construct_correlated_noisefunc(Γ)
             return A * sqrt.(abs(dt)) * wiener_randn(rng, typeof(dW))
         end
     end
-    bridge = function (W, W0, Wh, q, h, u, p, t, rng)
+    bridge = function (rand_vec, W, W0, Wh, q, h, u, p, t, rng)
         error("Bridging distribution is unknown. Cannot use adapativity")
     end
     dist, bridge
