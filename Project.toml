@@ -31,7 +31,7 @@ DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
 [compat]
 DiffEqBase = "6.11"
 Distributions = "0.22, 0.23, 0.24, 0.25"
-GPUArraysCore = "0.1"
+GPUArraysCore = "0.1, 0.2"
 Optim = "1"
 PoissonRandom = "0.4"
 QuadGK = "2"
