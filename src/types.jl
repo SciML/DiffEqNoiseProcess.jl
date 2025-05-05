@@ -30,28 +30,28 @@ NoiseProcess(t0, W0, Z0, dist, bridge;
   - `reset` whether to reset the process with each solve.
   - `reseed` whether to reseed the process with each solve.
 
-The signature for the `dist` is
+The signature for the `dist` is:
 
 ```julia
-dist!(rand_vec, W, dt, rng)
+dist!(rand_vec, dW, W, dt, u, p, t, rng)
 ```
 
-for inplace functions, and
+for inplace functions, and:
 
 ```julia
-rand_vec = dist(W, dt, rng)
+rand_vec = dist(dW, W, dt, u, p, t, rng)
 ```
 
-otherwise. The signature for `bridge` is
+otherwise. The signature for `bridge` is:
 
 ```julia
-bridge!(rand_vec, W, W0, Wh, q, h, rng)
+bridge!(rand_vec, dW, W, W0, Wh, q, h, u, p, t, rng)
 ```
 
-and the out of place syntax is
+and the out of place syntax is:
 
 ```julia
-rand_vec = bridge!(W, W0, Wh, q, h, rng)
+rand_vec = bridge(dW, W, W0, Wh, q, h, u, p, t, rng)
 ```
 
 Here, `W` is the noise process, `W0` is the left side of the current interval,
@@ -80,7 +80,7 @@ for ``W(0)=0`` which defines the stepping distribution. Thus, its noise distribu
 function is:
 
 ```julia
-@inline function WHITE_NOISE_DIST(W, dt, rng)
+@inline function WHITE_NOISE_DIST(dW, W, dt, u, p, t, rng)
     if W.dW isa AbstractArray && !(W.dW isa SArray)
         return @fastmath sqrt(abs(dt)) * wiener_randn(rng, W.dW)
     else
@@ -92,7 +92,7 @@ end
 for the out of place versions, and for the inplace versions
 
 ```julia
-function INPLACE_WHITE_NOISE_DIST(rand_vec, W, dt, rng)
+function INPLACE_WHITE_NOISE_DIST(rand_vec, dW, W, dt, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
     sqrtabsdt = @fastmath sqrt(abs(dt))
     @. rand_vec *= sqrtabsdt
@@ -111,7 +111,7 @@ W(qh) ∼ N(qWₕ,(1-q)qh)
 Thus, we have the out-of-place and in-place versions as:
 
 ```julia
-function WHITE_NOISE_BRIDGE(W, W0, Wh, q, h, rng)
+function WHITE_NOISE_BRIDGE(dW, W, W0, Wh, q, h, u, p, t, rng)
     if W.dW isa AbstractArray
         return @fastmath sqrt((1 - q) * q * abs(h)) * wiener_randn(rng, W.dW) + q * Wh
     else
@@ -119,7 +119,7 @@ function WHITE_NOISE_BRIDGE(W, W0, Wh, q, h, rng)
                          q * Wh
     end
 end
-function INPLACE_WHITE_NOISE_BRIDGE(rand_vec, W, W0, Wh, q, h, rng)
+function INPLACE_WHITE_NOISE_BRIDGE(rand_vec, dW, W, W0, Wh, q, h, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
     #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
     sqrtcoeff = @fastmath sqrt((1 - q) * q * abs(h))
