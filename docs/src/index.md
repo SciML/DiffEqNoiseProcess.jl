@@ -1,12 +1,14 @@
 # DiffEqNoiseProcess.jl: Noise Processes for Stochastic Modeling
 
-Noise processes are essential in continuous stochastic modeling. The `NoiseProcess`
-types are distributionally-exact, meaning they are not solutions of
-stochastic differential equations but instead are directly generated according
-to their analytical distributions. These processes are used as the noise term
-in the SDE and RODE solvers. Additionally, the noise processes themselves can
-be simulated and solved using the DiffEq common interface (including the Monte
-Carlo interface).
+DiffEqNoiseProcess.jl provides a comprehensive suite of noise processes for stochastic differential equations and random differential equations. The `NoiseProcess` types are distributionally-exact, meaning they are generated directly according to their analytical distributions rather than as solutions to SDEs.
+
+## Key Features
+
+- **Mathematically rigorous**: All processes maintain distributional exactness
+- **Comprehensive collection**: Wiener processes, Ornstein-Uhlenbeck, geometric Brownian motion, compound Poisson, and more
+- **Flexible interface**: Works seamlessly with the DifferentialEquations.jl ecosystem
+- **Memory efficient**: Includes virtual processes and wrappers for large-scale simulations
+- **Bridging support**: Conditional processes for specific boundary conditions
 
 ## Installation
 
@@ -17,90 +19,95 @@ using Pkg
 Pkg.add("DiffEqNoiseProcess")
 ```
 
-## Using Noise Processes
+## Quick Start
 
-### Passing a Noise Process to a Problem Type
+### Basic Wiener Process
 
-`AbstractNoiseProcess`es can be passed directly to the problem types to replace
-the standard Wiener process (Brownian motion) with your choice of noise. To do
-this, simply construct the noise and pass it to the `noise` keyword argument:
+Create and simulate a standard Brownian motion:
 
 ```@example index
-using DiffEqNoiseProcess, SciMLBase
-μ = 1.0
-σ = 2.0
-W = GeometricBrownianMotionProcess(μ, σ, 0.0, 1.0, 1.0)
-# ...
-# Define f,g,u0,tspan for a SDEProblem
-# ...
-# prob = SDEProblem(f, g, u0, tspan, noise = W)
-```
+using DiffEqNoiseProcess
 
-### Basic Interface
+# Create a Wiener process: WienerProcess(t0, W0, Z0)
+W = WienerProcess(0.0, 0.0, 1.0)
 
-The `NoiseProcess` acts like a DiffEq solution. For some noise process `W`, you
-can get its `i`th timepoint like `W[i]` and the associated time `W.t[i]`. If the
-`NoiseProcess` has a bridging distribution defined, it can be interpolated to
-arbitrary time points using `W(t)`. Note that every interpolated value is saved
-to the `NoiseProcess` so that way it can stay distributionally correct. A plot
-recipe is provided that plots the timeseries.
-
-### Direct Simulation of the Noise Process
-
-Since the `NoiseProcess` types are distribution-exact and do not require the
-stochastic differential equation solvers, many times one would like to directly
-simulate trajectories from these processes. The `NoiseProcess` has a
-`NoiseProblem` type:
-
-```julia
-NoiseProblem(noise, tspan)
-```
-
-for which `solve` works. For example, we can simulate a distributionally-exact
-Geometric Brownian Motion solution by:
-
-```@example index
-μ = 1.0
-σ = 2.0
-W = GeometricBrownianMotionProcess(μ, σ, 0.0, 1.0, 1.0)
+# Simulate it over time interval [0, 1] 
 prob = NoiseProblem(W, (0.0, 1.0))
-sol = solve(prob; dt = 0.1)
+sol = solve(prob; dt = 0.01)
+
+println("Final Brownian motion value: $(sol.u[end])")
 ```
 
-`solve` requires that the `dt` is given, and that the solution it returns is a `NoiseProcess`
-which has stepped through the timespan. Because this follows the common interface,
-all of the normal functionality works. For example, we can use the Monte Carlo
-functionality as follows:
+### Using Noise in SDE Problems
+
+Noise processes integrate directly with SDE problems:
 
 ```@example index
+using SciMLBase
+
+# Define SDE: dX = μX dt + σX dW (geometric Brownian motion)
+f(u, p, t) = 0.05 * u  # 5% drift
+g(u, p, t) = 0.2 * u   # 20% volatility
+
+# Use custom geometric Brownian motion noise
+gbm_noise = GeometricBrownianMotionProcess(0.05, 0.2, 0.0, 100.0, 100.0)
+
+# Create SDE problem (would normally solve this)
+# prob = SDEProblem(f, g, 100.0, (0.0, 1.0), noise = gbm_noise)
+```
+
+### Ensemble Simulations
+
+Generate multiple noise realizations:
+
+```@example index
+# Create ensemble problem for Monte Carlo simulation
 enprob = EnsembleProblem(prob)
-sol = solve(enprob; dt = 0.1, trajectories = 100)
+ensemble_sol = solve(enprob; dt = 0.01, trajectories = 100)
+
+println("Generated $(length(ensemble_sol.u)) noise trajectories")
 ```
 
-simulates 100 Geometric Brownian Motions.
+## Available Noise Processes
 
-### Direct Interface
+DiffEqNoiseProcess.jl includes a rich collection of noise processes:
 
-Most of the time, a `NoiseProcess` is received from the solution of a stochastic
-or random differential equation, in which case `sol.W` gives the `NoiseProcess`
-and it is already defined along some timeseries. In other cases, `NoiseProcess`
-types are directly simulated (see below). However, `NoiseProcess` types can also
-be directly acted on. The basic functionality is given by `calculate_step!`
-to calculate a future time point, and `accept_step!` to accept the step. If steps
-are rejected, the Rejection Sampling with Memory algorithm is applied to keep
-the solution distributionally exact. This kind of stepping is done via:
+### Classic Processes
+- **WienerProcess**: Standard Brownian motion
+- **RealWienerProcess**: Scalar Brownian motion  
+- **CorrelatedWienerProcess**: Multi-dimensional correlated noise
+- **OrnsteinUhlenbeckProcess**: Mean-reverting process
+- **GeometricBrownianMotionProcess**: Financial modeling
+- **CompoundPoissonProcess**: Jump processes
 
-```@example index
-W = WienerProcess(0.0, 1.0, 1.0)
-dt = 0.1
-W.dt = dt
-u = nothing;
-p = nothing; # for state-dependent distributions
-calculate_step!(W, dt, u, p)
-for i in 1:10
-    accept_step!(W, dt, u, p)
-end
-```
+### Bridge Processes
+- **BrownianBridge**: Brownian motion with fixed endpoints
+- **GeometricBrownianBridge**: GBM with boundary conditions
+
+### Advanced Features
+- **NoiseFunction**: Custom noise from functions
+- **NoiseGrid**: Noise from pre-computed data
+- **NoiseWrapper**: Reuse previous simulations
+- **VirtualBrownianTree**: Memory-efficient alternative
+- **NoiseApproximation**: Colored noise via SDE solutions
+
+## Documentation Structure
+
+This documentation is organized as follows:
+
+- **[Basic Usage Tutorial](tutorials/basic_usage.md)**: Get started with fundamental concepts
+- **[Noise Process Types](tutorials/noise_processes.md)**: Comprehensive guide to all available processes
+- **[Advanced Features](tutorials/advanced_features.md)**: Custom processes, wrappers, and optimization
+- **[API Reference](noise_processes.md)**: Complete function and type documentation
+
+## Mathematical Foundation
+
+All noise processes in this package maintain mathematical rigor through:
+
+1. **Distributional exactness**: Processes follow their theoretical distributions exactly
+2. **Rejection Sampling with Memory (RSWM)**: Ensures correctness when adaptive stepping is used
+3. **Proper bridging**: Conditional processes respect boundary conditions
+4. **Interpolation consistency**: Values between grid points maintain distributional properties
 
 ## Contributing
 

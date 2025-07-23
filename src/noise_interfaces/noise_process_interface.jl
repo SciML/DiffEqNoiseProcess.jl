@@ -1,3 +1,9 @@
+"""
+    save_noise!(W::NoiseProcess)
+
+Save the current noise value and time to the process history if it hasn't been saved already.
+This function is called automatically by the stepping algorithms to maintain the noise trajectory.
+"""
 @inline function save_noise!(W::NoiseProcess)
     if W.t != W.curt
         push!(W.W, copy(W.curW))
@@ -9,6 +15,19 @@
     return nothing
 end
 
+"""
+    accept_step!(W::NoiseProcess, dt, u, p, setup_next = true)
+
+Accept a noise step, updating the current time and noise values.
+This function is called by the SDE solvers after a successful integration step.
+
+## Arguments
+- `W`: The noise process
+- `dt`: Time step size (may differ from W.dt due to adaptivity)
+- `u`: Current solution value (for state-dependent noise)
+- `p`: Parameters (for state-dependent noise)
+- `setup_next`: Whether to prepare for the next step
+"""
 @inline function accept_step!(W::NoiseProcess, dt, u, p, setup_next = true)
     W.curt += W.dt
     W.iter += 1
