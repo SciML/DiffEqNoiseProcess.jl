@@ -98,7 +98,8 @@ This documentation is organized as follows:
 - **[Basic Usage Tutorial](tutorials/basic_usage.md)**: Get started with fundamental concepts
 - **[Noise Process Types](tutorials/noise_processes.md)**: Comprehensive guide to all available processes
 - **[Advanced Features](tutorials/advanced_features.md)**: Custom processes, wrappers, and optimization
-- **[API Reference](noise_processes.md)**: Complete function and type documentation
+- **[API Reference](api/noise_processes.md)**: Complete function and type documentation
+- **[Interface API](api/interface.md)**: Step management and internal functions
 
 ## Mathematical Foundation
 

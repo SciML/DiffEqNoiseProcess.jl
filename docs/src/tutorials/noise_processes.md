@@ -10,6 +10,7 @@ The standard Wiener process is the foundation of stochastic calculus:
 
 ```@example noise_types
 using DiffEqNoiseProcess, SciMLBase, Random, Distributions
+using Statistics
 
 # Set seed for reproducibility
 Random.seed!(123)

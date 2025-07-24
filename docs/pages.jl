@@ -8,6 +8,10 @@ pages = [
         "tutorials/advanced_features.md"
     ],
     "API Reference" => [
+        "api/noise_processes.md",
+        "api/interface.md"
+    ],
+    "Legacy Docs" => [
         "noise_processes.md",
         "abstract_noise_processes.md"
     ]

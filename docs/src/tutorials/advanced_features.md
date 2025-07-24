@@ -10,6 +10,7 @@ Create noise processes from arbitrary functions of time:
 
 ```@example advanced
 using DiffEqNoiseProcess, SciMLBase
+using Random
 
 # Define a deterministic "noise" function
 function my_noise_func(t)
@@ -33,7 +34,7 @@ println("Function noise at t=2: $(sol.u[end])")
 Transport a random variable through a time-dependent function:
 
 ```@example advanced
-using Random, Distributions
+using Distributions
 
 # Random initial value
 Random.seed!(456)

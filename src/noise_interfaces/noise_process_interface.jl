@@ -60,6 +60,25 @@ This function is called by the SDE solvers after a successful integration step.
     return nothing
 end
 
+"""
+    setup_next_step!(W::NoiseProcess, u, p)
+
+Prepare the noise process for the next integration step.
+
+This function manages the Rejection Sampling with Memory (RSWM) algorithm,
+handling the stacks of pre-computed noise values for adaptive time stepping.
+
+# Arguments
+- `W`: The noise process
+- `u`: Current solution value (for state-dependent noise)
+- `p`: Parameters (for state-dependent noise)
+
+# Details
+The function implements different variants of the RSWM algorithm:
+- RSwM1: Basic rejection sampling
+- RSwM2: Improved version with better memory management
+- RSwM3: Most advanced version with two-stack system
+"""
 @inline function setup_next_step!(W::NoiseProcess, u, p)
     if adaptive_alg(W) == :RSwM3
         ResettableStacks.reset!(W.S₂) #Empty W.S₂
@@ -200,6 +219,23 @@ end
     return nothing
 end
 
+"""
+    calculate_step!(W::NoiseProcess, dt, u, p)
+
+Calculate noise increments for the given time step.
+
+This function generates new random values for the noise process according
+to its distribution function.
+
+# Arguments
+- `W`: The noise process
+- `dt`: Time step size
+- `u`: Current solution value (for state-dependent noise)
+- `p`: Parameters (for state-dependent noise)
+
+# Effects
+Updates W.dW (and W.dZ if auxiliary process exists) with new noise increments
+"""
 @inline function calculate_step!(W::NoiseProcess, dt, u, p)
     if isinplace(W)
         W.dist(W.dW, W, dt, u, p, W.curt, W.rng)
@@ -216,6 +252,25 @@ end
     return nothing
 end
 
+"""
+    reject_step!(W::NoiseProcess, dtnew, u, p)
+
+Handle rejection of a time step in adaptive algorithms.
+
+When an adaptive SDE solver rejects a step, this function uses bridge
+interpolation to generate appropriate noise values for the smaller time step,
+maintaining distributional correctness.
+
+# Arguments
+- `W`: The noise process
+- `dtnew`: New (smaller) time step after rejection
+- `u`: Current solution value (for state-dependent noise)
+- `p`: Parameters (for state-dependent noise)
+
+# Details
+The function stores unused portions of noise in the RSWM stacks for later use,
+ensuring the noise process remains distributionally exact despite adaptivity.
+"""
 @inline function reject_step!(W::NoiseProcess, dtnew, u, p)
     q = dtnew / W.dt
     if adaptive_alg(W) == :RSwM1 || adaptive_alg(W) == :RSwM2 ||
