@@ -164,9 +164,6 @@ println("  Final value: $(sol_approx.u[end])")
 
 ## Process Configuration
 
-### Rejection Sampling with Memory (RSWM)
-
-
 ### Process Reset and Reuse
 
 ```@example advanced
