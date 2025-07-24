@@ -188,13 +188,7 @@ println("Values are different due to reset")
 
 ## Performance Considerations
 
-```@example advanced
-println("Performance Tips:")
-println("1. Use in-place versions (Process!) for large systems")  
-println("2. VirtualBrownianTree for memory-constrained applications")
-println("3. NoiseGrid for pre-computed data")
-println("4. Adjust RSWM parameters based on accuracy needs")
-println("5. NoiseWrapper to reuse expensive computations")
-```
-
-These advanced features provide flexibility for specialized applications while maintaining the mathematical rigor of the noise processes.
+1. Use in-place versions (Process!) for large systems
+2. VirtualBrownianTree for memory-constrained applications
+3. NoiseGrid for pre-computed data
+4. NoiseWrapper to reuse expensive computations
