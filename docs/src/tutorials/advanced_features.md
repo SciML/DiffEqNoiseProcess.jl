@@ -166,21 +166,6 @@ println("  Final value: $(sol_approx.u[end])")
 
 ### Rejection Sampling with Memory (RSWM)
 
-Control the accuracy vs. performance trade-off:
-
-```@example advanced
-# Different RSWM configurations
-rswm_conservative = RSWM(discard_length = 1000)  # High accuracy
-rswm_aggressive = RSWM(discard_length = 10)      # High performance
-
-# Create processes with different RSWM settings
-W1 = WienerProcess(0.0, 0.0, 1.0; rswm = rswm_conservative)
-W2 = WienerProcess(0.0, 0.0, 1.0; rswm = rswm_aggressive)
-
-println("RSWM controls memory vs. accuracy trade-off")
-println("Conservative: Higher accuracy, more memory")
-println("Aggressive: Lower memory, faster computation")
-```
 
 ### Process Reset and Reuse
 
