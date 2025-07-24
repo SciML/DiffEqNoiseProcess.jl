@@ -1,7 +1,5 @@
 using Documenter, DiffEqNoiseProcess
 
-cp("./Manifest.toml", "./src/assets/Manifest.toml", force = true)
-cp("./Project.toml", "./src/assets/Project.toml", force = true)
 
 include("pages.jl")
 
