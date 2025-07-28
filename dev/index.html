@@ -27,17 +27,17 @@ sol = solve(prob; dt = 0.1)</code></pre><pre class="documenter-example-output"><
  0.8999999999999999
  0.9999999999999999
 u: 11-element Vector{Float64}:
- 1.0
- 2.1524912905095035
- 1.4400221660197543
- 2.113266416709957
- 6.27560762787121
- 6.704494273352422
- 4.185044311077956
- 2.804859154419401
- 1.235751171589913
- 1.465172468533304
- 1.2607568278125436</code></pre><p><code>solve</code> requires that the <code>dt</code> is given, and that the solution it returns is a <code>NoiseProcess</code> which has stepped through the timespan. Because this follows the common interface, all of the normal functionality works. For example, we can use the Monte Carlo functionality as follows:</p><pre><code class="language-julia hljs">enprob = EnsembleProblem(prob)
+  1.0
+  1.3956027731401148
+  2.369571717217079
+  2.317270144234588
+  1.7199515782994932
+  2.651461562141259
+ 10.164774888382524
+ 18.130994816216692
+ 18.943676278370102
+  9.244435350887063
+ 15.00245069622826</code></pre><p><code>solve</code> requires that the <code>dt</code> is given, and that the solution it returns is a <code>NoiseProcess</code> which has stepped through the timespan. Because this follows the common interface, all of the normal functionality works. For example, we can use the Monte Carlo functionality as follows:</p><pre><code class="language-julia hljs">enprob = EnsembleProblem(prob)
 sol = solve(enprob; dt = 0.1, trajectories = 100)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EnsembleSolution Solution of length 100 with uType:
 NoiseProcess{Float64, 1, Float64, Float64, Float64, Vector{Float64}, DiffEqNoiseProcess.GeometricBrownianMotion{Float64, Float64}, DiffEqNoiseProcess.var&quot;#34#35&quot;{DiffEqNoiseProcess.GeometricBrownianMotion{Float64, Float64}}, Nothing, false, ResettableStacks.ResettableStack{Tuple{Float64, Float64, Float64}, false}, ResettableStacks.ResettableStack{Tuple{Float64, Float64, Float64}, false}, RSWM{Float64}, Nothing, RandomNumbers.Xorshifts.Xoroshiro128Plus}</code></pre><p>simulates 100 Geometric Brownian Motions.</p><h3 id="Direct-Interface"><a class="docs-heading-anchor" href="#Direct-Interface">Direct Interface</a><a id="Direct-Interface-1"></a><a class="docs-heading-anchor-permalink" href="#Direct-Interface" title="Permalink"></a></h3><p>Most of the time, a <code>NoiseProcess</code> is received from the solution of a stochastic or random differential equation, in which case <code>sol.W</code> gives the <code>NoiseProcess</code> and it is already defined along some timeseries. In other cases, <code>NoiseProcess</code> types are directly simulated (see below). However, <code>NoiseProcess</code> types can also be directly acted on. The basic functionality is given by <code>calculate_step!</code> to calculate a future time point, and <code>accept_step!</code> to accept the step. If steps are rejected, the Rejection Sampling with Memory algorithm is applied to keep the solution distributionally exact. This kind of stepping is done via:</p><pre><code class="language-julia hljs">W = WienerProcess(0.0, 1.0, 1.0)
 dt = 0.1
@@ -50,7 +50,7 @@ for i in 1:10
 end</code></pre><h2 id="Contributing"><a class="docs-heading-anchor" href="#Contributing">Contributing</a><a id="Contributing-1"></a><a class="docs-heading-anchor-permalink" href="#Contributing" title="Permalink"></a></h2><ul><li><p>Please refer to the <a href="https://github.com/SciML/ColPrac/blob/master/README.md">SciML ColPrac: Contributor&#39;s Guide on Collaborative Practices for Community Packages</a> for guidance on PRs, issues, and other matters relating to contributing to SciML.</p></li><li><p>See the <a href="https://github.com/SciML/SciMLStyle">SciML Style Guide</a> for common coding practices and other style decisions.</p></li><li><p>There are a few community forums:</p><ul><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.org/slack/">Julia Slack</a></li><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged">Julia Zulip</a></li><li>On the <a href="https://discourse.julialang.org">Julia Discourse forums</a></li><li>See also <a href="https://sciml.ai/community/">SciML Community page</a></li></ul></li></ul><h2 id="Reproducibility"><a class="docs-heading-anchor" href="#Reproducibility">Reproducibility</a><a id="Reproducibility-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducibility" title="Permalink"></a></h2><details><summary>The documentation of this SciML package was built using these direct dependencies,</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl/docs/Project.toml`
   [77a26b50] DiffEqNoiseProcess v5.24.1 `~/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl`
   [e30172f5] Documenter v1.14.1
-  [0bca4576] SciMLBase v2.104.0</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.11.6
+  [0bca4576] SciMLBase v2.105.0</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.11.6
 Commit 9615af0f269 (2025-07-09 12:58 UTC)
 Build Info:
   Official https://julialang.org/ release
@@ -152,7 +152,7 @@ Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</code></pre></detai
   [79098fc4] Rmath v0.8.0
   [7e49a35a] RuntimeGeneratedFunctions v0.5.15
   [94e857df] SIMDTypes v0.1.0
-  [0bca4576] SciMLBase v2.104.0
+  [0bca4576] SciMLBase v2.105.0
   [c0aeaf25] SciMLOperators v1.4.0
   [53ae85a6] SciMLStructures v1.7.0
   [efcf1570] Setfield v1.1.2
@@ -228,4 +228,4 @@ Threads: 1 default, 0 interactive, 1 GC (on 4 virtual cores)</code></pre></detai
   [8e850b90] libblastrampoline_jll v5.11.0+0
   [8e850ede] nghttp2_jll v1.59.0+0
   [3f19e933] p7zip_jll v17.4.0+2
-Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.24.1/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.24.1/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="noise_processes/">Classic Noise Processes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Sunday 27 July 2025 13:11">Sunday 27 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Info Packages marked with ⌅ have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.24.1/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.24.1/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="noise_processes/">Classic Noise Processes »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 28 July 2025 02:08">Monday 28 July 2025</span>. Using Julia version 1.11.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
