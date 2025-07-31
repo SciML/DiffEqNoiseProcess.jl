@@ -156,7 +156,7 @@ function split_VBT_seed(rng::Random123.AbstractR123, parent_seed, current_depth,
     # seed right
     seed_r = convert(typeof(parent_seed), parent_seed + (Nt - 1) ÷ 2^(current_depth + 1))
 
-    RandomNumbers.Random123.set_counter!(rng, parent_seed)
+    Random123.set_counter!(rng, parent_seed)
     return seed_l, seed_r, parent_seed
 end
 

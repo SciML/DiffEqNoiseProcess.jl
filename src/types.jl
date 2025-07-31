@@ -1155,7 +1155,7 @@ function VirtualBrownianTree{iip}(t0, W0, Z0, dist, bridge;
         tend = nothing, Wend = nothing, Zend = nothing,
         atol = 1e-10, tree_depth::Int = 4,
         search_depth = nothing,
-        rng = RandomNumbers.Random123.Threefry4x(),
+        rng = Random123.Threefry4x(),
         reset = true) where {iip}
     if search_depth == nothing
         if atol < 1e-10

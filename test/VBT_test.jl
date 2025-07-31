@@ -1,6 +1,6 @@
 @testset "Virtual Brownian Tree tests" begin
     using DiffEqNoiseProcess, DiffEqBase, StochasticDiffEq, Test, Random
-    import RandomNumbers, Random123
+    import Random123
 
     W = VirtualBrownianTree(0.0, 0.0; tree_depth = 3, search_depth = 5)
     @test isinplace(W) == false
@@ -20,7 +20,7 @@
     @test_throws ErrorException accept_step!(W, dt, nothing, nothing)
 
     # test interpolation/binary search
-    rng = RandomNumbers.Random123.Threefry4x() # instantiate PRNG
+    rng = Random123.Threefry4x() # instantiate PRNG
     rngcopy = copy(rng)
     W = VirtualBrownianTree(0.0, 0.0; tree_depth = 1, search_depth = 5, rng = rng)
     t = (W.t[2] - W.t[1]) / 8

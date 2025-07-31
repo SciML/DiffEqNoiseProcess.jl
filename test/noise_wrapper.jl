@@ -1,4 +1,4 @@
-using DiffEqNoiseProcess, Test, Random, RandomNumbers
+using DiffEqNoiseProcess, Test, Random
 using StochasticDiffEq, LinearAlgebra
 @testset "NoiseWrapper" begin
     _W = WienerProcess(0.0, 0.0, 0.0)
