@@ -1193,7 +1193,9 @@ function VirtualBrownianTree{iip}(t0, W0, Z0, dist, bridge;
         Zend = curW + bridge(dZ, nothing, tend - t0, nothing, nothing, nothing, rng)
     end
 
-    t, W, Z, seeds = create_VBT_cache(
+    t, W,
+    Z,
+    seeds = create_VBT_cache(
         bridge, t0, W0, Z0, tend, Wend, Zend, rng, tree_depth,
         search_depth)
 
@@ -1348,7 +1350,8 @@ function BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
 
     # generate boxes
     if box_grouping == :MinEntropy
-        box, probability, offset = generate_boxes2(jpdf, Δr, Δa, Δz, one(Δr), one(Δa),
+        box, probability,
+        offset = generate_boxes2(jpdf, Δr, Δa, Δz, one(Δr), one(Δa),
             one(Δz) / 64, rM, aM)
         dist_box = Distributions.Categorical(probability / sum(probability))
         boxes = BoxGeneration2{typeof(box), typeof(probability), typeof(offset),

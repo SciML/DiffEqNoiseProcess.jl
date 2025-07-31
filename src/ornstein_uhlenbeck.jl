@@ -72,7 +72,8 @@ OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
 function OrnsteinUhlenbeckProcess(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
     ou = OrnsteinUhlenbeck(Θ, μ, σ)
     NoiseProcess{false}(t0, W0, Z0, ou,
-        (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> ou_bridge(rand_vec,
+        (rand_vec, W, W0, Wh, q, h, u, p, t,
+            rng) -> ou_bridge(rand_vec,
             ou,
             W,
             W0,
@@ -120,7 +121,8 @@ function OrnsteinUhlenbeckProcess!(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
         W0,
         Z0,
         ou,
-        (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> ou_bridge!(rand_vec,
+        (rand_vec, W, W0, Wh, q, h, u, p, t,
+            rng) -> ou_bridge!(rand_vec,
             ou,
             W,
             W0,

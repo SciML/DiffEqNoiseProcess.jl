@@ -234,7 +234,8 @@ end
 
 # joint probability density function
 function joint_density_function(r, a, rtol)
-    integral, err = QuadGK.quadgk(
+    integral,
+    err = QuadGK.quadgk(
         x -> r / π * (x / sinh(x)) *
              exp(-r^2 * x / (2 * tanh(x))) * cos(a * x), 0, Inf,
         rtol = rtol)
@@ -439,7 +440,8 @@ function generate_wedges(densf, Δr, Δa, Δz, rM, aM, offset, sqeezing)
 
             # store position of top corner of box and width
             if sqeezing
-                ϵijmin, ϵijmax = constrained_optimization_problem(densf, fij, fij2, fij3,
+                ϵijmin,
+                ϵijmax = constrained_optimization_problem(densf, fij, fij2, fij3,
                     fij4, r, a, Δr, Δa)
                 push!(boxes, [f̃ij, hij, abs(ϵijmin), abs(ϵijmax), r, a])
                 # store PDF values
