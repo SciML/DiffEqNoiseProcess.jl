@@ -26,7 +26,7 @@ CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;kwargs...)
 where `Γ` is the constant covariance matrix.
 """
 function CorrelatedWienerProcess(Γ, t0, W0, Z0 = nothing;
-        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)))
+        rng = Random.default_rng())
     NoiseProcess{false}(t0, W0, Z0, construct_correlated_noisefunc(Γ)..., rswm = RSWM(),
         rng = rng, covariance = Γ)
 end
@@ -58,7 +58,7 @@ CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;kwargs...)
 where `Γ` is the constant covariance matrix.
 """
 function CorrelatedWienerProcess!(Γ, t0, W0, Z0 = nothing;
-        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)))
+        rng = Random.default_rng())
     NoiseProcess{true}(t0, W0, Z0, construct_correlated_noisefunc!(Γ)...,
         rswm = RSWM(), rng = rng, covariance = Γ)
 end

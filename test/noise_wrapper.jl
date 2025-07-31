@@ -286,7 +286,7 @@ end
 
     W = WienerProcess(t, rand_prototype,
         save_everystep = save_noise,
-        rng = Xorshifts.Xoroshiro128Plus(_seed))
+        rng = Random.default_rng())
     prob = NoiseProblem(W, (0.0, 1.0))
     W2 = solve(prob; dt = 0.1)
     bW = DiffEqNoiseProcess.vec_NoiseProcess(W2)
