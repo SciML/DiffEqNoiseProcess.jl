@@ -29,11 +29,13 @@ function interpolate!(W::VirtualBrownianTree, u, p, t)
         W.dZ !== nothing ? val2 = timeseries2[i - 1] : val2 = nothing
     else
         if W.dZ !== nothing
-            val1, val2 = search_VBT(t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
+            val1,
+            val2 = search_VBT(t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
                 timeseries[i],
                 timeseries2[i - 1], timeseries2[i], W, W.rng)
         else
-            val1, val2 = search_VBT(t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
+            val1,
+            val2 = search_VBT(t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
                 timeseries[i],
                 nothing, nothing, W, W.rng)
         end

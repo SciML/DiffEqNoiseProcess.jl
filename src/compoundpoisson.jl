@@ -17,7 +17,8 @@ mutable struct CompoundPoissonProcess{R, CR}
     function CompoundPoissonProcess(rate, t0, W0; computerates = true, kwargs...)
         cpp = new{typeof(rate), typeof(W0)}(rate, W0, computerates)
         NoiseProcess{false}(t0, W0, nothing, cpp,
-            (dW, W, W0, Wh, q, h, u, p, t, rng) -> cpp_bridge(dW, cpp, W,
+            (dW, W, W0, Wh, q, h, u, p, t,
+                rng) -> cpp_bridge(dW, cpp, W,
                 W0, Wh, q, h,
                 u, p, t, rng);
             continuous = false, cache = cpp, kwargs...)
@@ -40,7 +41,8 @@ struct CompoundPoissonProcess!{R, CR}
     function CompoundPoissonProcess!(rate, t0, W0; computerates = true, kwargs...)
         cpp = new{typeof(rate), typeof(W0)}(rate, copy(W0), computerates)
         NoiseProcess{true}(t0, W0, nothing, cpp,
-            (rand_vec, W, W0, Wh, q, h, u, p, t, rng) -> cpp_bridge!(rand_vec,
+            (rand_vec, W, W0, Wh, q, h, u, p, t,
+                rng) -> cpp_bridge!(rand_vec,
                 cpp, W,
                 W0, Wh,
                 q, h, u,
