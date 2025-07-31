@@ -4,9 +4,7 @@ using ResettableStacks, DiffEqBase, RecipesBase
 using RecursiveArrayTools, StaticArraysCore, Random, Statistics
 using LinearAlgebra
 
-import RandomNumbers: Xorshifts
-
-import RandomNumbers, Random123
+import Random123
 
 import DiffEqBase: isinplace,
                    solve, AbstractNoiseProcess,
