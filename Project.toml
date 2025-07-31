@@ -49,7 +49,6 @@ Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 HypothesisTests = "09f84164-cd44-5f33-b23f-e6b0d136a0d5"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-Random123 = "74087812-796a-5b5d-8853-05524746bad3"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 SDEProblemLibrary = "c72e72a9-a271-4b2b-8966-303ed956772e"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
@@ -58,4 +57,4 @@ StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "Random123"]
+test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature"]
