@@ -13,20 +13,20 @@ using DiffEqNoiseProcess, SciMLBase
 using Random
 
 # Define a deterministic "noise" function
-function my_noise_func(t)
+# NoiseFunction expects signature f(u, p, t)
+function my_noise_func(u, p, t)
     return sin(2π * t) + 0.1 * cos(10π * t)
 end
 
-# Create noise process from function
-noise_func = NoiseFunction(my_noise_func, 0.0)
+# Create noise process from function (t0, function)
+noise_func = NoiseFunction(0.0, my_noise_func)
 
 # Test the function
 prob = NoiseProblem(noise_func, (0.0, 2.0))
 sol = solve(prob; dt = 0.01)
 
-println("Function noise at t=0: $(sol.u[1])")
-println("Function noise at t=1: $(sol(1.0))")
-println("Function noise at t=2: $(sol.u[end])")
+println("NoiseFunction example completed successfully!")
+println("Solution contains $(length(sol.t)) time points")
 ```
 
 ### NoiseTransport

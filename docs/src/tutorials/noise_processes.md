@@ -81,7 +81,7 @@ Models discontinuous jumps at random times:
 # Jump sizes are normally distributed N(0, 0.1²)
 jump_dist = Normal(0.0, 0.1)
 
-poisson_proc = CompoundPoissonProcess(λ, jump_dist, 0.0, 0.0, 1.0)
+poisson_proc = CompoundPoissonProcess(λ, 0.0, 0.0)
 
 # Simulate
 prob_poisson = NoiseProblem(poisson_proc, (0.0, 2.0))

@@ -26,7 +26,7 @@ Pkg.add("DiffEqNoiseProcess")
 Create and simulate a standard Brownian motion:
 
 ```@example index
-using DiffEqNoiseProcess
+using DiffEqNoiseProcess, SciMLBase
 
 # Create a Wiener process: WienerProcess(t0, W0, Z0)
 W = WienerProcess(0.0, 0.0, 1.0)
