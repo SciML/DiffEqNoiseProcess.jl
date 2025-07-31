@@ -12,7 +12,7 @@ A `NoiseProcess` is a type defined as:
 NoiseProcess(t0, W0, Z0, dist, bridge;
     iip = SciMLBase.isinplace(dist, 3),
     rswm = RSWM(), save_everystep = true,
-    rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+    rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
     reset = true, reseed = true)
 ```
 
@@ -188,7 +188,7 @@ end
 
 function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
         rswm = RSWM(), save_everystep = true, covariance = nothing,
-        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+        rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
         reset = true, reseed = true, continuous = true,
         cache = nothing) where {iip}
     S₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
@@ -327,7 +327,7 @@ Like `NoiseProcess` but without support for adaptivity. This makes it lightweigh
 ```julia
 SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge;
     save_everystep = true,
-    rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+    rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
     reset = true, reseed = true) where {iip}
 ```
 
@@ -371,7 +371,7 @@ mutable struct SimpleNoiseProcess{
 
     function SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge;
             save_everystep = true, covariance = nothing,
-            rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+            rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
             reset = true, reseed = true) where {iip}
         if Z0 == nothing
             Z = nothing
@@ -698,7 +698,7 @@ NoiseTransport{iip}(t0,
     RV,
     rv,
     Z = nothing;
-    rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+    rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
     reset = true,
     reseed = true,
     noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
@@ -708,7 +708,7 @@ NoiseTransport{iip}(t0,
 NoiseTransport(t0,
     W,
     RV;
-    rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+    rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
     reset = true,
     reseed = true,
     kwargs...)
@@ -793,7 +793,7 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
     reseed::Bool
 
     function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing;
-            rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+            rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
             reset = true, reseed = true,
             noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
         curt = t0
@@ -841,13 +841,13 @@ function (W::NoiseTransport)(out1, out2, u, p, t, rv)
 end
 
 function NoiseTransport(t0, W, RV, rv, Z = nothing;
-        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true,
+        rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)), reset = true,
         reseed = true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
     NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
 end
 
-function NoiseTransport(t0, W, RV; rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+function NoiseTransport(t0, W, RV; rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
         reset = true, reseed = true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
     rv = RV(rng)
@@ -1260,7 +1260,7 @@ BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
     box_grouping = :MinEntropy,
     sqeezing = true,
     save_everystep = true,
-    rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+    rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
     reset = true, reseed = true) where {iip}
 ```
 """
@@ -1311,7 +1311,7 @@ function BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
         box_grouping = :MinEntropy,
         sqeezing = true,
         save_everystep = true,
-        rng = Xorshifts.Xoroshiro128Plus(rand(UInt64)),
+        rng = Random.Xorshifts.Xoroshiro128Plus(rand(UInt64)),
         reset = true, reseed = true) where {iip}
     if Z0 === nothing
         Z = nothing
