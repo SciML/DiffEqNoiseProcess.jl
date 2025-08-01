@@ -844,13 +844,22 @@ function NoiseTransport(t0, W, RV, rv, Z = nothing;
         rng = Random.default_rng(), reset = true,
         reseed = true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
+
+    if rv isa AbstractArray
+        RV(rng, rv)
+    else
+        rv = RV(rng)
+    end
+
     NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
 end
 
 function NoiseTransport(t0, W, RV; rng = Random.default_rng(),
         reset = true, reseed = true, kwargs...)
     iip = DiffEqBase.isinplace(W, 5)
+
     rv = RV(rng)
+
     Z = nothing
     NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
 end
