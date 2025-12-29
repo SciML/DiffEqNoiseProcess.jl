@@ -28,7 +28,7 @@ ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
 
 [compat]
-DiffEqBase = "6.11"
+DiffEqBase = "6.61"
 Distributions = "0.22, 0.23, 0.24, 0.25"
 GPUArraysCore = "0.1, 0.2"
 Optim = "1"
