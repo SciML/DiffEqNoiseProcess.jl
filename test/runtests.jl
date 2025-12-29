@@ -38,6 +38,7 @@ end
         include("BWT_test.jl")
         include("pcn_test.jl")
         include("savestep_test.jl")
+        include("simple_noise_bigfloat_test.jl")
     end
 
     if GROUP == "All" || GROUP == "Bridge"
