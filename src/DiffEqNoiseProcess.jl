@@ -1,14 +1,23 @@
 module DiffEqNoiseProcess
 
-using ResettableStacks, DiffEqBase, RecipesBase
-using RecursiveArrayTools, StaticArraysCore, Random, Statistics
-using LinearAlgebra
+using ResettableStacks: ResettableStacks
+using DiffEqBase: DiffEqBase
+using RecipesBase: RecipesBase
+using RecursiveArrayTools: RecursiveArrayTools, recursivecopy
+using StaticArraysCore: StaticArraysCore, SArray
+using Random: Random, AbstractRNG, randn!
+using Statistics: Statistics
+using LinearAlgebra: LinearAlgebra, Diagonal, mul!, svd
 
 import Random123
 
-import DiffEqBase: isinplace,
-                   solve, AbstractNoiseProcess,
+import DiffEqBase: isinplace, AbstractNoiseProcess,
                    DEIntegrator, AbstractNoiseProblem
+
+import SciMLBase
+import SciMLBase: add_tstop!, reinit!
+
+import CommonSolve: step!
 
 import PoissonRandom, Distributions
 
@@ -16,9 +25,11 @@ import QuadGK, Optim
 
 import GPUArraysCore
 
-using Markdown
+using Markdown: Markdown, @doc_str
 
 using DiffEqBase: @..
+
+using Base: deleteat!, convert, copyto!
 
 include("types.jl")
 include("copy_noise_types.jl")
