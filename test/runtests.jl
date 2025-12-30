@@ -11,6 +11,7 @@ end
 
 @time begin
     if GROUP == "All" || GROUP == "Core1"
+        include("explicit_imports_test.jl")
         include("interpolation_test.jl")
         include("RSwM1_test.jl")
         include("RSwM2_test.jl")
