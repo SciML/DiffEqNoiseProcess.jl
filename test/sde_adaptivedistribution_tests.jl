@@ -14,7 +14,7 @@
         for i in 1:N
             W = WienerProcess(0.0, 0.0, 0.0, rswm = RSWM(adaptivealg = :RSwM1))
             _prob = remake(prob, noise = W)
-            sol = solve(_prob, SRI(), dt = 1 / 2^(4), abstol = 1e-2, reltol = 0)
+            sol = solve(_prob, SRI(), dt = 1 / 2^(4), abstol = 1.0e-2, reltol = 0)
             Wends[i] = sol.W.W[end]
         end
         kssol = ApproximateOneSampleKSTest(Wends / sqrt(T), Normal())
@@ -28,7 +28,7 @@
         for i in 1:N
             W = WienerProcess(0.0, 0.0, 0.0, rswm = RSWM(adaptivealg = :RSwM2))
             _prob = remake(prob, noise = W)
-            sol = solve(_prob, SRI(), dt = 1 / 2^(4), abstol = 1e-2, reltol = 0)
+            sol = solve(_prob, SRI(), dt = 1 / 2^(4), abstol = 1.0e-2, reltol = 0)
             Wends[i] = sol.W.W[end]
         end
         kssol = ApproximateOneSampleKSTest(Wends / sqrt(T), Normal())
@@ -42,7 +42,7 @@
         for i in 1:N
             W = WienerProcess(0.0, 0.0, 0.0, rswm = RSWM(adaptivealg = :RSwM3))
             _prob = remake(prob, noise = W)
-            sol = solve(_prob, SRI(), dt = 1 / 2^(4), abstol = 1e-2, reltol = 0)
+            sol = solve(_prob, SRI(), dt = 1 / 2^(4), abstol = 1.0e-2, reltol = 0)
             Wends[i] = sol.W.W[end]
         end
         kssol = ApproximateOneSampleKSTest(Wends / sqrt(T), Normal())

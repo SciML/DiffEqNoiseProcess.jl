@@ -11,7 +11,7 @@ function construct_correlated_noisefunc(Γ)
     bridge = function (dW, W, W0, Wh, q, h, u, p, t, rng)
         error("Bridging distribution is unknown. Cannot use adapativity")
     end
-    dist, bridge
+    return dist, bridge
 end
 
 @doc doc"""
@@ -25,10 +25,14 @@ CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;kwargs...)
 
 where `Γ` is the constant covariance matrix.
 """
-function CorrelatedWienerProcess(Γ, t0, W0, Z0 = nothing;
-        rng = Random.default_rng())
-    NoiseProcess{false}(t0, W0, Z0, construct_correlated_noisefunc(Γ)..., rswm = RSWM(),
-        rng = rng, covariance = Γ)
+function CorrelatedWienerProcess(
+        Γ, t0, W0, Z0 = nothing;
+        rng = Random.default_rng()
+    )
+    return NoiseProcess{false}(
+        t0, W0, Z0, construct_correlated_noisefunc(Γ)..., rswm = RSWM(),
+        rng = rng, covariance = Γ
+    )
 end
 
 function construct_correlated_noisefunc!(Γ)
@@ -38,12 +42,12 @@ function construct_correlated_noisefunc!(Γ)
     dist = function (rand_vec, W, dt, u, p, t, rng)
         wiener_randn!(rng, b)
         b .*= sqrt.(abs(dt))
-        mul!(rand_vec, A, b)
+        return mul!(rand_vec, A, b)
     end
     bridge = function (rand_vec, W, W0, Wh, q, h, u, p, t, rng)
         error("Bridging distribution is unknown. Cannot use adapativity")
     end
-    dist, bridge
+    return dist, bridge
 end
 
 @doc doc"""
@@ -57,8 +61,12 @@ CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;kwargs...)
 
 where `Γ` is the constant covariance matrix.
 """
-function CorrelatedWienerProcess!(Γ, t0, W0, Z0 = nothing;
-        rng = Random.default_rng())
-    NoiseProcess{true}(t0, W0, Z0, construct_correlated_noisefunc!(Γ)...,
-        rswm = RSWM(), rng = rng, covariance = Γ)
+function CorrelatedWienerProcess!(
+        Γ, t0, W0, Z0 = nothing;
+        rng = Random.default_rng()
+    )
+    return NoiseProcess{true}(
+        t0, W0, Z0, construct_correlated_noisefunc!(Γ)...,
+        rswm = RSWM(), rng = rng, covariance = Γ
+    )
 end

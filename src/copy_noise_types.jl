@@ -16,7 +16,7 @@ function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
             setfield!(getfield(Wnew, x), :discard_length, getfield(W, x).discard_length)
             setfield!(getfield(Wnew, x), :adaptivealg, getfield(W, x).adaptivealg)
         elseif typeof(getfield(W, x)) <:
-               Union{BoxGeneration1, BoxGeneration2, BoxGeneration3}
+            Union{BoxGeneration1, BoxGeneration2, BoxGeneration3}
             setfield!(getfield(Wnew, x), :boxes, getfield(W, x).boxes)
             setfield!(getfield(Wnew, x), :probability, getfield(W, x).probability)
             setfield!(getfield(Wnew, x), :offset, getfield(W, x).offset)
@@ -32,42 +32,54 @@ function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
     if hasfield(typeof(W), :u)
         Wnew.u = Wnew.W
     end
-    Wnew
+    return Wnew
 end
 
 function Base.copy(W::NoiseProcess)
-    Wnew = NoiseProcess{isinplace(W)}(W.curt, W.curW, W.curZ, W.dist, W.bridge;
+    Wnew = NoiseProcess{isinplace(W)}(
+        W.curt, W.curW, W.curZ, W.dist, W.bridge;
         rswm = W.rswm, save_everystep = W.save_everystep,
         rng = W.rng, covariance = W.covariance,
         reset = W.reset, reseed = W.reseed,
-        continuous = W.continuous, cache = W.cache)
-    copy!(Wnew, W)
+        continuous = W.continuous, cache = W.cache
+    )
+    return copy!(Wnew, W)
 end
 
 function Base.copy(W::SimpleNoiseProcess)
-    Wnew = SimpleNoiseProcess{isinplace(W)}(W.curt, W.curW, W.curZ, W.dist, W.bridge;
+    Wnew = SimpleNoiseProcess{isinplace(W)}(
+        W.curt, W.curW, W.curZ, W.dist, W.bridge;
         save_everystep = W.save_everystep,
         rng = W.rng, covariance = W.covariance,
-        reset = W.reset, reseed = W.reseed)
-    copy!(Wnew, W)
+        reset = W.reset, reseed = W.reseed
+    )
+    return copy!(Wnew, W)
 end
 
-function Base.copy(W::Union{NoiseWrapper, NoiseGrid, NoiseApproximation,
-        VirtualBrownianTree, BoxWedgeTail})
+function Base.copy(
+        W::Union{
+            NoiseWrapper, NoiseGrid, NoiseApproximation,
+            VirtualBrownianTree, BoxWedgeTail,
+        }
+    )
     Wnew = typeof(W)((getfield(W, x) for x in fieldnames(typeof(W)))...)
-    copy!(Wnew, W)
+    return copy!(Wnew, W)
 end
 
 function Base.copy(W::NoiseFunction)
-    Wnew = NoiseFunction{isinplace(W)}(W.t0, W.W, W.Z; noise_prototype = W.curW,
-        reset = W.reset)
-    copy!(Wnew, W)
+    Wnew = NoiseFunction{isinplace(W)}(
+        W.t0, W.W, W.Z; noise_prototype = W.curW,
+        reset = W.reset
+    )
+    return copy!(Wnew, W)
 end
 
 function Base.copy(W::NoiseTransport)
-    Wnew = NoiseTransport{isinplace(W)}(W.t0, W.W, W.RV, W.rv, W.Z;
+    Wnew = NoiseTransport{isinplace(W)}(
+        W.t0, W.W, W.RV, W.rv, W.Z;
         rng = W.rng,
         reset = W.reset, reseed = W.reseed,
-        noise_prototype = W.curW)
-    copy!(Wnew, W)
+        noise_prototype = W.curW
+    )
+    return copy!(Wnew, W)
 end

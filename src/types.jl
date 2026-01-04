@@ -152,8 +152,9 @@ end
 These will generate a Wiener process, which can be stepped with `step!(W,dt)`, and interpolated as `W(t)`.
 """
 mutable struct NoiseProcess{
-    T, N, Tt, T2, T3, ZType, F, F2, CovType, inplace, S1, S2, RSWM, C,
-    RNGType} <: AbstractNoiseProcess{T, N, Vector{T2}, inplace}
+        T, N, Tt, T2, T3, ZType, F, F2, CovType, inplace, S1, S2, RSWM, C,
+        RNGType,
+    } <: AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     dist::F
     bridge::F2
     t::Vector{Tt}
@@ -186,18 +187,29 @@ mutable struct NoiseProcess{
     cache::C
 end
 
-function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
+function NoiseProcess{iip}(
+        t0, W0, Z0, dist, bridge;
         rswm = RSWM(), save_everystep = true, covariance = nothing,
         rng = Random.default_rng(),
         reset = true, reseed = true, continuous = true,
-        cache = nothing) where {iip}
-    S₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
-    })
-    S₂ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0), typeof(Z0)
-    })
-    reinitS₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(t0), typeof(W0),
-        typeof(Z0)
-    })
+        cache = nothing
+    ) where {iip}
+    S₁ = ResettableStacks.ResettableStack{iip}(
+        Tuple{
+            typeof(t0), typeof(W0), typeof(Z0),
+        }
+    )
+    S₂ = ResettableStacks.ResettableStack{iip}(
+        Tuple{
+            typeof(t0), typeof(W0), typeof(Z0),
+        }
+    )
+    reinitS₁ = ResettableStacks.ResettableStack{iip}(
+        Tuple{
+            typeof(t0), typeof(W0),
+            typeof(Z0),
+        }
+    )
     if Z0 == nothing
         Z = nothing
         curZ = nothing
@@ -213,12 +225,15 @@ function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
     end
     W = [copy(W0)]
     N = length((size(W0)..., length(W)))
-    NoiseProcess{eltype(eltype(W0)), N, typeof(t0), typeof(W0), typeof(dZ), typeof(Z),
+    return NoiseProcess{
+        eltype(eltype(W0)), N, typeof(t0), typeof(W0), typeof(dZ), typeof(Z),
         typeof(dist), typeof(bridge), typeof(covariance),
-        iip, typeof(S₁), typeof(S₂), typeof(rswm), typeof(cache), typeof(rng)}(dist,
+        iip, typeof(S₁), typeof(S₂), typeof(rswm), typeof(cache), typeof(rng),
+    }(
+        dist,
         bridge,
         [
-            t0
+            t0,
         ],
         W,
         W,
@@ -246,7 +261,8 @@ function NoiseProcess{iip}(t0, W0, Z0, dist, bridge;
         reset,
         reseed,
         continuous,
-        cache)
+        cache
+    )
 end
 
 function vec_NoiseProcess(W::NoiseProcess{T, N, Tt}) where {T, N, Tt}
@@ -274,10 +290,12 @@ function vec_NoiseProcess(W::NoiseProcess{T, N, Tt}) where {T, N, Tt}
     S₂ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(W.curt), Wtype, Ztype})
     reinitS₁ = ResettableStacks.ResettableStack{iip}(Tuple{typeof(W.curt), Wtype, Ztype})
 
-    NoiseProcess{T, N, Tt, Wtype, typeof(dZ), typeof(Z),
+    return NoiseProcess{
+        T, N, Tt, Wtype, typeof(dZ), typeof(Z),
         typeof(W.dist), typeof(W.bridge), typeof(W.covariance),
-        iip, typeof(S₁), typeof(S₂), typeof(W.rswm), typeof(W.cache), typeof(W.rng)
-    }(W.dist,
+        iip, typeof(S₁), typeof(S₂), typeof(W.rswm), typeof(W.cache), typeof(W.rng),
+    }(
+        W.dist,
         W.bridge,
         W.t, _W,
         _W, Z, W.curt,
@@ -299,7 +317,8 @@ function vec_NoiseProcess(W::NoiseProcess{T, N, Tt}) where {T, N, Tt}
         W.reset,
         W.reseed,
         W.continuous,
-        W.cache)
+        W.cache
+    )
 end
 
 (W::NoiseProcess)(t) = interpolate!(W, nothing, nothing, t)
@@ -309,7 +328,7 @@ adaptive_alg(W::NoiseProcess) = adaptive_alg(W.rswm)
 
 function NoiseProcess(t0, W0, Z0, dist, bridge; kwargs...)
     iip = DiffEqBase.isinplace(dist, 7)
-    NoiseProcess{iip}(t0, W0, Z0, dist, bridge; kwargs...)
+    return NoiseProcess{iip}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
 """
@@ -344,8 +363,9 @@ SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge;
   - `reseed` whether to reseed the process with each solve.
 """
 mutable struct SimpleNoiseProcess{
-    T, N, Tt, T2, T3, ZType, F, F2, CovType, inplace, RNGType} <:
-               AbstractNoiseProcess{T, N, Vector{T2}, inplace}
+        T, N, Tt, T2, T3, ZType, F, F2, CovType, inplace, RNGType,
+    } <:
+    AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     dist::F
     bridge::F2
     t::Vector{Tt}
@@ -369,10 +389,12 @@ mutable struct SimpleNoiseProcess{
     reset::Bool
     reseed::Bool
 
-    function SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge;
+    function SimpleNoiseProcess{iip}(
+            t0, W0, Z0, dist, bridge;
             save_everystep = true, covariance = nothing,
             rng = Random.default_rng(),
-            reset = true, reseed = true) where {iip}
+            reset = true, reseed = true
+        ) where {iip}
         if Z0 == nothing
             Z = nothing
             curZ = nothing
@@ -388,14 +410,17 @@ mutable struct SimpleNoiseProcess{
         end
         W = [copy(W0)]
         N = length((size(W0)..., length(W)))
-        new{eltype(eltype(W0)), N, typeof(t0), typeof(W0), typeof(dZ), typeof(Z),
-            typeof(dist), typeof(bridge), typeof(covariance), iip, typeof(rng)}(
+        return new{
+            eltype(eltype(W0)), N, typeof(t0), typeof(W0), typeof(dZ), typeof(Z),
+            typeof(dist), typeof(bridge), typeof(covariance), iip, typeof(rng),
+        }(
             dist, bridge, [t0], W, W, Z, t0,
             copy(W0), curZ, t0, copy(W0),
             dZ, copy(W0), dZtilde, copy(W0),
             dZtmp, covariance,
             save_everystep, 0, rng, reset,
-            reseed)
+            reseed
+        )
     end
 end
 (W::SimpleNoiseProcess)(t) = interpolate!(W, nothing, nothing, t)
@@ -404,7 +429,7 @@ end
 
 function SimpleNoiseProcess(t0, W0, Z0, dist, bridge; kwargs...)
     iip = DiffEqBase.isinplace(dist, 7)
-    SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge; kwargs...)
+    return SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
 """
@@ -522,7 +547,7 @@ plot!(sol5)
 ![SRI_SRIW1_diff](assets/SRI_SRIW1_diff.png)
 """
 mutable struct NoiseWrapper{T, N, Tt, T2, T3, T4, ZType, inplace} <:
-               AbstractNoiseProcess{T, N, Vector{T2}, inplace}
+    AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     t::Vector{Tt}
     u::Vector{T2}
     W::Vector{T2}
@@ -538,9 +563,11 @@ mutable struct NoiseWrapper{T, N, Tt, T2, T3, T4, ZType, inplace} <:
     reverse::Bool
 end
 
-function NoiseWrapper(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace};
+function NoiseWrapper(
+        source::AbstractNoiseProcess{T, N, Vector{T2}, inplace};
         reset = true, reverse = false,
-        indx = nothing) where {T, N, T2, inplace}
+        indx = nothing
+    ) where {T, N, T2, inplace}
     if indx === nothing
         if reverse
             indx = length(source.t)
@@ -560,17 +587,20 @@ function NoiseWrapper(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace};
     end
     W = [copy(source.W[indx])]
 
-    NoiseWrapper{
+    return NoiseWrapper{
         T, N, typeof(source.t[1]), typeof(source.W[1]), typeof(dZ), typeof(source),
-        typeof(Z), inplace}([source.t[indx]], W, W, Z, source.t[indx],
+        typeof(Z), inplace,
+    }(
+        [source.t[indx]], W, W, Z, source.t[indx],
         copy(source.W[indx]), curZ, source.t[indx],
-        copy(source.W[indx]), dZ, source, reset, reverse)
+        copy(source.W[indx]), dZ, source, reset, reverse
+    )
 end
 
 (W::NoiseWrapper)(t) = interpolate!(W, nothing, nothing, t)
 (W::NoiseWrapper)(u, p, t) = interpolate!(W, u, p, t)
 function (W::NoiseWrapper)(out1, out2, u, p, t)
-    interpolate!(out1, out2, W, u, p, t, reverse = W.reverse)
+    return interpolate!(out1, out2, W, u, p, t, reverse = W.reverse)
 end
 adaptive_alg(W::NoiseWrapper) = adaptive_alg(W.source)
 
@@ -618,7 +648,7 @@ W = NoiseFunction(0.0, f, noise_prototype = rand(4))
 This allows you to put arbitrarily weird noise into SDEs and RODEs. Have fun.
 """
 mutable struct NoiseFunction{T, N, wType, zType, Tt, T2, T3, inplace} <:
-               AbstractNoiseProcess{T, N, nothing, inplace}
+    AbstractNoiseProcess{T, N, nothing, inplace}
     W::wType
     Z::zType
     curt::Tt
@@ -630,9 +660,11 @@ mutable struct NoiseFunction{T, N, wType, zType, Tt, T2, T3, inplace} <:
     t0::Tt
     reset::Bool
 
-    function NoiseFunction{iip}(t0, W, Z = nothing;
+    function NoiseFunction{iip}(
+            t0, W, Z = nothing;
             noise_prototype = W(nothing, nothing, t0),
-            reset = true) where {iip}
+            reset = true
+        ) where {iip}
         curt = t0
         dt = t0
         curW = copy(noise_prototype)
@@ -644,9 +676,13 @@ mutable struct NoiseFunction{T, N, wType, zType, Tt, T2, T3, inplace} <:
             curZ = copy(noise_prototype)
             dZ = copy(noise_prototype)
         end
-        new{typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
-            typeof(curt), typeof(curW), typeof(curZ), iip}(W, Z, curt, curW, curZ,
-            dt, dW, dZ, t0, reset)
+        return new{
+            typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
+            typeof(curt), typeof(curW), typeof(curZ), iip,
+        }(
+            W, Z, curt, curW, curZ,
+            dt, dW, dZ, t0, reset
+        )
     end
 end
 
@@ -668,16 +704,16 @@ function (W::NoiseFunction)(u, p, t)
     else
         out1 = W.W(u, p, t)
     end
-    out1, out2
+    return out1, out2
 end
 function (W::NoiseFunction)(out1, out2, u, p, t)
     W.W(out1, u, p, t)
-    W.Z !== nothing && W.Z(out2, u, p, t)
+    return W.Z !== nothing && W.Z(out2, u, p, t)
 end
 
 function NoiseFunction(t0, W, Z = nothing; kwargs...)
     iip = DiffEqBase.isinplace(W, 4)
-    NoiseFunction{iip}(t0, W, Z; kwargs...)
+    return NoiseFunction{iip}(t0, W, Z; kwargs...)
 end
 
 """
@@ -776,7 +812,7 @@ W = NoiseTransport(t0, f!, RV!, rv, noise_prototype = zeros(3))
 A `NoiseTransport` can be used as driving noise for SDEs and RODEs. Have fun!
 """
 mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType, inplace} <:
-               AbstractNoiseProcess{T, N, nothing, inplace}
+    AbstractNoiseProcess{T, N, nothing, inplace}
     W::wType
     Z::zType
     curt::Tt
@@ -792,10 +828,12 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
     reset::Bool
     reseed::Bool
 
-    function NoiseTransport{iip}(t0, W, RV, rv, Z = nothing;
+    function NoiseTransport{iip}(
+            t0, W, RV, rv, Z = nothing;
             rng = Random.default_rng(),
             reset = true, reseed = true,
-            noise_prototype = W(nothing, nothing, t0, rv)) where {iip}
+            noise_prototype = W(nothing, nothing, t0, rv)
+        ) where {iip}
         curt = t0
         dt = t0
         curW = copy(noise_prototype)
@@ -808,10 +846,14 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
             dZ = copy(noise_prototype)
         end
 
-        new{typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
+        return new{
+            typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
             typeof(curt), typeof(curW), typeof(curZ), typeof(RV), typeof(rv), typeof(rng),
-            iip}(W, Z, curt, curW, curZ,
-            dt, dW, dZ, t0, RV, rv, rng, reset, reseed)
+            iip,
+        }(
+            W, Z, curt, curW, curZ,
+            dt, dW, dZ, t0, RV, rv, rng, reset, reseed
+        )
     end
 end
 
@@ -833,26 +875,30 @@ function (W::NoiseTransport)(u, p, t, rv)
     else
         out1 = W.W(u, p, t, rv)
     end
-    out1, out2
+    return out1, out2
 end
 function (W::NoiseTransport)(out1, out2, u, p, t, rv)
     W.W(out1, u, p, t, rv)
-    W.Z !== nothing && W.Z(out2, u, p, t, rv)
+    return W.Z !== nothing && W.Z(out2, u, p, t, rv)
 end
 
-function NoiseTransport(t0, W, RV, rv, Z = nothing;
+function NoiseTransport(
+        t0, W, RV, rv, Z = nothing;
         rng = Random.default_rng(), reset = true,
-        reseed = true, kwargs...)
+        reseed = true, kwargs...
+    )
     iip = DiffEqBase.isinplace(W, 5)
-    NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
+    return NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
 end
 
-function NoiseTransport(t0, W, RV; rng = Random.default_rng(),
-        reset = true, reseed = true, kwargs...)
+function NoiseTransport(
+        t0, W, RV; rng = Random.default_rng(),
+        reset = true, reseed = true, kwargs...
+    )
     iip = DiffEqBase.isinplace(W, 5)
     rv = RV(rng)
     Z = nothing
-    NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
+    return NoiseTransport{iip}(t0, W, RV, rv, Z; rng, reset, reseed, kwargs...)
 end
 
 """
@@ -906,7 +952,7 @@ We can then pass `W` as the `noise` argument of an `SDEProblem` to use it in
 an SDE.
 """
 mutable struct NoiseGrid{T, N, Tt, T2, T3, ZType, RefType, inplace} <:
-               AbstractNoiseProcess{T, N, Vector{T2}, inplace}
+    AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     t::Vector{Tt}
     u::Vector{T2}
     W::Vector{T2}
@@ -943,8 +989,11 @@ function NoiseGrid(t, W, Z = nothing; reset = true)
     end
 
     (val isa AbstractArray && !(val isa SArray)) ? iip = true : iip = false
-    NoiseGrid{typeof(val), ndims(val), typeof(dt), typeof(dW), typeof(dZ), typeof(Z),
-        typeof(cur_time), iip}(t,
+    return NoiseGrid{
+        typeof(val), ndims(val), typeof(dt), typeof(dW), typeof(dZ), typeof(Z),
+        typeof(cur_time), iip,
+    }(
+        t,
         W,
         W,
         Z,
@@ -956,7 +1005,8 @@ function NoiseGrid(t, W, Z = nothing; reset = true)
         dZ,
         true,
         reset,
-        cur_time)
+        cur_time
+    )
 end
 
 (W::NoiseGrid)(t) = interpolate!(W, t)
@@ -1024,7 +1074,7 @@ prob = SDEProblem(f, g, 1.0, (0.0, Inf), noise = W)
 The possibilities are endless.
 """
 mutable struct NoiseApproximation{T, N, Tt, T2, T3, S1, S2, ZType, inplace} <:
-               AbstractNoiseProcess{T, N, Vector{T2}, inplace}
+    AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     t::Vector{Tt}
     u::Vector{T2}
     W::Vector{T2}
@@ -1040,9 +1090,11 @@ mutable struct NoiseApproximation{T, N, Tt, T2, T3, S1, S2, ZType, inplace} <:
     reset::Bool
 end
 
-function NoiseApproximation(source1::DEIntegrator,
+function NoiseApproximation(
+        source1::DEIntegrator,
         source2::Union{DEIntegrator, Nothing} = nothing;
-        reset = true)
+        reset = true
+    )
     _source1 = deepcopy(source1)
     _source2 = deepcopy(source2)
     if _source2 == nothing
@@ -1063,10 +1115,14 @@ function NoiseApproximation(source1::DEIntegrator,
     dt = _source1.dt
     curt = _source1.t
     _source1.opts.advance_to_tstop = true
-    NoiseApproximation{typeof(val), ndims(val), typeof(curt), typeof(curW), typeof(curZ),
+    return NoiseApproximation{
+        typeof(val), ndims(val), typeof(curt), typeof(curW), typeof(curZ),
         typeof(_source1), typeof(_source2), typeof(Z),
-        isinplace(_source1.sol.prob)}(t, W, W, Z, curt, curW, curZ, dt, dW,
-        dZ, _source1, _source2, reset)
+        isinplace(_source1.sol.prob),
+    }(
+        t, W, W, Z, curt, curW, curZ, dt, dW,
+        dZ, _source1, _source2, reset
+    )
 end
 
 (W::NoiseApproximation)(t) = interpolate!(W, t)
@@ -1123,9 +1179,10 @@ runtime. Thus, the `VirtualBrownianTree` allows for trading off speed for memory
 in a simple manner.
 """
 mutable struct VirtualBrownianTree{
-    T, N, F, F2, Tt, T2, T3, T2tmp, T3tmp, seedType, tolType,
-    RNGType, inplace} <:
-               AbstractNoiseProcess{T, N, Vector{T2}, inplace}
+        T, N, F, F2, Tt, T2, T3, T2tmp, T3tmp, seedType, tolType,
+        RNGType, inplace,
+    } <:
+    AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     dist::F
     bridge::F2
     t::Vector{Tt} # tstart::Tt to tend::Tt
@@ -1151,14 +1208,16 @@ mutable struct VirtualBrownianTree{
     reset::Bool
 end
 
-function VirtualBrownianTree{iip}(t0, W0, Z0, dist, bridge;
+function VirtualBrownianTree{iip}(
+        t0, W0, Z0, dist, bridge;
         tend = nothing, Wend = nothing, Zend = nothing,
-        atol = 1e-10, tree_depth::Int = 4,
+        atol = 1.0e-10, tree_depth::Int = 4,
         search_depth = nothing,
         rng = Random123.Threefry4x(),
-        reset = true) where {iip}
+        reset = true
+    ) where {iip}
     if search_depth == nothing
-        if atol < 1e-10
+        if atol < 1.0e-10
             search_depth = 50 # maximum search depth
         else
             search_depth = floor(Int, (-log2(atol) + 2))
@@ -1194,10 +1253,11 @@ function VirtualBrownianTree{iip}(t0, W0, Z0, dist, bridge;
     end
 
     t, W,
-    Z,
-    seeds = create_VBT_cache(
+        Z,
+        seeds = create_VBT_cache(
         bridge, t0, W0, Z0, tend, Wend, Zend, rng, tree_depth,
-        search_depth)
+        search_depth
+    )
 
     if iip
         W0tmp, W1tmp = copy(W0), copy(Wend)
@@ -1210,29 +1270,36 @@ function VirtualBrownianTree{iip}(t0, W0, Z0, dist, bridge;
         W0tmp, W1tmp, Z0tmp, Z1tmp = nothing, nothing, nothing, nothing
     end
 
-    VirtualBrownianTree{
+    return VirtualBrownianTree{
         typeof(W0), ndims(W0),
         typeof(dist), typeof(bridge), typeof(curt), typeof(curW),
         typeof(curZ),
         typeof(W0tmp), typeof(Z0tmp), typeof(seeds[1]), typeof(atol),
         typeof(rng),
-        iip}(dist, bridge, t, W, W, Z, curt, curW, curZ, dt, dW, dZ, W0tmp,
+        iip,
+    }(
+        dist, bridge, t, W, W, Z, curt, curW, curZ, dt, dW, dZ, W0tmp,
         W1tmp, Z0tmp, Z1tmp, seeds, atol, rng, tree_depth,
-        search_depth, true, reset)
+        search_depth, true, reset
+    )
 end
 
 (W::VirtualBrownianTree)(t) = interpolate!(W, nothing, nothing, t)
 (W::VirtualBrownianTree)(u, p, t) = interpolate!(W, u, p, t)
 (W::VirtualBrownianTree)(out1, out2, u, p, t) = interpolate!(out1, out2, W, u, p, t)
 
-function VirtualBrownianTree(t0, W0, Z0 = nothing, dist = WHITE_NOISE_DIST,
-        bridge = VBT_BRIDGE; kwargs...)
-    VirtualBrownianTree{false}(t0, W0, Z0, dist, bridge; kwargs...)
+function VirtualBrownianTree(
+        t0, W0, Z0 = nothing, dist = WHITE_NOISE_DIST,
+        bridge = VBT_BRIDGE; kwargs...
+    )
+    return VirtualBrownianTree{false}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
-function VirtualBrownianTree!(t0, W0, Z0 = nothing, dist = INPLACE_WHITE_NOISE_DIST,
-        bridge = INPLACE_VBT_BRIDGE; kwargs...)
-    VirtualBrownianTree{true}(t0, W0, Z0, dist, bridge; kwargs...)
+function VirtualBrownianTree!(
+        t0, W0, Z0 = nothing, dist = INPLACE_WHITE_NOISE_DIST,
+        bridge = INPLACE_VBT_BRIDGE; kwargs...
+    )
+    return VirtualBrownianTree{true}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
 """
@@ -1266,10 +1333,12 @@ BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
     reset = true, reseed = true) where {iip}
 ```
 """
-mutable struct BoxWedgeTail{T, N, Tt, TA, T2, T3, ZType, F, F2, inplace, RNGType, tolType,
-    spacingType, jpdfType, boxType, wedgeType, tailType,
-    distBWTType, distΠType} <:
-               AbstractNoiseProcess{T, N, Vector{T2}, inplace}
+mutable struct BoxWedgeTail{
+        T, N, Tt, TA, T2, T3, ZType, F, F2, inplace, RNGType, tolType,
+        spacingType, jpdfType, boxType, wedgeType, tailType,
+        distBWTType, distΠType,
+    } <:
+    AbstractNoiseProcess{T, N, Vector{T2}, inplace}
     dist::F
     bridge::F2
     t::Vector{Tt}
@@ -1308,13 +1377,15 @@ mutable struct BoxWedgeTail{T, N, Tt, TA, T2, T3, ZType, F, F2, inplace, RNGType
     distΠ::distΠType
 end
 
-function BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
-        rtol = 1e-8, nr = 4, na = 4, nz = 10,
+function BoxWedgeTail{iip}(
+        t0, W0, Z0, dist, bridge;
+        rtol = 1.0e-8, nr = 4, na = 4, nz = 10,
         box_grouping = :MinEntropy,
         sqeezing = true,
         save_everystep = true,
         rng = Random.default_rng(),
-        reset = true, reseed = true) where {iip}
+        reset = true, reseed = true
+    ) where {iip}
     if Z0 === nothing
         Z = nothing
         curZ = nothing
@@ -1351,32 +1422,46 @@ function BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
     # generate boxes
     if box_grouping == :MinEntropy
         box, probability,
-        offset = generate_boxes2(jpdf, Δr, Δa, Δz, one(Δr), one(Δa),
-            one(Δz) / 64, rM, aM)
+            offset = generate_boxes2(
+            jpdf, Δr, Δa, Δz, one(Δr), one(Δa),
+            one(Δz) / 64, rM, aM
+        )
         dist_box = Distributions.Categorical(probability / sum(probability))
-        boxes = BoxGeneration2{typeof(box), typeof(probability), typeof(offset),
-            typeof(dist_box)}(box,
+        boxes = BoxGeneration2{
+            typeof(box), typeof(probability), typeof(offset),
+            typeof(dist_box),
+        }(
+            box,
             probability,
             offset,
-            dist_box)
+            dist_box
+        )
     elseif box_grouping == :Columns
         box, probability, offset = generate_boxes1(jpdf, Δr, Δa, Δz, rM, aM)
         val1 = sum(probability)
         dist_box = Distributions.Categorical(probability / val1)
-        boxes = BoxGeneration1{typeof(box), typeof(probability), typeof(offset),
-            typeof(dist_box)}(box,
+        boxes = BoxGeneration1{
+            typeof(box), typeof(probability), typeof(offset),
+            typeof(dist_box),
+        }(
+            box,
             probability,
             offset,
-            dist_box)
+            dist_box
+        )
     elseif box_grouping == :none
         box, probability, offset = generate_boxes3(jpdf, Δr, Δa, Δz, rM, aM)
         val1 = sum(probability)
         dist_box = Distributions.Categorical(probability / val1)
-        boxes = BoxGeneration3{typeof(box), typeof(probability), typeof(offset),
-            typeof(dist_box)}(box,
+        boxes = BoxGeneration3{
+            typeof(box), typeof(probability), typeof(offset),
+            typeof(dist_box),
+        }(
+            box,
             probability,
             offset,
-            dist_box)
+            dist_box
+        )
     else
         error("Available options for box grouping are :MinEntropy, :Columns, and :none.")
     end
@@ -1384,22 +1469,28 @@ function BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
     # generate wedges
     box, probability, offset = generate_wedges(jpdf, Δr, Δa, Δz, rM, aM, offset, sqeezing)
     dist_box = Distributions.Categorical(probability / sum(probability))
-    wedges = Wedges{typeof(box), typeof(probability), typeof(offset),
-        typeof(dist_box)}(box,
+    wedges = Wedges{
+        typeof(box), typeof(probability), typeof(offset),
+        typeof(dist_box),
+    }(
+        box,
         probability,
         offset,
-        dist_box)
+        dist_box
+    )
 
     # set up tail approximation
     tails = TailApproxs(rM, aM)
 
     # distribution to decide if sample should be drawn from boxes, wedges or tail
     if nr == 4 && na == 4 && nz == 10
-        distBWT = Distributions.Categorical([
-            0.9118576049804688,
-            0.08546645498798722,
-            0.002675940031544033
-        ])
+        distBWT = Distributions.Categorical(
+            [
+                0.9118576049804688,
+                0.08546645498798722,
+                0.002675940031544033,
+            ]
+        )
     else
         error("Cubature not implemented but needed for a different discretization. Please report this error.")
     end
@@ -1407,29 +1498,37 @@ function BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
     # distribution between 0 and 2pi to convert r to dWs
     distΠ = Distributions.Uniform(zero(rM), convert(typeof(rM), 2 * pi))
 
-    BoxWedgeTail{eltype(eltype(W0)), N, typeof(t0), typeof(A0), typeof(W0), typeof(dZ),
+    return BoxWedgeTail{
+        eltype(eltype(W0)), N, typeof(t0), typeof(A0), typeof(W0), typeof(dZ),
         typeof(Z),
         typeof(dist), typeof(bridge), iip, typeof(rng), typeof(Δr), typeof(rtol),
         typeof(jpdf), typeof(boxes), typeof(wedges), typeof(tails),
-        typeof(distBWT), typeof(distΠ)}(dist, bridge, [t0], [A0], W, W, Z, t0, A0,
+        typeof(distBWT), typeof(distΠ),
+    }(
+        dist, bridge, [t0], [A0], W, W, Z, t0, A0,
         copy(W0), curZ, t0, copy(W0), dZ, copy(W0),
         dZtilde, copy(W0), dZtmp,
         save_everystep, 0, rng, reset, reseed,
         rtol, Δr, Δa, Δz, rM, aM, jpdf, boxes,
         wedges,
-        sqeezing, tails, distBWT, distΠ)
+        sqeezing, tails, distBWT, distΠ
+    )
 end
 
 (W::BoxWedgeTail)(t) = interpolate!(W, nothing, nothing, t)
 (W::BoxWedgeTail)(u, p, t) = interpolate!(W, u, p, t)
 (W::BoxWedgeTail)(out1, out2, u, p, t) = interpolate!(out1, out2, W, u, p, t)
 
-function BoxWedgeTail(t0, W0, Z0 = nothing, dist = WHITE_NOISE_DIST,
-        bridge = WHITE_NOISE_BRIDGE; kwargs...)
-    BoxWedgeTail{false}(t0, W0, Z0, dist, bridge; kwargs...)
+function BoxWedgeTail(
+        t0, W0, Z0 = nothing, dist = WHITE_NOISE_DIST,
+        bridge = WHITE_NOISE_BRIDGE; kwargs...
+    )
+    return BoxWedgeTail{false}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
-function BoxWedgeTail!(t0, W0, Z0 = nothing, dist = INPLACE_WHITE_NOISE_DIST,
-        bridge = INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
-    BoxWedgeTail{true}(t0, W0, Z0, dist, bridge; kwargs...)
+function BoxWedgeTail!(
+        t0, W0, Z0 = nothing, dist = INPLACE_WHITE_NOISE_DIST,
+        bridge = INPLACE_WHITE_NOISE_BRIDGE; kwargs...
+    )
+    return BoxWedgeTail{true}(t0, W0, Z0, dist, bridge; kwargs...)
 end

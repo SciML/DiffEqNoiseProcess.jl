@@ -135,8 +135,10 @@ The function implements different variants of the RSWM algorithm:
                 else
                     W.dWtilde = W.bridge(W.dW, W, W.curW, L₂, qtmp, L₁, u, p, W.curt, W.rng)
                     if W.Z !== nothing
-                        W.dZtilde = W.bridge(W.dZ, W, W.curZ, L₃, qtmp, L₁, u, p, W.curt,
-                            W.rng)
+                        W.dZtilde = W.bridge(
+                            W.dZ, W, W.curZ, L₃, qtmp, L₁, u, p, W.curt,
+                            W.rng
+                        )
                     end
                 end
                 if isinplace(W)
@@ -169,13 +171,21 @@ The function implements different variants of the RSWM algorithm:
                     end
                     if adaptive_alg(W) == :RSwM3 && qtmp * L₁ > W.rswm.discard_length
                         if W.Z == nothing
-                            ResettableStacks.copyat_or_push!(W.S₂,
-                                (qtmp * L₁, W.dWtilde,
-                                    nothing))
+                            ResettableStacks.copyat_or_push!(
+                                W.S₂,
+                                (
+                                    qtmp * L₁, W.dWtilde,
+                                    nothing,
+                                )
+                            )
                         else
-                            ResettableStacks.copyat_or_push!(W.S₂,
-                                (qtmp * L₁, W.dWtilde,
-                                    W.dZtilde))
+                            ResettableStacks.copyat_or_push!(
+                                W.S₂,
+                                (
+                                    qtmp * L₁, W.dWtilde,
+                                    W.dZtilde,
+                                )
+                            )
                         end
                     end
                 end
@@ -274,7 +284,7 @@ ensuring the noise process remains distributionally exact despite adaptivity.
 @inline function reject_step!(W::NoiseProcess, dtnew, u, p)
     q = dtnew / W.dt
     if adaptive_alg(W) == :RSwM1 || adaptive_alg(W) == :RSwM2 ||
-       (adaptive_alg(W) == :RSwM3 && isempty(W.S₂))
+            (adaptive_alg(W) == :RSwM3 && isempty(W.S₂))
         if isinplace(W)
             W.bridge(W.dWtilde, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
             if W.Z !== nothing
@@ -411,7 +421,7 @@ end
 
 @inline function interpolate!(W::NoiseProcess, u, p, t; reverse = false)
     if sign(W.dt) * t > sign(W.dt) * W.t[end] ||
-       (sign(W.dt) * t < sign(W.dt) * W.t[1] && reverse) # Steps past W (forward time || backward time)
+            (sign(W.dt) * t < sign(W.dt) * W.t[1] && reverse) # Steps past W (forward time || backward time)
         if reverse
             dt = t - W.t[1]
         else
@@ -469,7 +479,7 @@ end
                 return copy(W.curW), nothing
             end
         elseif !(t isa Union{Rational, Integer}) &&
-               isapprox(t, W.t[i]; atol = 100eps(typeof(t)), rtol = 100eps(t))
+                isapprox(t, W.t[i]; atol = 100eps(typeof(t)), rtol = 100eps(t))
             if isinplace(W)
                 W.curW .= W.W[i]
             else
@@ -560,7 +570,7 @@ end
 
 @inline function interpolate!(out1, out2, W::NoiseProcess, u, p, t; reverse = false)
     if (sign(W.dt) * t > sign(W.dt) * W.t[end] && !reverse) ||
-       (sign(W.dt) * t < sign(W.dt) * W.t[1] && reverse) # Steps past W (forward time || backward time)
+            (sign(W.dt) * t < sign(W.dt) * W.t[1] && reverse) # Steps past W (forward time || backward time)
         if reverse
             dt = t - W.t[1]
         else
@@ -599,7 +609,7 @@ end
                 out2 .= W.Z[i]
             end
         elseif !(t isa Union{Rational, Integer}) &&
-               isapprox(t, W.t[i]; atol = 100eps(typeof(t)), rtol = 100eps(t))
+                isapprox(t, W.t[i]; atol = 100eps(typeof(t)), rtol = 100eps(t))
             out1 .= W.W[i]
             if W.Z !== nothing
                 out2 .= W.Z[i]

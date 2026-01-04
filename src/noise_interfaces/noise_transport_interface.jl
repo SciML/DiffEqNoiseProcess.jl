@@ -5,11 +5,11 @@ Base.show(io::IO, A::NoiseTransport) = invoke(show, Tuple{typeof(io), Any}, io, 
 Base.show(io::IO, ::MIME"text/plain", A::NoiseTransport) = show(io, A)
 
 function interpolate!(W::NoiseTransport, u, p, t)
-    W.W(u, p, t, W.rv)
+    return W.W(u, p, t, W.rv)
 end
 
 function interpolate!(out1, out2, W::NoiseTransport, u, p, t)
-    W(out1, out2, u, p, t, W.rv)
+    return W(out1, out2, u, p, t, W.rv)
 end
 
 function calculate_step!(W::NoiseTransport, dt, u, p)

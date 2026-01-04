@@ -50,12 +50,12 @@
     sol3 = solve(prob2, EM(), dt = dt)
 
     prob = SDEProblem(f1, g1, ones(2), (0.0, 1.0))
-    sol4 = solve(prob, SRI(), abstol = 1e-6, save_noise = true)
+    sol4 = solve(prob, SRI(), abstol = 1.0e-6, save_noise = true)
 
     W2 = NoiseWrapper(sol4.W)
     prob2 = SDEProblem(f1, g1, ones(2), (0.0, 1.0), noise = W2)
-    sol5 = solve(prob2, SRIW1(), abstol = 1e-8)
+    sol5 = solve(prob2, SRIW1(), abstol = 1.0e-8)
 
     @test sol4.t != sol5.t
-    @test ≈(sol5[end], sol4[end], atol = 1e-1)
+    @test ≈(sol5[end], sol4[end], atol = 1.0e-1)
 end

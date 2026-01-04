@@ -26,7 +26,7 @@ Generate an array of random numbers from the standard normal distribution, match
 An array of random numbers from the standard normal distribution with the same size as proto
 """
 @inline function wiener_randn(rng::AbstractRNG, proto::AbstractArray{T}) where {T <: Number}
-    randn(rng, T, size(proto))
+    return randn(rng, T, size(proto))
 end
 """
     wiener_randn(rng::AbstractRNG, proto::T) where {T <: StaticArraysCore.SArray}
@@ -40,9 +40,11 @@ Generate a static array of random numbers from the standard normal distribution.
 # Returns
 A static array of the same type as proto filled with standard normal random numbers
 """
-@inline function wiener_randn(rng::AbstractRNG,
-        proto::T) where {T <: StaticArraysCore.SArray}
-    randn(rng, T)
+@inline function wiener_randn(
+        rng::AbstractRNG,
+        proto::T
+    ) where {T <: StaticArraysCore.SArray}
+    return randn(rng, T)
 end
 """
     wiener_randn(rng::AbstractRNG, proto)
@@ -57,7 +59,7 @@ Generate random numbers from the standard normal distribution for arbitrary type
 Random values converted to the same type as proto
 """
 @inline function wiener_randn(rng::AbstractRNG, proto)
-    convert(typeof(proto), randn(rng, size(proto)))
+    return convert(typeof(proto), randn(rng, size(proto)))
 end
 """
     wiener_randn!(rng::AbstractRNG, rand_vec::AbstractArray)
@@ -85,7 +87,7 @@ Fill an arbitrary container with random numbers from the standard normal distrib
 The modified rand_vec filled with standard normal random numbers
 """
 @inline function wiener_randn!(rng::AbstractRNG, rand_vec)
-    rand_vec .= Base.Broadcast.Broadcasted(randn, ())
+    return rand_vec .= Base.Broadcast.Broadcasted(randn, ())
 end
 
 """
@@ -104,7 +106,7 @@ which may not be supported on all GPU backends.
 The modified rand_vec filled with standard normal random numbers
 """
 @inline function wiener_randn!(rng::AbstractRNG, rand_vec::GPUArraysCore.AbstractGPUArray)
-    randn!(rand_vec)
+    return randn!(rand_vec)
 end
 
 """
@@ -121,10 +123,12 @@ Each complex number is generated as (a + bi)/√2 where a and b are independent 
 # Returns
 The modified array filled with complex normal random numbers
 """
-@inline function wiener_randn!(y::AbstractRNG,
-        x::AbstractArray{<:Complex{T}}) where {T <: Number}
+@inline function wiener_randn!(
+        y::AbstractRNG,
+        x::AbstractArray{<:Complex{T}}
+    ) where {T <: Number}
     # Remove loop
-    @inbounds for i in eachindex(x)
+    return @inbounds for i in eachindex(x)
         x[i] = convert(T, one_over_sqrt2) * (randn(y, T) + im * randn(y, T))
     end
 end
@@ -206,7 +210,7 @@ function VBT_BRIDGE(dW, W, W0, Wh, q, h, u, p, t, rng)
         return @fastmath sqrt((1 - q) * q * abs(h)) * wiener_randn(rng, dW) + q * (Wh + W0)
     else
         return @fastmath sqrt((1 - q) * q * abs(h)) * wiener_randn(rng, typeof(dW)) +
-                         q * (Wh + W0)
+            q * (Wh + W0)
     end
 end
 
@@ -221,7 +225,7 @@ WienerProcess!(t0,W0,Z0=nothing;kwargs...)
 ```
 """
 function WienerProcess(t0, W0, Z0 = nothing; kwargs...)
-    NoiseProcess{false}(t0, W0, Z0, WHITE_NOISE_DIST, WHITE_NOISE_BRIDGE; kwargs...)
+    return NoiseProcess{false}(t0, W0, Z0, WHITE_NOISE_DIST, WHITE_NOISE_BRIDGE; kwargs...)
 end
 
 @doc doc"""
@@ -238,7 +242,7 @@ Unlike WienerProcess, this uses the SimpleNoiseProcess and thus does not
 support adaptivity, but is slightly more lightweight.
 """
 function SimpleWienerProcess(t0, W0, Z0 = nothing; kwargs...)
-    SimpleNoiseProcess{false}(t0, W0, Z0, WHITE_NOISE_DIST, WHITE_NOISE_BRIDGE; kwargs...)
+    return SimpleNoiseProcess{false}(t0, W0, Z0, WHITE_NOISE_DIST, WHITE_NOISE_BRIDGE; kwargs...)
 end
 
 """
@@ -264,7 +268,7 @@ Modifies rand_vec to contain random values distributed as N(0, dt)
 function INPLACE_WHITE_NOISE_DIST(rand_vec, W, dt, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
     sqrtabsdt = @fastmath sqrt(abs(dt))
-    @.. rand_vec *= sqrtabsdt
+    return @.. rand_vec *= sqrtabsdt
 end
 """
     INPLACE_WHITE_NOISE_BRIDGE(rand_vec, W, W0, Wh, q, h, u, p, t, rng)
@@ -291,7 +295,7 @@ function INPLACE_WHITE_NOISE_BRIDGE(rand_vec, W, W0, Wh, q, h, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
     #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
     sqrtcoeff = @fastmath sqrt((1 - q) * q * abs(h))
-    @.. rand_vec = sqrtcoeff * rand_vec + q * Wh
+    return @.. rand_vec = sqrtcoeff * rand_vec + q * Wh
 end
 
 """
@@ -319,7 +323,7 @@ function INPLACE_VBT_BRIDGE(rand_vec, W, W0, Wh, q, h, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
     #rand_vec .= sqrt((1.-q).*q.*abs(h)).*rand_vec.+q.*Wh
     sqrtcoeff = @fastmath sqrt((1 - q) * q * abs(h))
-    @.. rand_vec = sqrtcoeff * rand_vec + q * (W0 + Wh)
+    return @.. rand_vec = sqrtcoeff * rand_vec + q * (W0 + Wh)
 end
 
 @doc doc"""
@@ -333,8 +337,10 @@ WienerProcess!(t0,W0,Z0=nothing;kwargs...)
 ```
 """
 function WienerProcess!(t0, W0, Z0 = nothing; kwargs...)
-    NoiseProcess{true}(t0, W0, Z0, INPLACE_WHITE_NOISE_DIST, INPLACE_WHITE_NOISE_BRIDGE;
-        kwargs...)
+    return NoiseProcess{true}(
+        t0, W0, Z0, INPLACE_WHITE_NOISE_DIST, INPLACE_WHITE_NOISE_BRIDGE;
+        kwargs...
+    )
 end
 
 @doc doc"""
@@ -351,8 +357,10 @@ Unlike WienerProcess, this uses the SimpleNoiseProcess and thus does not
 support adaptivity, but is slightly more lightweight.
 """
 function SimpleWienerProcess!(t0, W0, Z0 = nothing; kwargs...)
-    SimpleNoiseProcess{true}(t0, W0, Z0, INPLACE_WHITE_NOISE_DIST,
-        INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
+    return SimpleNoiseProcess{true}(
+        t0, W0, Z0, INPLACE_WHITE_NOISE_DIST,
+        INPLACE_WHITE_NOISE_BRIDGE; kwargs...
+    )
 end
 
 #### Real Valued Wiener Process. Ignores complex and the like
@@ -425,8 +433,10 @@ RealWienerProcess!(t0,W0,Z0=nothing;kwargs...)
 ```
 """
 function RealWienerProcess(t0, W0, Z0 = nothing; kwargs...)
-    NoiseProcess{false}(t0, W0, Z0, REAL_WHITE_NOISE_DIST, REAL_WHITE_NOISE_BRIDGE;
-        kwargs...)
+    return NoiseProcess{false}(
+        t0, W0, Z0, REAL_WHITE_NOISE_DIST, REAL_WHITE_NOISE_BRIDGE;
+        kwargs...
+    )
 end
 
 """
@@ -451,7 +461,7 @@ Modifies rand_vec to contain real-valued random numbers distributed as N(0, dt)
 function REAL_INPLACE_WHITE_NOISE_DIST(rand_vec, W, dt, u, p, t, rng)
     sqabsdt = @fastmath sqrt(abs(dt))
     wiener_randn!(rng, rand_vec)
-    @.. rand_vec *= sqabsdt
+    return @.. rand_vec *= sqabsdt
 end
 """
     REAL_INPLACE_WHITE_NOISE_BRIDGE(rand_vec, W, W0, Wh, q, h, u, p, t, rng)
@@ -475,7 +485,7 @@ Modifies rand_vec to contain real-valued interpolated noise values
 """
 function REAL_INPLACE_WHITE_NOISE_BRIDGE(rand_vec, W, W0, Wh, q, h, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
-    @.. rand_vec = @fastmath sqrt((1 - q) * q * abs(h)) * rand_vec + q * Wh
+    return @.. rand_vec = @fastmath sqrt((1 - q) * q * abs(h)) * rand_vec + q * Wh
 end
 
 @doc doc"""
@@ -491,6 +501,8 @@ RealWienerProcess!(t0,W0,Z0=nothing;kwargs...)
 ```
 """
 function RealWienerProcess!(t0, W0, Z0 = nothing; kwargs...)
-    NoiseProcess{true}(t0, W0, Z0, REAL_INPLACE_WHITE_NOISE_DIST,
-        REAL_INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
+    return NoiseProcess{true}(
+        t0, W0, Z0, REAL_INPLACE_WHITE_NOISE_DIST,
+        REAL_INPLACE_WHITE_NOISE_BRIDGE; kwargs...
+    )
 end

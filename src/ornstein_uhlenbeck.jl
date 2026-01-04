@@ -44,7 +44,7 @@ function (X::OrnsteinUhlenbeck)(dW, W, dt, u, p, t, rng) #dist
     end
     drift = X.μ .+ (W.curW .- X.μ) .* exp.(-X.Θ * dt)
     diffusion = X.σ .* sqrt.(-expm1.(-2X.Θ * dt) ./ (2X.Θ))
-    drift .+ rand_val .* diffusion .- W.curW
+    return drift .+ rand_val .* diffusion .- W.curW
 end
 
 #=
@@ -86,19 +86,19 @@ Interpolated OU process value that maintains the correct distribution
 - https://arxiv.org/pdf/1011.0067.pdf (page 18)
 """
 function ou_bridge(dW, ou, W, W0, Wh, q, h, u, p, t, rng)
-    if dW isa AbstractArray
+    return if dW isa AbstractArray
         rand_vec = wiener_randn(rng, dW)
         var = @. ou.σ^2 * sinh(ou.Θ * (h * (1.0 - q))) * (sinh(ou.Θ * (q * h))) /
-                 (ou.Θ * sinh(ou.Θ * h))
+            (ou.Θ * sinh(ou.Θ * h))
         @. (W0 - ou.μ) * (sinh(ou.Θ * (h * (1.0 - q))) / sinh(ou.Θ * h) - 1.0) +
-           (Wh + W0 - ou.μ) * sinh(ou.Θ * q * h) / sinh(ou.Θ * h) + sqrt(var) * rand_vec
+            (Wh + W0 - ou.μ) * sinh(ou.Θ * q * h) / sinh(ou.Θ * h) + sqrt(var) * rand_vec
 
     else
         var = ou.σ^2 * sinh(ou.Θ * (h * (1.0 - q))) * (sinh(ou.Θ * (q * h))) /
-              (ou.Θ * sinh(ou.Θ * h))
+            (ou.Θ * sinh(ou.Θ * h))
         (W0 - ou.μ) * (sinh(ou.Θ * (h * (1.0 - q))) / sinh(ou.Θ * h) - 1.0) +
-        (Wh + W0 - ou.μ) * sinh(ou.Θ * q * h) / sinh(ou.Θ * h) +
-        sqrt(var) * wiener_randn(rng, typeof(dW))
+            (Wh + W0 - ou.μ) * sinh(ou.Θ * q * h) / sinh(ou.Θ * h) +
+            sqrt(var) * wiener_randn(rng, typeof(dW))
     end
 end
 
@@ -126,10 +126,12 @@ Modifies rand_vec to contain the interpolated OU process values
 """
 function ou_bridge!(rand_vec, ou, W, W0, Wh, q, h, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
-    @.. rand_vec = (W0 - ou.μ) * (sinh(ou.Θ * (h * (1.0 - q))) / sinh(ou.Θ * h) - 1.0) +
-                   (Wh + W0 - ou.μ) * sinh(ou.Θ * q * h) / sinh(ou.Θ * h) +
-                   sqrt(ou.σ^2 * sinh(ou.Θ * (h * (1.0 - q))) * (sinh(ou.Θ * (q * h))) /
-                        (ou.Θ * sinh(ou.Θ * h))) * rand_vec
+    return @.. rand_vec = (W0 - ou.μ) * (sinh(ou.Θ * (h * (1.0 - q))) / sinh(ou.Θ * h) - 1.0) +
+        (Wh + W0 - ou.μ) * sinh(ou.Θ * q * h) / sinh(ou.Θ * h) +
+        sqrt(
+        ou.σ^2 * sinh(ou.Θ * (h * (1.0 - q))) * (sinh(ou.Θ * (q * h))) /
+            (ou.Θ * sinh(ou.Θ * h))
+    ) * rand_vec
 end
 
 @doc doc"""
@@ -151,9 +153,13 @@ OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
 """
 function OrnsteinUhlenbeckProcess(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
     ou = OrnsteinUhlenbeck(Θ, μ, σ)
-    NoiseProcess{false}(t0, W0, Z0, ou,
-        (rand_vec, W, W0, Wh, q, h, u, p, t,
-            rng) -> ou_bridge(rand_vec,
+    return NoiseProcess{false}(
+        t0, W0, Z0, ou,
+        (
+            rand_vec, W, W0, Wh, q, h, u, p, t,
+            rng,
+        ) -> ou_bridge(
+            rand_vec,
             ou,
             W,
             W0,
@@ -163,7 +169,9 @@ function OrnsteinUhlenbeckProcess(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
             u,
             p,
             t,
-            rng); kwargs...)
+            rng
+        ); kwargs...
+    )
 end
 
 """
@@ -204,8 +212,8 @@ Modifies rand_vec to contain the OU process increments
 """
 function (X::OrnsteinUhlenbeck!)(rand_vec, W, dt, u, p, t, rng) #dist!
     wiener_randn!(rng, rand_vec)
-    @.. rand_vec = X.μ + (W.curW - X.μ) * exp(-X.Θ * dt) +
-                   rand_vec * X.σ * sqrt((-expm1.(-2 * X.Θ .* dt)) / (2 * X.Θ)) - W.curW
+    return @.. rand_vec = X.μ + (W.curW - X.μ) * exp(-X.Θ * dt) +
+        rand_vec * X.σ * sqrt((-expm1.(-2 * X.Θ .* dt)) / (2 * X.Θ)) - W.curW
 end
 
 @doc doc"""
@@ -227,12 +235,16 @@ OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
 """
 function OrnsteinUhlenbeckProcess!(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
     ou = OrnsteinUhlenbeck!(Θ, μ, σ)
-    NoiseProcess{true}(t0,
+    return NoiseProcess{true}(
+        t0,
         W0,
         Z0,
         ou,
-        (rand_vec, W, W0, Wh, q, h, u, p, t,
-            rng) -> ou_bridge!(rand_vec,
+        (
+            rand_vec, W, W0, Wh, q, h, u, p, t,
+            rng,
+        ) -> ou_bridge!(
+            rand_vec,
             ou,
             W,
             W0,
@@ -242,6 +254,8 @@ function OrnsteinUhlenbeckProcess!(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
             u,
             p,
             t,
-            rng);
-        kwargs...)
+            rng
+        );
+        kwargs...
+    )
 end

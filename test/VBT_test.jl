@@ -57,12 +57,12 @@
     w0 = zeros(1_000_000)
     W = VirtualBrownianTree(0.0, w0; tree_depth = 0)
     # size = 4*W0 to store W0, Wend, curW, and dW
-    @test isapprox(Base.summarysize(W) / Base.summarysize(w0), 4, rtol = 1e-4)
+    @test isapprox(Base.summarysize(W) / Base.summarysize(w0), 4, rtol = 1.0e-4)
 
     prob = NoiseProblem(W, (0.0, 1.0))
     sol = solve(prob; dt = 1 / 10)
 
-    @test isapprox(Base.summarysize(sol) / Base.summarysize(w0), 4, rtol = 1e-4)
+    @test isapprox(Base.summarysize(sol) / Base.summarysize(w0), 4, rtol = 1.0e-4)
 
     # test reproducibility
     f = (u, p, t) -> 1.01u
@@ -127,5 +127,5 @@
     sol3 = solve(prob2, EM(), dt = dt, save_noise = true)
     @test sol1.W.W ≈ sol2.W.W
     @test sol2.u ≈ sol3.u
-    @test sol2.u≈reverse(sol1.u) rtol=0.01
+    @test sol2.u ≈ reverse(sol1.u) rtol = 0.01
 end

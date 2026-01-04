@@ -21,7 +21,7 @@ function BrownianBridge(t0, tend, W0, Wend, Z0 = nothing, Zend = nothing; kwargs
     end
     push!(W.S₁, (h, Wh, Zh))
     push!(W.reinitS₁, (h, Wh, Zh))
-    W
+    return W
 end
 
 @doc doc"""
@@ -47,7 +47,7 @@ function BrownianBridge!(t0, tend, W0, Wh, Z0 = nothing, Zh = nothing; kwargs...
     end
     push!(W.S₁, (h, Wh, Zh))
     push!(W.reinitS₁, (h, Wh, Zh))
-    W
+    return W
 end
 
 @doc doc"""
@@ -71,8 +71,10 @@ useful for financial modeling where asset prices must match observed values.
 bridge = GeometricBrownianBridge(0.05, 0.2, 0.0, 1.0, 100.0, 110.0)
 ```
 """
-function GeometricBrownianBridge(μ, σ, t0, tend, W0, Wend, Z0 = nothing, Zend = nothing;
-        kwargs...)
+function GeometricBrownianBridge(
+        μ, σ, t0, tend, W0, Wend, Z0 = nothing, Zend = nothing;
+        kwargs...
+    )
     W = GeometricBrownianMotionProcess(μ, σ, t0, W0, Z0; kwargs...)
     h = tend - t0
     Wh = Wend - W0
@@ -83,7 +85,7 @@ function GeometricBrownianBridge(μ, σ, t0, tend, W0, Wend, Z0 = nothing, Zend 
     end
     push!(W.S₁, (h, Wh, Zh))
     push!(W.reinitS₁, (h, Wh, Zh))
-    W
+    return W
 end
 
 @doc doc"""
@@ -91,8 +93,10 @@ In-place version of `GeometricBrownianBridge`.
 
 See `GeometricBrownianBridge` for details.
 """
-function GeometricBrownianBridge!(μ, σ, t0, tend, W0, Wh, Z0 = nothing, Zh = nothing;
-        kwargs...)
+function GeometricBrownianBridge!(
+        μ, σ, t0, tend, W0, Wh, Z0 = nothing, Zh = nothing;
+        kwargs...
+    )
     W = GeometricBrownianMotionProcess!(μ, σ, t0, W0, Z0; kwargs...)
     h = tend - t0
     Wh .-= W0
@@ -103,7 +107,7 @@ function GeometricBrownianBridge!(μ, σ, t0, tend, W0, Wh, Z0 = nothing, Zh = n
     end
     push!(W.S₁, (h, Wh, Zh))
     push!(W.reinitS₁, (h, Wh, Zh))
-    W
+    return W
 end
 
 @doc doc"""
@@ -131,7 +135,7 @@ function CompoundPoissonBridge(rate, t0, tend, W0, Wend; kwargs...)
     Wh = Wend - W0
     push!(W.S₁, (h, Wh, nothing))
     push!(W.reinitS₁, (h, Wh, nothing))
-    W
+    return W
 end
 
 @doc doc"""
@@ -145,7 +149,7 @@ function CompoundPoissonBridge!(rate, t0, tend, W0, Wh; kwargs...)
     Wh .-= W0
     push!(W.S₁, (h, Wh, nothing))
     push!(W.reinitS₁, (h, Wh, nothing))
-    W
+    return W
 end
 
 @doc doc"""
@@ -176,7 +180,7 @@ function OrnsteinUhlenbeckBridge(Θ, μ, σ, t0, tend, W0, Wend, Z0 = nothing; k
     Wh = Wend .- W0
     push!(ou.S₁, (h, Wh, nothing))
     push!(ou.reinitS₁, (h, Wh, nothing))
-    ou
+    return ou
 end
 
 @doc doc"""
@@ -190,5 +194,5 @@ function OrnsteinUhlenbeckBridge!(Θ, μ, σ, t0, tend, W0, Wend, Z0 = nothing; 
     Wh = Wend .- W0
     push!(ou.S₁, (h, Wh, nothing))
     push!(ou.reinitS₁, (h, Wh, nothing))
-    ou
+    return ou
 end

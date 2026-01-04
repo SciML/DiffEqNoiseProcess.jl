@@ -11,13 +11,13 @@
     qs = 0:0.1:1
     for i in 2:10
         q = qs[i]
-        @test ≈(timestep_mean(sol, i), q, atol = 1e-2)
-        @test ≈(timestep_meanvar(sol, i)[2], (1 - q) * q, atol = 1e-2)
+        @test ≈(timestep_mean(sol, i), q, atol = 1.0e-2)
+        @test ≈(timestep_meanvar(sol, i)[2], (1 - q) * q, atol = 1.0e-2)
     end
-    @test ≈(timestep_mean(sol, 1)[1], 0.0, atol = 1e-16)
-    @test ≈(timestep_meanvar(sol, 1)[2], 0.0, atol = 1e-16)
-    @test ≈(timestep_mean(sol, 11)[1], 1.0, atol = 1e-16)
-    @test ≈(timestep_meanvar(sol, 11)[2], 0.0, atol = 1e-16)
+    @test ≈(timestep_mean(sol, 1)[1], 0.0, atol = 1.0e-16)
+    @test ≈(timestep_meanvar(sol, 1)[2], 0.0, atol = 1.0e-16)
+    @test ≈(timestep_mean(sol, 11)[1], 1.0, atol = 1.0e-16)
+    @test ≈(timestep_meanvar(sol, 11)[2], 0.0, atol = 1.0e-16)
 
     μ = 0.10500000000000001
     σ = 0.1
@@ -38,8 +38,8 @@
 
         m, v = timestep_meanvar(sol, i)
 
-        @test ≈(m, exp(mean + var / 2), atol = 1e-2)
-        @test ≈(v, (exp(var) - 1) * exp(2 * mean + var), atol = 1e-2)
+        @test ≈(m, exp(mean + var / 2), atol = 1.0e-2)
+        @test ≈(v, (exp(var) - 1) * exp(2 * mean + var), atol = 1.0e-2)
     end
 
     Random.seed!(100)
@@ -55,13 +55,13 @@
     for i in 2:10
         q = qs[i]
         # Mean and variance of binomial matches that of the Brownian bridge!
-        @test ≈(timestep_mean(sol, i), q, atol = 1e-2)
-        @test ≈(timestep_meanvar(sol, i)[2], (1 - q) * q, atol = 1e-2)
+        @test ≈(timestep_mean(sol, i), q, atol = 1.0e-2)
+        @test ≈(timestep_meanvar(sol, i)[2], (1 - q) * q, atol = 1.0e-2)
     end
-    @test ≈(timestep_mean(sol, 1)[1], 0.0, atol = 1e-16)
-    @test ≈(timestep_meanvar(sol, 1)[2], 0.0, atol = 1e-16)
-    @test ≈(timestep_mean(sol, 11)[1], 1.0, atol = 1e-16)
-    @test ≈(timestep_meanvar(sol, 11)[2], 0.0, atol = 1e-16)
+    @test ≈(timestep_mean(sol, 1)[1], 0.0, atol = 1.0e-16)
+    @test ≈(timestep_meanvar(sol, 1)[2], 0.0, atol = 1.0e-16)
+    @test ≈(timestep_mean(sol, 11)[1], 1.0, atol = 1.0e-16)
+    @test ≈(timestep_meanvar(sol, 11)[2], 0.0, atol = 1.0e-16)
 
     # check VBT distributional properties
 
@@ -79,18 +79,18 @@
     qs = 0:0.125:1
     for i in 2:8
         q = qs[i]
-        @test ≈(timestep_mean(sol, i), q, atol = 1e-2)
-        @test ≈(timestep_meanvar(sol, i)[2], (1 - q) * q, atol = 1e-2)
+        @test ≈(timestep_mean(sol, i), q, atol = 1.0e-2)
+        @test ≈(timestep_meanvar(sol, i)[2], (1 - q) * q, atol = 1.0e-2)
     end
-    @test ≈(timestep_mean(sol, 1)[1], 0.0, atol = 1e-16)
-    @test ≈(timestep_meanvar(sol, 1)[2], 0.0, atol = 1e-16)
-    @test ≈(timestep_mean(sol, Int(2^(W.tree_depth) + 1))[1], W.W[end], atol = 1e-16)
-    @test ≈(timestep_meanvar(sol, Int(2^(W.tree_depth) + 1))[2], 0.0, atol = 1e-16)
+    @test ≈(timestep_mean(sol, 1)[1], 0.0, atol = 1.0e-16)
+    @test ≈(timestep_meanvar(sol, 1)[2], 0.0, atol = 1.0e-16)
+    @test ≈(timestep_mean(sol, Int(2^(W.tree_depth) + 1))[1], W.W[end], atol = 1.0e-16)
+    @test ≈(timestep_meanvar(sol, Int(2^(W.tree_depth) + 1))[2], 0.0, atol = 1.0e-16)
 end
 
 @testset "Scalar Ou-Bridge" begin
     using DiffEqNoiseProcess,
-          DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis, StatsBase, Statistics
+        DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis, StatsBase, Statistics
     sols_forward = []
     dt = 0.125
     t_max = 20.0
@@ -136,11 +136,11 @@ end
         end
     end
 
-    @test all(isapprox.(mean(sols_forward), mean(sols_interpolated); atol = 1e-3))
-    @test all(isapprox.(mean(sols_forward), mean(sols_solver); atol = 1e-3))
+    @test all(isapprox.(mean(sols_forward), mean(sols_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(mean(sols_forward), mean(sols_solver); atol = 1.0e-3))
 
-    @test all(isapprox.(std(sols_forward), std(sols_interpolated); atol = 1e-3))
-    @test all(isapprox.(std(sols_forward), std(sols_solver); atol = 1e-3))
+    @test all(isapprox.(std(sols_forward), std(sols_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(std(sols_forward), std(sols_solver); atol = 1.0e-3))
 end
 
 @testset "Vector Ou-Bridge" begin
@@ -181,13 +181,15 @@ end
     st = []
     for i in 1:500_000
         local s = solve(prob; dt = t_max)
-        local ou_bridge = OrnsteinUhlenbeckBridge([1.5],
+        local ou_bridge = OrnsteinUhlenbeckBridge(
+            [1.5],
             [0.25],
             [0.2],
             0.0,
             t_max,
             [0.0],
-            s.u[end])
+            s.u[end]
+        )
         local s = solve(NoiseProblem(ou_bridge, (0.0, t_max)); dt = 0.125)
         push!(sols_solver, s.u)
         if i == 1
@@ -205,11 +207,11 @@ end
         [y[1] for y in x]
     end
 
-    @test all(isapprox.(mean(sols_forward), mean(sols_interpolated); atol = 1e-3))
-    @test all(isapprox.(mean(sols_forward), mean(sols_solver); atol = 1e-3))
+    @test all(isapprox.(mean(sols_forward), mean(sols_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(mean(sols_forward), mean(sols_solver); atol = 1.0e-3))
 
-    @test all(isapprox.(std(sols_forward), std(sols_interpolated); atol = 1e-3))
-    @test all(isapprox.(std(sols_forward), std(sols_solver); atol = 1e-3))
+    @test all(isapprox.(std(sols_forward), std(sols_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(std(sols_forward), std(sols_solver); atol = 1.0e-3))
 end
 
 @testset "Inplace OU-Bridge" begin
@@ -250,13 +252,15 @@ end
     st = []
     for i in 1:500_000
         local s = solve(prob; dt = t_max)
-        local ou_bridge = OrnsteinUhlenbeckBridge!([1.5],
+        local ou_bridge = OrnsteinUhlenbeckBridge!(
+            [1.5],
             [0.25],
             [0.2],
             0.0,
             t_max,
             [0.0],
-            s.u[end])
+            s.u[end]
+        )
         local s = solve(NoiseProblem(ou_bridge, (0.0, t_max)); dt = 0.125)
         push!(sols_solver, s.u)
         if i == 1
@@ -274,9 +278,9 @@ end
         [y[1] for y in x]
     end
 
-    @test all(isapprox.(mean(sols_forward), mean(sols_interpolated); atol = 1e-3))
-    @test all(isapprox.(mean(sols_forward), mean(sols_solver); atol = 1e-3))
+    @test all(isapprox.(mean(sols_forward), mean(sols_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(mean(sols_forward), mean(sols_solver); atol = 1.0e-3))
 
-    @test all(isapprox.(std(sols_forward), std(sols_interpolated); atol = 1e-3))
-    @test all(isapprox.(std(sols_forward), std(sols_solver); atol = 1e-3))
+    @test all(isapprox.(std(sols_forward), std(sols_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(std(sols_forward), std(sols_solver); atol = 1.0e-3))
 end

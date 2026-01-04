@@ -8,16 +8,20 @@ Random.seed!(seed);
         rand_prototype2 = similar(rand_prototype, Int(m * (m - 1) / 2))
         rand_prototype2 .= false
         Random.seed!(seed)
-        W = WienerProcess!(0.0, rand_prototype, rand_prototype2,
+        W = WienerProcess!(
+            0.0, rand_prototype, rand_prototype2,
             save_everystep = true,
-            rng = Random123.Threefry4x())
+            rng = Random123.Threefry4x()
+        )
         prob = NoiseProblem(W, (0.0, 1.0))
         sol = solve(prob; dt = 0.2)
 
         Random.seed!(seed)
-        Woop = WienerProcess(0.0, rand_prototype, rand_prototype2,
+        Woop = WienerProcess(
+            0.0, rand_prototype, rand_prototype2,
             save_everystep = true,
-            rng = Random123.Threefry4x())
+            rng = Random123.Threefry4x()
+        )
         proboop = NoiseProblem(Woop, (0.0, 1.0))
         soloop = solve(proboop; dt = 0.2)
 
