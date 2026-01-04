@@ -20,7 +20,7 @@ Uses binomial thinning to distribute jumps appropriately between endpoints.
 Number of jumps distributed according to binomial thinning
 """
 function cpp_bridge(dW, cpp, W, W0, Wh, q, h, u, p, t, rng)
-    rand.(rng, Distributions.Binomial.(Int.(Wh), float.(q)))
+    return rand.(rng, Distributions.Binomial.(Int.(Wh), float.(q)))
 end
 """
     cpp_bridge!(rand_vec, cpp, W, W0, Wh, q, h, u, p, t, rng)
@@ -31,7 +31,7 @@ In-place version of `cpp_bridge`.
 Modifies rand_vec to contain binomially distributed jump counts
 """
 function cpp_bridge!(rand_vec, cpp, W, W0, Wh, q, h, u, p, t, rng)
-    rand_vec .= rand.(rng, Distributions.Binomial.(Int.(Wh), float.(q)))
+    return rand_vec .= rand.(rng, Distributions.Binomial.(Int.(Wh), float.(q)))
 end
 
 """
@@ -73,12 +73,18 @@ mutable struct CompoundPoissonProcess{R, CR}
     computerates::Bool
     function CompoundPoissonProcess(rate, t0, W0; computerates = true, kwargs...)
         cpp = new{typeof(rate), typeof(W0)}(rate, W0, computerates)
-        NoiseProcess{false}(t0, W0, nothing, cpp,
-            (dW, W, W0, Wh, q, h, u, p, t,
-                rng) -> cpp_bridge(dW, cpp, W,
+        return NoiseProcess{false}(
+            t0, W0, nothing, cpp,
+            (
+                dW, W, W0, Wh, q, h, u, p, t,
+                rng,
+            ) -> cpp_bridge(
+                dW, cpp, W,
                 W0, Wh, q, h,
-                u, p, t, rng);
-            continuous = false, cache = cpp, kwargs...)
+                u, p, t, rng
+            );
+            continuous = false, cache = cpp, kwargs...
+        )
     end
 end
 """
@@ -103,7 +109,7 @@ Number of jumps in the interval dt
 """
 function (P::CompoundPoissonProcess)(dW, W, dt, u, p, t, rng)
     P.computerates && (P.currate = P.rate(u, p, t))
-    PoissonRandom.pois_rand.(rng, dt .* P.currate)
+    return PoissonRandom.pois_rand.(rng, dt .* P.currate)
 end
 
 """
@@ -124,15 +130,21 @@ struct CompoundPoissonProcess!{R, CR}
     computerates::Bool
     function CompoundPoissonProcess!(rate, t0, W0; computerates = true, kwargs...)
         cpp = new{typeof(rate), typeof(W0)}(rate, copy(W0), computerates)
-        NoiseProcess{true}(t0, W0, nothing, cpp,
-            (rand_vec, W, W0, Wh, q, h, u, p, t,
-                rng) -> cpp_bridge!(rand_vec,
+        return NoiseProcess{true}(
+            t0, W0, nothing, cpp,
+            (
+                rand_vec, W, W0, Wh, q, h, u, p, t,
+                rng,
+            ) -> cpp_bridge!(
+                rand_vec,
                 cpp, W,
                 W0, Wh,
                 q, h, u,
                 p, t,
-                rng);
-            continuous = false, cache = cpp, kwargs...)
+                rng
+            );
+            continuous = false, cache = cpp, kwargs...
+        )
     end
 end
 """
@@ -156,5 +168,5 @@ Modifies rand_vec to contain Poisson-distributed jump counts
 """
 function (P::CompoundPoissonProcess!)(rand_vec, W, dt, u, p, t, rng)
     P.computerates && P.rate(P.currate, u, p, t)
-    @. rand_vec = PoissonRandom.pois_rand(rng, dt * P.currate)
+    return @. rand_vec = PoissonRandom.pois_rand(rng, dt * P.currate)
 end

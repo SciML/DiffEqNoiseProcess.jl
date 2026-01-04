@@ -89,7 +89,7 @@ end
     u₀ = [0.75, 0.5]
     p = [-1.5, 0.05, 0.2, 0.01]
     trange = (0.0, 0.1)
-    dtmix = trange[2] / 1e3
+    dtmix = trange[2] / 1.0e3
 
     function f_mixing!(du, u, p, t)
         du[1] = p[1] * u[1] + p[2] * u[2]
@@ -137,25 +137,31 @@ end
 
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = 1000)
     checkWrapper = solve(
-        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise),
+        remake(
+            _sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise
+        ),
         _sol.alg, save_noise = false;
-        dt = abs(_sol.W.dt))
+        dt = abs(_sol.W.dt)
+    )
 
-    @test checkWrapper.u[end - 1]≈soloop.u[end] rtol=1e-10
-    @test checkWrapper.W.W[end]≈soloop.W.W[end] rtol=1e-16
+    @test checkWrapper.u[end - 1] ≈ soloop.u[end] rtol = 1.0e-10
+    @test checkWrapper.W.W[end] ≈ soloop.W.W[end] rtol = 1.0e-16
 
     @show checkWrapper.u[end] - soloop.u[end]
 
     forwardnoise = DiffEqNoiseProcess.NoiseGrid(_sol.W.t[1000:1001], _sol.W.W[1000:1001])
     checkGrid = solve(
-        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise),
+        remake(
+            _sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise
+        ),
         _sol.alg, save_noise = false;
-        dt = abs(_sol.W.dt))
+        dt = abs(_sol.W.dt)
+    )
 
-    @test checkGrid.u[end - 1]≈soloop.u[end] rtol=1e-10
-    @test checkGrid.W.W[end]≈soloop.W.W[end] rtol=1e-16
+    @test checkGrid.u[end - 1] ≈ soloop.u[end] rtol = 1.0e-10
+    @test checkGrid.W.W[end] ≈ soloop.W.W[end] rtol = 1.0e-16
 
     @show checkGrid.u[end] - soloop.u[end]
 
@@ -167,25 +173,31 @@ end
 
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = 1000)
     checkWrapper = solve(
-        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise),
+        remake(
+            _sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise
+        ),
         _sol.alg, save_noise = false;
-        dt = abs(_sol.W.dt))
+        dt = abs(_sol.W.dt)
+    )
 
-    @test checkWrapper.u[end - 1]≈sol.u[end] rtol=1e-10
-    @test checkWrapper.W.W[end]≈sol.W.W[end] rtol=1e-16
+    @test checkWrapper.u[end - 1] ≈ sol.u[end] rtol = 1.0e-10
+    @test checkWrapper.W.W[end] ≈ sol.W.W[end] rtol = 1.0e-16
 
     @show checkWrapper.u[end] - sol.u[end]
 
     forwardnoise = DiffEqNoiseProcess.NoiseGrid(_sol.W.t[1000:1001], _sol.W.W[1000:1001])
     checkGrid = solve(
-        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise),
+        remake(
+            _sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise
+        ),
         _sol.alg, save_noise = false;
-        dt = abs(_sol.W.dt))
+        dt = abs(_sol.W.dt)
+    )
 
-    @test checkGrid.u[end - 1]≈sol.u[end] rtol=1e-10
-    @test checkGrid.W.W[end]≈sol.W.W[end] rtol=1e-16
+    @test checkGrid.u[end - 1] ≈ sol.u[end] rtol = 1.0e-10
+    @test checkGrid.W.W[end] ≈ sol.W.W[end] rtol = 1.0e-16
 
     @show checkGrid.u[end] - sol.u[end]
 end
@@ -195,7 +207,7 @@ end
     u₀ = [1.0]
     p = [1.1, 0.87]
     trange = (0.0, 1.0)
-    dtmix = trange[2] / 1e4
+    dtmix = trange[2] / 1.0e4
 
     function f!(du, u, p, t)
         du[1] = p[1] * u[1]
@@ -227,7 +239,7 @@ end
 
     @test soloop.u ≈ sol.u
 
-    @test length(sol.u) != 1e4 + 1
+    @test length(sol.u) != 1.0e4 + 1
 
     indx1 = Int(length(sol.t) - 100)
     interval = (sol.t[indx1], sol.t[end])
@@ -241,19 +253,22 @@ end
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = indx1)
 
     checkWrapper = solve(
-        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise),
+        remake(
+            _sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise
+        ),
         _sol.alg, save_noise = false;
         dt = abs(_sol.W.t[end - 1] - _sol.W.t[end - 2]),
-        tstops = sol.t[indx1:end])
+        tstops = sol.t[indx1:end]
+    )
 
     @test length(checkWrapper.u) != length(sol.u)
 
-    @test checkWrapper.u[1]≈sol.u[indx1] rtol=1e-10
-    @test checkWrapper.u[end - 1]≈sol.u[end - 1] rtol=1e-10
-    @test checkWrapper.u[end]≈sol.u[end] rtol=1e-10
-    @test checkWrapper.W.W[end]≈sol.W.W[end] rtol=1e-10
-    @test checkWrapper(sol.t[indx1:end]).u≈sol.u[indx1:end] rtol=1e-10
+    @test checkWrapper.u[1] ≈ sol.u[indx1] rtol = 1.0e-10
+    @test checkWrapper.u[end - 1] ≈ sol.u[end - 1] rtol = 1.0e-10
+    @test checkWrapper.u[end] ≈ sol.u[end] rtol = 1.0e-10
+    @test checkWrapper.W.W[end] ≈ sol.W.W[end] rtol = 1.0e-10
+    @test checkWrapper(sol.t[indx1:end]).u ≈ sol.u[indx1:end] rtol = 1.0e-10
 
     _sol = deepcopy(soloop)
     sol.W.save_everystep = false
@@ -262,19 +277,22 @@ end
     forwardnoise = DiffEqNoiseProcess.NoiseWrapper(_sol.W, indx = indx1)
 
     checkWrapper = solve(
-        remake(_sol.prob, tspan = interval, u0 = _sol(interval[1]),
-            noise = forwardnoise),
+        remake(
+            _sol.prob, tspan = interval, u0 = _sol(interval[1]),
+            noise = forwardnoise
+        ),
         _sol.alg, save_noise = false;
         dt = abs(_sol.W.t[end - 1] - _sol.W.t[end - 2]),
-        tstops = sol.t[indx1:end])
+        tstops = sol.t[indx1:end]
+    )
 
     @test length(checkWrapper.u) != length(soloop.u)
 
-    @test checkWrapper.u[1]≈sol.u[indx1] rtol=1e-10
-    @test checkWrapper.u[end - 1]≈soloop.u[end - 1] rtol=1e-10
-    @test checkWrapper.u[end]≈soloop.u[end] rtol=1e-10
-    @test checkWrapper.W.W[end]≈soloop.W.W[end] rtol=1e-10
-    @test checkWrapper(soloop.t[indx1:end]).u≈soloop.u[indx1:end] rtol=1e-10
+    @test checkWrapper.u[1] ≈ sol.u[indx1] rtol = 1.0e-10
+    @test checkWrapper.u[end - 1] ≈ soloop.u[end - 1] rtol = 1.0e-10
+    @test checkWrapper.u[end] ≈ soloop.u[end] rtol = 1.0e-10
+    @test checkWrapper.W.W[end] ≈ soloop.W.W[end] rtol = 1.0e-10
+    @test checkWrapper(soloop.t[indx1:end]).u ≈ soloop.u[indx1:end] rtol = 1.0e-10
 end
 
 @testset "Diagonal to Non-diagonal NoiseProcess conversion" begin
@@ -284,9 +302,11 @@ end
     save_noise = true
     _seed = 0x952197dfddfdce1f
 
-    W = WienerProcess(t, rand_prototype,
+    W = WienerProcess(
+        t, rand_prototype,
         save_everystep = save_noise,
-        rng = Random.default_rng())
+        rng = Random.default_rng()
+    )
     prob = NoiseProblem(W, (0.0, 1.0))
     W2 = solve(prob; dt = 0.1)
     bW = DiffEqNoiseProcess.vec_NoiseProcess(W2)

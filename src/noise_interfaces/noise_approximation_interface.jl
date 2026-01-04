@@ -3,11 +3,11 @@ end
 
 function interpolate!(W::NoiseApproximation, t)
     W.Z !== nothing ? z = W.source2.sol(t) : z = nothing
-    W.source1.sol(t), z
+    return W.source1.sol(t), z
 end
 
 function interpolate!(out1, out2, W::NoiseApproximation, t)
-    W.source1.sol(out1, t), W.source2.sol(out2, t)
+    return W.source1.sol(out1, t), W.source2.sol(out2, t)
 end
 
 function calculate_step!(W::NoiseApproximation, dt, u, p)

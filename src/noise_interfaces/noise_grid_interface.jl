@@ -2,18 +2,18 @@ function save_noise!(W::NoiseGrid)
 end
 
 function linear_interpolant(Θ, dt, u0::Number, u1)
-    (1 - Θ) * u0 + Θ * u1
+    return (1 - Θ) * u0 + Θ * u1
 end
 
 function linear_interpolant!(out, Θ, dt, u0, u1)
     Θm1 = (1 - Θ)
-    out .= Θm1 .* u0 .+ Θ .* u1
+    return out .= Θm1 .* u0 .+ Θ .* u1
 end
 
 function linear_interpolant(Θ, dt, u0::AbstractArray, u1)
     out = similar(u0)
     linear_interpolant!(out, Θ, dt, u0, u1)
-    out
+    return out
 end
 
 function interpolate!(W::NoiseGrid, t)
@@ -29,14 +29,20 @@ function interpolate!(W::NoiseGrid, t)
 
     # check if guess W.cur_time[] += tdir returned t correctly
     good_guess = (t isa Union{Rational, Integer} && ts[W.cur_time[]] == t) ||
-                 (!(t isa Union{Rational, Integer}) &&
-                  (isapprox(t, ts[W.cur_time[]]; atol = 100eps(typeof(t)),
-        rtol = 100eps(t))))
+        (
+        !(t isa Union{Rational, Integer}) &&
+            (
+            isapprox(
+                t, ts[W.cur_time[]]; atol = 100eps(typeof(t)),
+                rtol = 100eps(t)
+            )
+        )
+    )
 
     if good_guess
         @inbounds val1 = timeseries[W.cur_time[]]
         @inbounds timeseries2 !== nothing ? val2 = timeseries2[W.cur_time[]] :
-                  val2 = nothing
+            val2 = nothing
     elseif ts[W.cur_time[] - 1] == t # Can happen if it's the first value!
         val1 = timeseries[W.cur_time[] - 1]
         timeseries2 !== nothing ? val2 = timeseries2[W.cur_time[] - 1] : val2 = nothing
@@ -48,7 +54,7 @@ function interpolate!(W::NoiseGrid, t)
         end
         W.cur_time[] = i
         @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
-                     (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
+                (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
             # guess was wrong but still on grid
             val1 = timeseries[i]
             timeseries2 !== nothing ? val2 = timeseries2[i] : val2 = nothing
@@ -60,11 +66,11 @@ function interpolate!(W::NoiseGrid, t)
             Θ = (t - ts[i - 1]) / dt
             val1 = linear_interpolant(Θ, dt, timeseries[i - 1], timeseries[i])
             timeseries2 !== nothing ?
-            val2 = linear_interpolant(Θ, dt, timeseries2[i - 1], timeseries2[i]) :
-            val2 = nothing
+                val2 = linear_interpolant(Θ, dt, timeseries2[i - 1], timeseries2[i]) :
+                val2 = nothing
         end
     end
-    val1, val2
+    return val1, val2
 end
 
 function interpolate!(out1, out2, W::NoiseGrid, t)
@@ -81,11 +87,17 @@ function interpolate!(out1, out2, W::NoiseGrid, t)
 
     # check if guess W.cur_time[] += tdir returned t correctly
     good_guess = (t isa Union{Rational, Integer} && ts[W.cur_time[]] == t) ||
-                 (!(t isa Union{Rational, Integer}) &&
-                  (isapprox(t, ts[W.cur_time[]]; atol = 100eps(typeof(t)),
-        rtol = 100eps(t))))
+        (
+        !(t isa Union{Rational, Integer}) &&
+            (
+            isapprox(
+                t, ts[W.cur_time[]]; atol = 100eps(typeof(t)),
+                rtol = 100eps(t)
+            )
+        )
+    )
 
-    if good_guess
+    return if good_guess
         @inbounds copyto!(out1, timeseries[W.cur_time[]])
         @inbounds timeseries2 !== nothing && copyto!(out2, timeseries2[W.cur_time[]])
     elseif ts[W.cur_time[] - 1] == t # Can happen if it's the first value!
@@ -99,7 +111,7 @@ function interpolate!(out1, out2, W::NoiseGrid, t)
         end
         W.cur_time[] = i
         @inbounds if (t isa Union{Rational, Integer} && ts[i] == t) ||
-                     (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
+                (isapprox(t, ts[i]; atol = 100eps(typeof(t)), rtol = 100eps(t)))
             # guess was wrong but still on grid
             copyto!(out1, timeseries[i])
             timeseries2 !== nothing && copyto!(out2, timeseries2[i])
@@ -134,7 +146,7 @@ function calculate_step!(W::NoiseGrid, dt, u, p)
             W.dZ = new_Z - W.curZ
         end
     end
-    W.dt = dt
+    return W.dt = dt
 end
 
 function accept_step!(W::NoiseGrid, dt, u, p, setup_next = true)
@@ -162,7 +174,7 @@ function accept_step!(W::NoiseGrid, dt, u, p, setup_next = true)
         end
     else
         if sign(W.dt) * (W.curt + W.dt) >
-           sign(W.dt) * (W.t[end] + sign(W.dt) * 10eps(typeof(dt)))
+                sign(W.dt) * (W.t[end] + sign(W.dt) * 10eps(typeof(dt)))
             setup_next = false
             W.step_setup = false
         end

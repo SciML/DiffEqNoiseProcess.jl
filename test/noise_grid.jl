@@ -32,8 +32,12 @@
 
     dt = 0.001
     t = 0:dt:1
-    brownian_values2 = cumsum([[zeros(8)];
-                               [sqrt(dt) * randn(8) for i in 1:(length(t) - 1)]])
+    brownian_values2 = cumsum(
+        [
+            [zeros(8)];
+            [sqrt(dt) * randn(8) for i in 1:(length(t) - 1)]
+        ]
+    )
     W = NoiseGrid(t, brownian_values2)
     prob = NoiseProblem(W, (0.0, 1.0))
     sol = solve(prob; dt = 0.1)

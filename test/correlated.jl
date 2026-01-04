@@ -35,12 +35,14 @@ using StaticArrays
     ensemble_prob = EnsembleProblem(prob, output_func = output_func)
     @time sol = Array(solve(ensemble_prob, dt = dt, trajectories = 1_000_000))
 
-    @test zero(mean(sol, dims = 2)[:])≈mean(sol, dims = 2)[:] atol=1e-2
-    @test W.W≈cov(sol, dims = 2) / dt rtol=1e-2
+    @test zero(mean(sol, dims = 2)[:]) ≈ mean(sol, dims = 2)[:] atol = 1.0e-2
+    @test W.W ≈ cov(sol, dims = 2) / dt rtol = 1.0e-2
 
     # with StaticArrays
-    Γ = @SMatrix [1.0 ρ
-                  ρ 1.0]
+    Γ = @SMatrix [
+        1.0 ρ
+        ρ 1.0
+    ]
     W = CorrelatedWienerProcess(Γ, 0.0, @SVector(zeros(2)), @SVector(zeros(2)))
 
     dt = 0.1

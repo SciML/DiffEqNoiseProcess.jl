@@ -13,24 +13,26 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW≈expected_mean atol=0.1
-        @test varW≈expected_variance rtol=0.1
+        @test meanW ≈ expected_mean atol = 0.1
+        @test varW ≈ expected_variance rtol = 0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
-        @test mean(sol)≈expected_mean atol=0.1
-        @test var(sol)≈expected_variance atol=0.1
+        @test mean(sol) ≈ expected_mean atol = 0.1
+        @test var(sol) ≈ expected_variance atol = 0.1
 
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
-        ensemble_probW = EnsembleProblem(prob,
-            output_func = (sol, i) -> (sol.W.W[end], false))
+        ensemble_probW = EnsembleProblem(
+            prob,
+            output_func = (sol, i) -> (sol.W.W[end], false)
+        )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
-        @test mean(solW_at_1)≈expected_mean atol=0.1
-        @test var(solW_at_1)≈expected_variance atol=0.1
+        @test mean(solW_at_1) ≈ expected_mean atol = 0.1
+        @test var(solW_at_1) ≈ expected_variance atol = 0.1
     end
 
     @testset "GBM" begin
@@ -45,24 +47,26 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW≈expected_mean atol=0.1
-        @test varW≈expected_variance rtol=0.1
+        @test meanW ≈ expected_mean atol = 0.1
+        @test varW ≈ expected_variance rtol = 0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
-        @test mean(sol)≈expected_mean rtol=0.1
-        @test var(sol)≈expected_variance atol=0.1
+        @test mean(sol) ≈ expected_mean rtol = 0.1
+        @test var(sol) ≈ expected_variance atol = 0.1
 
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
-        ensemble_probW = EnsembleProblem(prob,
-            output_func = (sol, i) -> (sol.W.W[end], false))
+        ensemble_probW = EnsembleProblem(
+            prob,
+            output_func = (sol, i) -> (sol.W.W[end], false)
+        )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
-        @test mean(solW_at_1)≈expected_mean rtol=0.1
-        @test var(solW_at_1)≈expected_variance atol=0.1
+        @test mean(solW_at_1) ≈ expected_mean rtol = 0.1
+        @test var(solW_at_1) ≈ expected_variance atol = 0.1
     end
 
     @testset "OrnsteinUhlenbeck" begin
@@ -78,24 +82,26 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW≈expected_mean atol=0.1
-        @test varW≈expected_variance rtol=0.1
+        @test meanW ≈ expected_mean atol = 0.1
+        @test varW ≈ expected_variance rtol = 0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
-        @test mean(sol)≈expected_mean rtol=0.1
-        @test var(sol)≈expected_variance atol=0.1
+        @test mean(sol) ≈ expected_mean rtol = 0.1
+        @test var(sol) ≈ expected_variance atol = 0.1
 
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
-        ensemble_probW = EnsembleProblem(prob,
-            output_func = (sol, i) -> (sol.W.W[end], false))
+        ensemble_probW = EnsembleProblem(
+            prob,
+            output_func = (sol, i) -> (sol.W.W[end], false)
+        )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
-        @test mean(solW_at_1)≈expected_mean rtol=0.1
-        @test var(solW_at_1)≈expected_variance atol=0.1
+        @test mean(solW_at_1) ≈ expected_mean rtol = 0.1
+        @test var(solW_at_1) ≈ expected_variance atol = 0.1
     end
 
     @testset "BrownianBridge" begin
@@ -107,24 +113,26 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW≈expected_mean rtol=0.1
-        @test varW≈expected_variance atol=0.1
+        @test meanW ≈ expected_mean rtol = 0.1
+        @test varW ≈ expected_variance atol = 0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
-        @test mean(sol)≈expected_mean rtol=0.1
-        @test var(sol)≈expected_variance atol=0.1
+        @test mean(sol) ≈ expected_mean rtol = 0.1
+        @test var(sol) ≈ expected_variance atol = 0.1
 
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
-        ensemble_probW = EnsembleProblem(prob,
-            output_func = (sol, i) -> (sol.W.W[end], false))
+        ensemble_probW = EnsembleProblem(
+            prob,
+            output_func = (sol, i) -> (sol.W.W[end], false)
+        )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
-        @test mean(solW_at_1)≈expected_mean rtol=0.1
-        @test var(solW_at_1)≈expected_variance atol=0.1
+        @test mean(solW_at_1) ≈ expected_mean rtol = 0.1
+        @test var(solW_at_1) ≈ expected_variance atol = 0.1
     end
 
     @testset "GBMBridge" begin
@@ -140,24 +148,26 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW≈expected_mean rtol=0.1
-        @test varW≈expected_variance atol=0.1
+        @test meanW ≈ expected_mean rtol = 0.1
+        @test varW ≈ expected_variance atol = 0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
-        @test mean(sol)≈expected_mean rtol=0.1
-        @test var(sol)≈expected_variance atol=0.1
+        @test mean(sol) ≈ expected_mean rtol = 0.1
+        @test var(sol) ≈ expected_variance atol = 0.1
 
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
-        ensemble_probW = EnsembleProblem(prob,
-            output_func = (sol, i) -> (sol.W.W[end], false))
+        ensemble_probW = EnsembleProblem(
+            prob,
+            output_func = (sol, i) -> (sol.W.W[end], false)
+        )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
-        @test mean(solW_at_1)≈expected_mean rtol=0.1
-        @test var(solW_at_1)≈expected_variance atol=0.1
+        @test mean(solW_at_1) ≈ expected_mean rtol = 0.1
+        @test var(solW_at_1) ≈ expected_variance atol = 0.1
     end
 
     @testset "CompoundPoissonBridge" begin
@@ -170,24 +180,26 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW≈expected_mean rtol=0.1
-        @test varW≈expected_variance atol=0.1
+        @test meanW ≈ expected_mean rtol = 0.1
+        @test varW ≈ expected_variance atol = 0.1
 
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
-        @test mean(sol)≈expected_mean rtol=0.1
-        @test var(sol)≈expected_variance atol=0.1
+        @test mean(sol) ≈ expected_mean rtol = 0.1
+        @test var(sol) ≈ expected_variance atol = 0.1
 
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
-        ensemble_probW = EnsembleProblem(prob,
-            output_func = (sol, i) -> (sol.W.W[end], false))
+        ensemble_probW = EnsembleProblem(
+            prob,
+            output_func = (sol, i) -> (sol.W.W[end], false)
+        )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
-        @test mean(solW_at_1)≈expected_mean rtol=0.1
-        @test var(solW_at_1)≈expected_variance atol=0.1
+        @test mean(solW_at_1) ≈ expected_mean rtol = 0.1
+        @test var(solW_at_1) ≈ expected_variance atol = 0.1
     end
 
     @testset "NoiseTransport" begin
@@ -198,24 +210,28 @@
 
         meanW = mean(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
         varW = var(W.curW for i in 1:10_000 if reinit!(W, 0.0, t0 = t) === nothing)
-        @test meanW≈expected_mean atol=0.1
-        @test varW≈expected_variance rtol=0.1
+        @test meanW ≈ expected_mean atol = 0.1
+        @test varW ≈ expected_variance rtol = 0.1
 
         prob = NoiseProblem(W, tspan)
-        ensemble_prob = EnsembleProblem(prob,
-            output_func = (sol, i) -> (first(sol(t)), false))
+        ensemble_prob = EnsembleProblem(
+            prob,
+            output_func = (sol, i) -> (first(sol(t)), false)
+        )
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
 
-        @test mean(sol)≈expected_mean atol=0.1
-        @test var(sol)≈expected_variance atol=0.1
+        @test mean(sol) ≈ expected_mean atol = 0.1
+        @test var(sol) ≈ expected_variance atol = 0.1
 
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
-        ensemble_probW = EnsembleProblem(prob,
-            output_func = (sol, i) -> (first(sol.W(t)), false))
+        ensemble_probW = EnsembleProblem(
+            prob,
+            output_func = (sol, i) -> (first(sol.W(t)), false)
+        )
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
-        @test mean(solW_at_1)≈expected_mean atol=0.1
-        @test var(solW_at_1)≈expected_variance atol=0.1
+        @test mean(solW_at_1) ≈ expected_mean atol = 0.1
+        @test var(solW_at_1) ≈ expected_variance atol = 0.1
     end
 end

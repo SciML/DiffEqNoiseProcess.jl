@@ -12,7 +12,7 @@ using LinearAlgebra: LinearAlgebra, Diagonal, mul!, svd
 import Random123
 
 import DiffEqBase: isinplace, AbstractNoiseProcess,
-                   DEIntegrator, AbstractNoiseProblem
+    DEIntegrator, AbstractNoiseProblem
 
 import SciMLBase
 import SciMLBase: add_tstop!, reinit!

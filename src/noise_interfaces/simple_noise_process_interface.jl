@@ -180,7 +180,7 @@ end
 end
 
 @inline function interpolate!(out1, out2, W::SimpleNoiseProcess, u, p, t)
-    if sign(W.dt) * t > sign(W.dt) * W.t[end] # Steps past W
+    return if sign(W.dt) * t > sign(W.dt) * W.t[end] # Steps past W
         dt = t - W.t[end]
         W.dist(W.dW, W, dt, u, p, t, W.rng)
         out1 .+= W.dW

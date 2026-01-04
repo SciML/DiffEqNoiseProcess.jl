@@ -21,9 +21,11 @@ prob = NoiseProblem(W, (0.0, 1.0))
 sol = solve(prob; dt = 0.01)
 ```
 """
-function DiffEqBase.__solve(prob::AbstractNoiseProblem,
+function DiffEqBase.__solve(
+        prob::AbstractNoiseProblem,
         args::Union{Nothing, SciMLBase.DEAlgorithm}...; dt = 0.0,
-        kwargs...)
+        kwargs...
+    )
     if dt == 0.0 || dt == nothing
         error("dt must be provided to simulate a noise process. Please pass dt=...")
     end
@@ -50,5 +52,5 @@ function DiffEqBase.__solve(prob::AbstractNoiseProblem,
             accept_step!(W, dt, nothing, nothing)
         end
     end
-    W
+    return W
 end

@@ -121,8 +121,8 @@ Modifies rand_vec to contain the interpolated GBM process values
 function gbm_bridge!(rand_vec, gbm, W, W0, Wh, q, h, u, p, t, rng)
     wiener_randn!(rng, rand_vec)
     @.. rand_vec = gbm.σ * sqrt((1 - q) * q * abs(h)) * rand_vec +
-                   (log(W0) + q * (log(W0 + Wh) - log(W0)))
-    @.. rand_vec = exp(rand_vec) - W0
+        (log(W0) + q * (log(W0 + Wh) - log(W0)))
+    return @.. rand_vec = exp(rand_vec) - W0
 end
 
 @doc doc"""
@@ -145,11 +145,17 @@ GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
 """
 function GeometricBrownianMotionProcess(μ, σ, t0, W0, Z0 = nothing; kwargs...)
     gbm = GeometricBrownianMotion(μ, σ)
-    NoiseProcess{false}(t0, W0, Z0, gbm,
-        (dW, W, W0, Wh, q, h, u, p, t,
-            rng) -> gbm_bridge(dW, gbm, W, W0,
+    return NoiseProcess{false}(
+        t0, W0, Z0, gbm,
+        (
+            dW, W, W0, Wh, q, h, u, p, t,
+            rng,
+        ) -> gbm_bridge(
+            dW, gbm, W, W0,
             Wh, q, h, u, p, t,
-            rng); kwargs...)
+            rng
+        ); kwargs...
+    )
 end
 
 """
@@ -187,7 +193,7 @@ Modifies rand_vec to contain the GBM process increments
 """
 function (X::GeometricBrownianMotion!)(rand_vec, W, dt, u, p, t, rng) #dist!
     wiener_randn!(rng, rand_vec)
-    @.. rand_vec = W.W[end] * expm1(X.μ - (1 / 2) * X.σ * dt + X.σ * sqrt(dt) * rand_vec)
+    return @.. rand_vec = W.W[end] * expm1(X.μ - (1 / 2) * X.σ * dt + X.σ * sqrt(dt) * rand_vec)
 end
 
 @doc doc"""
@@ -210,11 +216,17 @@ GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
 """
 function GeometricBrownianMotionProcess!(μ, σ, t0, W0, Z0 = nothing; kwargs...)
     gbm = GeometricBrownianMotion!(μ, σ)
-    NoiseProcess{true}(t0, W0, Z0, gbm,
-        (rand_vec, W, W0, Wh, q, h, u, p, t,
-            rng) -> gbm_bridge!(rand_vec,
+    return NoiseProcess{true}(
+        t0, W0, Z0, gbm,
+        (
+            rand_vec, W, W0, Wh, q, h, u, p, t,
+            rng,
+        ) -> gbm_bridge!(
+            rand_vec,
             gbm, W, W0,
             Wh, q, h, u,
-            p, t, rng);
-        kwargs...)
+            p, t, rng
+        );
+        kwargs...
+    )
 end
