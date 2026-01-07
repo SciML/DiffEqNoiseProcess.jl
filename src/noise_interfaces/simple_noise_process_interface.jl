@@ -1,3 +1,6 @@
+# SimpleNoiseProcess is assumed to be continuous (like Wiener processes)
+iscontinuous(W::SimpleNoiseProcess) = true
+
 @inline function save_noise!(W::SimpleNoiseProcess)
     if W.t != W.curt
         push!(W.W, copy(W.curW))
