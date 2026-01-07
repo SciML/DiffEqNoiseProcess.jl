@@ -8,6 +8,12 @@ function activate_gpu_env()
     return Pkg.instantiate()
 end
 
+function activate_qa_env()
+    Pkg.activate("qa")
+    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
+    return Pkg.instantiate()
+end
+
 @time begin
     if GROUP == "All" || GROUP == "Core1"
         include("explicit_imports_test.jl")
@@ -43,5 +49,10 @@ end
 
     if GROUP == "All" || GROUP == "Bridge"
         include("bridge_test.jl")
+    end
+
+    if GROUP == "QA"
+        activate_qa_env()
+        include("qa/qa_tests.jl")
     end
 end
