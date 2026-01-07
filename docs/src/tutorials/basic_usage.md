@@ -23,7 +23,7 @@ W_custom = WienerProcess(0.0, 0.0, 1.0;
 
 ### Real-Valued Wiener Process
 
-For scalar problems, you might want a real-valued Wiener process:
+For scalar problems, use a real-valued Wiener process:
 
 ```@example basic
 # Real-valued Wiener process  

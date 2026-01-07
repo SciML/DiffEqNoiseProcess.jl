@@ -9,8 +9,8 @@
 [![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor%27s%20Guide-blueviolet)](https://github.com/SciML/ColPrac)
 [![SciML Code Style](https://img.shields.io/static/v1?label=code%20style&message=SciML&color=9558b2&labelColor=389826)](https://github.com/SciML/SciMLStyle)
 
-DiffEqNoiseProcess.jl is a component package in the DifferentialEquations ecosystem.
-It holds the tools for developing noise processes for differential equations.
+DiffEqNoiseProcess.jl is a component package in the DifferentialEquations.jl ecosystem.
+It provides tools for creating noise processes for stochastic differential equations.
 While completely independent and usable on its own, users interested in using this
 functionality should check out [DifferentialEquations.jl](https://github.com/SciML/DifferentialEquations.jl).
 
