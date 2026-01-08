@@ -47,4 +47,33 @@
     W = NoiseGrid(t, brownian_values)
     prob_rational = NoiseProblem(W, (0, 1))
     sol = solve(prob_rational; dt = 1 // 10)
+
+    # Test for issue #136: stepping past domain with dt that doesn't evenly divide the time span
+    # When dt doesn't evenly divide (tspan[2] - tspan[1]), floating point errors can cause
+    # the solver to think it needs to step past the domain boundary
+    @testset "Issue #136 - stepping past domain" begin
+        # Original issue case: dt=0.01 with grid step 0.1
+        tgrid = 0.0:0.1:10.0
+        brownian_noise = [[0.0, 0.0] for _ in 1:length(tgrid)]
+        W = NoiseGrid(collect(tgrid), brownian_noise)
+        prob = NoiseProblem(W, (tgrid[begin], tgrid[end]))
+        sol = solve(prob; dt = 0.01)
+        @test sol.curt == 10.0
+
+        # Case where dt does not evenly divide the time span
+        tgrid2 = 0.0:0.1:1.0
+        brownian_noise2 = [[0.0, 0.0] for _ in 1:length(tgrid2)]
+        W2 = NoiseGrid(collect(tgrid2), brownian_noise2)
+        prob2 = NoiseProblem(W2, (0.0, 1.0))
+        sol2 = solve(prob2; dt = 0.03)
+        @test sol2.curt == 1.0
+
+        # Case with scalar noise
+        tgrid3 = 0.0:0.1:10.0
+        brownian_noise3 = [0.0 for _ in 1:length(tgrid3)]
+        W3 = NoiseGrid(collect(tgrid3), brownian_noise3)
+        prob3 = NoiseProblem(W3, (tgrid3[begin], tgrid3[end]))
+        sol3 = solve(prob3; dt = 0.01)
+        @test sol3.curt == 10.0
+    end
 end
