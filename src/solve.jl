@@ -44,7 +44,23 @@ function DiffEqBase.__solve(
     setup_next_step!(W, nothing, nothing)
     tType = typeof(W.curt)
     while W.curt < prob.tspan[2]
-        if tType <: AbstractFloat && abs(W.curt + dt - prob.tspan[2]) < 100 * eps(dt) # Correct the end due to floating point error
+        # Check if we're essentially at the end due to floating point error
+        if tType <: AbstractFloat &&
+                abs(W.curt - prob.tspan[2]) < 100 * eps(typeof(W.curt)(prob.tspan[2]))
+            W.curt = prob.tspan[2]
+            break
+        end
+        # Check if taking the full step would overshoot the end
+        if W.curt + dt > prob.tspan[2]
+            # Take a final partial step to reach exactly the end
+            final_dt = prob.tspan[2] - W.curt
+            # For NoiseGrid, we need to reset step_setup if it was set to false
+            if hasproperty(W, :step_setup) && !W.step_setup
+                W.step_setup = true
+            end
+            accept_step!(W, final_dt, nothing, nothing)
+            W.curt = prob.tspan[2]
+        elseif tType <: AbstractFloat && abs(W.curt + dt - prob.tspan[2]) < 100 * eps(dt) # Correct the end due to floating point error
             dt = prob.tspan[2] - W.curt
             accept_step!(W, dt, nothing, nothing)
             W.curt = prob.tspan[2]
