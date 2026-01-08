@@ -185,7 +185,9 @@ println("Values are different due to reset")
 
 ## Performance Considerations
 
-1. Use in-place versions (Process!) for large systems
-2. VirtualBrownianTree for memory-constrained applications
-3. NoiseGrid for pre-computed data
-4. NoiseWrapper to reuse expensive computations
+Choose the appropriate noise process type based on your application needs:
+
+1. **In-place versions**: Use in-place versions (Process!) for large systems to reduce allocations
+2. **VirtualBrownianTree**: Use for memory-constrained applications where O(1) memory is critical
+3. **NoiseGrid**: Use for pre-computed data or when you have experimental measurements
+4. **NoiseWrapper**: Use to reuse expensive computations across multiple simulations with different timesteps

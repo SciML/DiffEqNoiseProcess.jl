@@ -74,10 +74,10 @@ DiffEqNoiseProcess.jl includes a rich collection of noise processes:
 
 ### Classic Processes
 - **WienerProcess**: Standard Brownian motion
-- **RealWienerProcess**: Scalar Brownian motion  
+- **RealWienerProcess**: Scalar Brownian motion
 - **CorrelatedWienerProcess**: Multi-dimensional correlated noise
 - **OrnsteinUhlenbeckProcess**: Mean-reverting process
-- **GeometricBrownianMotionProcess**: Financial modeling
+- **GeometricBrownianMotionProcess**: For financial modeling
 - **CompoundPoissonProcess**: Jump processes
 
 ### Bridge Processes

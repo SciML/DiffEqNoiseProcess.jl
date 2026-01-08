@@ -33,8 +33,8 @@ For multi-dimensional systems with correlated noise:
 ```@example noise_types
 # 2D correlated Wiener process with correlation matrix
 Γ = [1.0 0.5; 0.5 1.0]  # Correlation matrix
-W0 = [0.0, 0.0]          # Initial values  
-Z0 = [1.0, 1.0]          # Final values
+W0 = [0.0, 0.0]         # Initial values
+Z0 = [1.0, 1.0]         # Final values
 
 corr_W = CorrelatedWienerProcess(Γ, 0.0, W0, Z0)
 
@@ -49,7 +49,7 @@ println("Final 2D noise: $(sol_corr.u[end])")
 
 ### Ornstein-Uhlenbeck Process
 
-Models mean-reverting behavior, commonly used in interest rate models:
+Models mean-reverting behavior, which is commonly used in interest rate models:
 
 ```@example noise_types
 # Parameters: Θ (mean reversion rate), μ (long-term mean), σ (volatility)
@@ -65,7 +65,7 @@ sol_ou = solve(prob_ou; dt = 0.01)
 
 println("OU process starts at: $(sol_ou.u[1])")
 println("OU process ends at: $(sol_ou.u[end])")
-println("Long-term mean: $μ")
+println("Long-term mean μ: $μ")
 ```
 
 ## Jump Processes
