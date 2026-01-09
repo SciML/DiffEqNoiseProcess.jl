@@ -429,10 +429,10 @@ function constrained_optimization_problem(densf, fij, fij2, fij3, fij4, ri, ai, 
         [ri + Δr / 2, ai + Δa / 2], Optim.Fminbox(Optim.NelderMead())
     )
     ϵijmin = Optim.optimize(
-        x -> difference(x), [ri, ai], [ri + Δr, ai + Δa],
+        difference, [ri, ai], [ri + Δr, ai + Δa],
         [ri + Δr / 2, ai + Δa / 2], Optim.Fminbox(Optim.NelderMead())
     )
-    return ϵijmin.minimum, ϵijmax.minimum
+    return Optim.minimum(ϵijmin), Optim.minimum(ϵijmax)
 end
 
 function generate_wedges(densf, Δr, Δa, Δz, rM, aM, offset, sqeezing)
