@@ -26,7 +26,9 @@ prob = NoiseProblem(noise_func, (0.0, 2.0))
 sol = solve(prob; dt = 0.01)
 
 println("NoiseFunction example completed successfully!")
-println("Solution contains $(length(sol.t)) time points")
+# Access values via callable interface: sol(t) returns (W, Z) tuple
+println("Value at t=0.5: $(sol(0.5)[1])")
+println("Value at t=1.0: $(sol(1.0)[1])")
 ```
 
 ### NoiseTransport
@@ -34,26 +36,23 @@ println("Solution contains $(length(sol.t)) time points")
 Transport a random variable through a time-dependent function:
 
 ```@example advanced
-using Distributions
-
-# Random initial value
-Random.seed!(456)
-ξ = rand(Normal(0, 1))  # Standard normal random variable
-
-# Transport function: moves and scales the random variable over time
-function transport_func(ξ_val, t)
-    return ξ_val * exp(-0.5 * t) * cos(t)
+# Transport function: signature is f(u, p, t, rv) where rv is the random variable
+# This creates noise W(t) = ξ * exp(-0.5t) * cos(t) where ξ ~ N(0,1)
+function transport_func(u, p, t, ξ)
+    return ξ * exp(-0.5 * t) * cos(t)
 end
 
-# Create transported noise
-noise_transport = NoiseTransport(ξ, transport_func, 0.0)
+# Create transported noise: NoiseTransport(t0, f, RV)
+# RV is a function that generates random values (like randn)
+noise_transport = NoiseTransport(0.0, transport_func, randn)
 
 prob_transport = NoiseProblem(noise_transport, (0.0, 3π))
 sol_transport = solve(prob_transport; dt = 0.01)
 
-println("Initial random value: $ξ")
-println("Transported at t=0: $(sol_transport.u[1])")
-println("Transported at t=π: $(sol_transport(π))")
+# NoiseTransport computes values on-the-fly; access via callable interface
+# Returns (W_value, Z_value) tuple, use [1] to get W
+println("Transported at t=0: $(sol_transport(0.0)[1])")
+println("Transported at t=π: $(sol_transport(π)[1])")
 ```
 
 ## Noise from Data
@@ -87,18 +86,16 @@ end
 For memory-constrained applications, use a virtual Brownian tree that generates values on-demand:
 
 ```@example advanced
-using Random
-
 # Create a virtual Brownian tree
-# Parameters: t0, T (end time), tree_depth, tolerance, rng
-rng = MersenneTwister(789)
-vbt = VirtualBrownianTree(0.0, 1.0, 10, 1e-6, rng)
+# VirtualBrownianTree(t0, W0; tree_depth, atol, ...)
+# tree_depth controls the cache size for speed/memory tradeoff
+vbt = VirtualBrownianTree(0.0, 0.0; tree_depth = 5, atol = 1e-6)
 
 # The tree generates Brownian motion values on demand without storing them
 prob_vbt = NoiseProblem(vbt, (0.0, 1.0))
 sol_vbt = solve(prob_vbt; dt = 0.01)
 
-println("VBT memory usage is O(1) regardless of path length")
+println("VBT memory usage is O(tree_depth) regardless of path length")
 println("Final VBT value: $(sol_vbt.u[end])")
 ```
 
@@ -117,7 +114,8 @@ sol_ref = solve(prob_ref; dt = 0.1)  # Coarse timestep
 println("Reference solution has $(length(sol_ref.t)) points")
 
 # Now wrap it to use at different timesteps
-wrapped_noise = NoiseWrapper(sol_ref.W)
+# Note: solve(NoiseProblem(...)) returns the noise process directly
+wrapped_noise = NoiseWrapper(sol_ref)
 
 # Use the wrapped noise with finer timestep
 prob_wrapped = NoiseProblem(wrapped_noise, (0.0, 1.0))
@@ -127,9 +125,10 @@ println("Wrapped solution has $(length(sol_wrapped.t)) points")
 println("Both solutions follow the same stochastic trajectory")
 
 # Verify they agree at common timepoints
+# Note: WienerProcess(t0, W0, Z0) returns tuples (W, Z), so we access [1] for W
 for t in [0.0, 0.5, 1.0]
-    ref_val = sol_ref(t)
-    wrapped_val = sol_wrapped(t)
+    ref_val = sol_ref(t)[1]
+    wrapped_val = sol_wrapped(t)[1]
     println("At t=$t: ref=$(round(ref_val, digits=6)), wrapped=$(round(wrapped_val, digits=6))")
 end
 ```
