@@ -419,14 +419,17 @@ function linear_interpolation_wedges(fij, fij2, fij3, fij4, r, a, ri, ai, Δr, �
         (one(t) - t) * u * fij3 + t * u * fij4
 end
 
-# Callback for Optim-based constrained optimization (set by extension)
-const OPTIM_CONSTRAINED_OPTIMIZATION = Ref{Union{Nothing, Function}}(nothing)
+# Stub for Optim-based constrained optimization (implemented in extension)
+function constrained_optimization_problem end
 
-function constrained_optimization_problem(densf, fij, fij2, fij3, fij4, ri, ai, Δr, Δa)
-    if OPTIM_CONSTRAINED_OPTIMIZATION[] === nothing
-        error("Using BoxWedgeTail with `sqeezing=true` requires Optim.jl. Please load Optim with `using Optim` before using this feature.")
+# Error hint for when Optim extension is not loaded
+function __init__()
+    Base.Experimental.register_error_hint(MethodError) do io, exc, argtypes, kwargs
+        if exc.f === constrained_optimization_problem
+            print(io, "\nUsing BoxWedgeTail with `sqeezing=true` requires Optim.jl. ")
+            print(io, "Please load Optim with `using Optim` before using this feature.")
+        end
     end
-    return OPTIM_CONSTRAINED_OPTIMIZATION[](densf, fij, fij2, fij3, fij4, ri, ai, Δr, Δa)
 end
 
 function generate_wedges(densf, Δr, Δa, Δz, rM, aM, offset, sqeezing)

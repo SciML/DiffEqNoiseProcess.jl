@@ -1,10 +1,10 @@
 module DiffEqNoiseProcessOptimExt
 
 using DiffEqNoiseProcess
-import DiffEqNoiseProcess: OPTIM_CONSTRAINED_OPTIMIZATION, linear_interpolation_wedges
+import DiffEqNoiseProcess: constrained_optimization_problem, linear_interpolation_wedges
 import Optim
 
-function _constrained_optimization_problem_impl(densf, fij, fij2, fij3, fij4, ri, ai, Δr, Δa)
+function constrained_optimization_problem(densf, fij, fij2, fij3, fij4, ri, ai, Δr, Δa)
     function difference(x)
         return densf(x[1], x[2]) -
             linear_interpolation_wedges(
@@ -21,10 +21,6 @@ function _constrained_optimization_problem_impl(densf, fij, fij2, fij3, fij4, ri
         [ri + Δr / 2, ai + Δa / 2], Optim.Fminbox(Optim.NelderMead())
     )
     return Optim.minimum(ϵijmin), Optim.minimum(ϵijmax)
-end
-
-function __init__()
-    OPTIM_CONSTRAINED_OPTIMIZATION[] = _constrained_optimization_problem_impl
 end
 
 end
