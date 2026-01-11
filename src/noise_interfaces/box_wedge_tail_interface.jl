@@ -432,6 +432,7 @@ function __init__()
             end
         end
     end
+    return nothing
 end
 
 function generate_wedges(densf, Δr, Δa, Δz, rM, aM, offset, sqeezing)
