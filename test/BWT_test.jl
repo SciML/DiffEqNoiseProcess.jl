@@ -4,6 +4,7 @@
     using Cubature
     using Statistics
     using DiffEqBase
+    using Optim  # Required for BoxWedgeTail with sqeezing=true
 
     # Test generation of boxes
     W = BoxWedgeTail(0.0, zeros(2), box_grouping = :Columns)

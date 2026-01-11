@@ -21,7 +21,7 @@ import CommonSolve: step!
 
 import PoissonRandom, Distributions
 
-import QuadGK, Optim
+import QuadGK
 
 import GPUArraysCore
 
