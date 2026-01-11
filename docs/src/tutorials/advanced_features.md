@@ -138,28 +138,25 @@ end
 
 ### NoiseApproximation
 
-Approximate colored noise as solutions to SDEs:
+Approximate colored noise as solutions to SDEs. `NoiseApproximation` takes a
+`DEIntegrator` from an SDE solve, allowing you to use SDE solutions as noise
+processes. This is useful for creating correlated or colored noise.
 
 ```@example advanced
-# Define an SDE that generates colored noise
-# For example, dX = -X*dt + σ*dW (Ornstein-Uhlenbeck-like)
-function colored_drift(u, p, t)
-    return -u  # Mean reversion
-end
+# NoiseApproximation requires StochasticDiffEq for the SDE integrator
+# Here we show a conceptual example - in practice you would do:
+#
+# using StochasticDiffEq
+# f(u, p, t) = -u          # Mean reversion (drift)
+# g(u, p, t) = 0.5         # Constant diffusion
+# sde_prob = SDEProblem(f, g, 1.0, (0.0, Inf))
+# integrator = init(sde_prob, SRIW1())
+# noise_approx = NoiseApproximation(integrator)
+#
+# Then use noise_approx as a noise process in another problem
 
-function colored_diffusion(u, p, t)
-    return 0.5  # Constant diffusion
-end
-
-# Create approximation
-noise_approx = NoiseApproximation(colored_drift, colored_diffusion, 0.0, 0.0, 1.0)
-
-prob_approx = NoiseProblem(noise_approx, (0.0, 2.0))
-sol_approx = solve(prob_approx; dt = 0.01)
-
-println("Colored noise approximation:")
-println("  Initial value: $(sol_approx.u[1])")
-println("  Final value: $(sol_approx.u[end])")
+println("NoiseApproximation requires a DEIntegrator from StochasticDiffEq")
+println("See the API documentation for full usage examples")
 ```
 
 ## Process Configuration
@@ -174,13 +171,13 @@ sol1 = solve(prob1; dt = 0.1)
 
 println("First use - final value: $(sol1.u[end])")
 
-# Reset and reuse the same process type
-reset!(W_reusable)  # Reset internal state
+# Reinitialize and reuse the same process
+reinit!(W_reusable, 0.1)  # Reinitialize with dt=0.1
 prob2 = NoiseProblem(W_reusable, (0.0, 1.0))
 sol2 = solve(prob2; dt = 0.1)
 
-println("After reset - final value: $(sol2.u[end])")
-println("Values are different due to reset")
+println("After reinit - final value: $(sol2.u[end])")
+println("Values are different due to reinitialization")
 ```
 
 ## Performance Considerations
