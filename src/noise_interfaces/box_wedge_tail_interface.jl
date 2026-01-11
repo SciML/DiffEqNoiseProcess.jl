@@ -419,20 +419,20 @@ function linear_interpolation_wedges(fij, fij2, fij3, fij4, r, a, ri, ai, Δr, �
         (one(t) - t) * u * fij3 + t * u * fij4
 end
 
-function constrained_optimization_problem(densf, fij, fij2, fij3, fij4, ri, ai, Δr, Δa)
-    function difference(x)
-        return densf(x[1], x[2]) -
-            linear_interpolation_wedges(fij, fij2, fij3, fij4, x[1], x[2], ri, ai, Δr, Δa)
+# Stub for Optim-based constrained optimization (implemented in extension)
+function constrained_optimization_problem end
+
+# Error hint for when Optim extension is not loaded
+function __init__()
+    if isdefined(Base.Experimental, :register_error_hint)
+        Base.Experimental.register_error_hint(MethodError) do io, exc, argtypes, kwargs
+            if exc.f === constrained_optimization_problem
+                print(io, "\nUsing BoxWedgeTail with `sqeezing=true` requires Optim.jl. ")
+                print(io, "Please load Optim with `using Optim` before using this feature.")
+            end
+        end
     end
-    ϵijmax = Optim.optimize(
-        x -> -difference(x), [ri, ai], [ri + Δr, ai + Δa],
-        [ri + Δr / 2, ai + Δa / 2], Optim.Fminbox(Optim.NelderMead())
-    )
-    ϵijmin = Optim.optimize(
-        difference, [ri, ai], [ri + Δr, ai + Δa],
-        [ri + Δr / 2, ai + Δa / 2], Optim.Fminbox(Optim.NelderMead())
-    )
-    return Optim.minimum(ϵijmin), Optim.minimum(ϵijmax)
+    return nothing
 end
 
 function generate_wedges(densf, Δr, Δa, Δz, rM, aM, offset, sqeezing)

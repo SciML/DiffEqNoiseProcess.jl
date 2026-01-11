@@ -1,5 +1,6 @@
 @testset "Copy Noise test" begin
     using DiffEqNoiseProcess, StochasticDiffEq
+    using Optim  # Required for BoxWedgeTail with sqeezing=true
 
     # define a temporary equality suitable for comparing noise types (tab-completed by `\boxminus<tab>`)
     ⊟(W1, W2) = (W1 == W2)

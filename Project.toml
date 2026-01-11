@@ -10,7 +10,6 @@ Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 GPUArraysCore = "46192b85-c4d5-4398-a991-12ede77f4527"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
-Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 PoissonRandom = "e409e4f3-bfea-5376-8464-e040bb5c01ab"
 QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
@@ -23,9 +22,11 @@ StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [weakdeps]
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 
 [extensions]
+DiffEqNoiseProcessOptimExt = "Optim"
 DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
 
 [compat]
@@ -51,6 +52,7 @@ Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 ExplicitImports = "7d51a73a-1435-4ff3-83d9-f097790105c7"
 HypothesisTests = "09f84164-cd44-5f33-b23f-e6b0d136a0d5"
+Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 SDEProblemLibrary = "c72e72a9-a271-4b2b-8966-303ed956772e"
@@ -60,4 +62,4 @@ StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports"]
+test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports", "Optim"]
