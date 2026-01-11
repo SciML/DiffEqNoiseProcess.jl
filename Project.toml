@@ -1,6 +1,6 @@
 name = "DiffEqNoiseProcess"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
-version = "5.25.0"
+version = "5.26.0"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 
 [deps]
