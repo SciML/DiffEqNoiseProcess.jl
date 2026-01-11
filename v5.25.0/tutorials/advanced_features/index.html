@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Advanced Features · DiffEqNoiseProcess.jl</title><meta name="title" content="Advanced Features · DiffEqNoiseProcess.jl"/><meta property="og:title" content="Advanced Features · DiffEqNoiseProcess.jl"/><meta property="twitter:title" content="Advanced Features · DiffEqNoiseProcess.jl"/><meta name="description" content="Documentation for DiffEqNoiseProcess.jl."/><meta property="og:description" content="Documentation for DiffEqNoiseProcess.jl."/><meta property="twitter:description" content="Documentation for DiffEqNoiseProcess.jl."/><meta property="og:url" content="https://docs.sciml.ai/DiffEqNoiseProcess/stable/tutorials/advanced_features/"/><meta property="twitter:url" content="https://docs.sciml.ai/DiffEqNoiseProcess/stable/tutorials/advanced_features/"/><link rel="canonical" href="https://docs.sciml.ai/DiffEqNoiseProcess/stable/tutorials/advanced_features/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="DiffEqNoiseProcess.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DiffEqNoiseProcess.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../basic_usage/">Basic Usage Tutorial</a></li><li><a class="tocitem" href="../noise_processes/">Noise Process Types</a></li><li class="is-active"><a class="tocitem" href>Advanced Features</a><ul class="internal"><li><a class="tocitem" href="#Custom-Noise-from-Functions"><span>Custom Noise from Functions</span></a></li><li><a class="tocitem" href="#Noise-from-Data"><span>Noise from Data</span></a></li><li><a class="tocitem" href="#Memory-Efficient-Alternatives"><span>Memory-Efficient Alternatives</span></a></li><li><a class="tocitem" href="#Noise-Process-Wrappers"><span>Noise Process Wrappers</span></a></li><li><a class="tocitem" href="#Approximation-Methods"><span>Approximation Methods</span></a></li><li><a class="tocitem" href="#Process-Configuration"><span>Process Configuration</span></a></li><li><a class="tocitem" href="#Performance-Considerations"><span>Performance Considerations</span></a></li></ul></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/noise_processes/">Noise Processes API</a></li><li><a class="tocitem" href="../../api/interface/">Noise Process Interface</a></li></ul></li><li><span class="tocitem">Legacy Docs</span><ul><li><a class="tocitem" href="../../noise_processes/">Classic Noise Processes</a></li><li><a class="tocitem" href="../../abstract_noise_processes/">Abstract Noise Processes</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Advanced Features</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Advanced Features</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqNoiseProcess.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqNoiseProcess.jl/blob/master/docs/src/tutorials/advanced_features.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Advanced-Features"><a class="docs-heading-anchor" href="#Advanced-Features">Advanced Features</a><a id="Advanced-Features-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Features" title="Permalink"></a></h1><p>This tutorial covers the advanced functionality in DiffEqNoiseProcess.jl, including custom noise processes, wrappers, and memory-efficient alternatives.</p><h2 id="Custom-Noise-from-Functions"><a class="docs-heading-anchor" href="#Custom-Noise-from-Functions">Custom Noise from Functions</a><a id="Custom-Noise-from-Functions-1"></a><a class="docs-heading-anchor-permalink" href="#Custom-Noise-from-Functions" title="Permalink"></a></h2><h3 id="NoiseFunction"><a class="docs-heading-anchor" href="#NoiseFunction">NoiseFunction</a><a id="NoiseFunction-1"></a><a class="docs-heading-anchor-permalink" href="#NoiseFunction" title="Permalink"></a></h3><p>Create noise processes from arbitrary functions of time:</p><pre><code class="language-julia hljs">using DiffEqNoiseProcess, SciMLBase
+using Random
+
+# Define a deterministic &quot;noise&quot; function
+# NoiseFunction expects signature f(u, p, t)
+function my_noise_func(u, p, t)
+    return sin(2π * t) + 0.1 * cos(10π * t)
+end
+
+# Create noise process from function (t0, function)
+noise_func = NoiseFunction(0.0, my_noise_func)
+
+# Test the function
+prob = NoiseProblem(noise_func, (0.0, 2.0))
+sol = solve(prob; dt = 0.01)
+
+println(&quot;NoiseFunction example completed successfully!&quot;)
+# Access values via callable interface: sol(t) returns (W, Z) tuple
+println(&quot;Value at t=0.5: $(sol(0.5)[1])&quot;)
+println(&quot;Value at t=1.0: $(sol(1.0)[1])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">NoiseFunction example completed successfully!
+Value at t=0.5: -0.09999999999999988
+Value at t=1.0: 0.09999999999999976</code></pre><h3 id="NoiseTransport"><a class="docs-heading-anchor" href="#NoiseTransport">NoiseTransport</a><a id="NoiseTransport-1"></a><a class="docs-heading-anchor-permalink" href="#NoiseTransport" title="Permalink"></a></h3><p>Transport a random variable through a time-dependent function:</p><pre><code class="language-julia hljs"># Transport function: signature is f(u, p, t, rv) where rv is the random variable
+# This creates noise W(t) = ξ * exp(-0.5t) * cos(t) where ξ ~ N(0,1)
+function transport_func(u, p, t, ξ)
+    return ξ * exp(-0.5 * t) * cos(t)
+end
+
+# Create transported noise: NoiseTransport(t0, f, RV)
+# RV is a function that generates random values (like randn)
+noise_transport = NoiseTransport(0.0, transport_func, randn)
+
+prob_transport = NoiseProblem(noise_transport, (0.0, 3π))
+sol_transport = solve(prob_transport; dt = 0.01)
+
+# NoiseTransport computes values on-the-fly; access via callable interface
+# Returns (W_value, Z_value) tuple, use [1] to get W
+println(&quot;Transported at t=0: $(sol_transport(0.0)[1])&quot;)
+println(&quot;Transported at t=π: $(sol_transport(π)[1])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Transported at t=0: 0.3271512921483476
+Transported at t=π: -0.06800807201440284</code></pre><h2 id="Noise-from-Data"><a class="docs-heading-anchor" href="#Noise-from-Data">Noise from Data</a><a id="Noise-from-Data-1"></a><a class="docs-heading-anchor-permalink" href="#Noise-from-Data" title="Permalink"></a></h2><h3 id="NoiseGrid"><a class="docs-heading-anchor" href="#NoiseGrid">NoiseGrid</a><a id="NoiseGrid-1"></a><a class="docs-heading-anchor-permalink" href="#NoiseGrid" title="Permalink"></a></h3><p>Create noise processes from pre-computed data points:</p><pre><code class="language-julia hljs"># Generate some data (e.g., from experimental measurements)
+t_data = collect(0.0:0.1:1.0)
+noise_data = cumsum(randn(length(t_data)) * sqrt(0.1))  # Approximate Brownian motion
+
+# Create noise process from grid
+noise_grid = NoiseGrid(t_data, noise_data)
+
+# Use it in a problem
+prob_grid = NoiseProblem(noise_grid, (0.0, 1.0))
+sol_grid = solve(prob_grid; dt = 0.05)
+
+println(&quot;Grid noise interpolated values:&quot;)
+for t in [0.0, 0.25, 0.5, 0.75, 1.0]
+    println(&quot;  t=$t: $(sol_grid(t))&quot;)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Grid noise interpolated values:
+  t=0.0: (0.09502161814710845, nothing)
+  t=0.25: (-0.0341760623825998, nothing)
+  t=0.5: (-0.09170494513024625, nothing)
+  t=0.75: (0.4543878560604337, nothing)
+  t=1.0: (0.8861133901999572, nothing)</code></pre><h2 id="Memory-Efficient-Alternatives"><a class="docs-heading-anchor" href="#Memory-Efficient-Alternatives">Memory-Efficient Alternatives</a><a id="Memory-Efficient-Alternatives-1"></a><a class="docs-heading-anchor-permalink" href="#Memory-Efficient-Alternatives" title="Permalink"></a></h2><h3 id="VirtualBrownianTree"><a class="docs-heading-anchor" href="#VirtualBrownianTree">VirtualBrownianTree</a><a id="VirtualBrownianTree-1"></a><a class="docs-heading-anchor-permalink" href="#VirtualBrownianTree" title="Permalink"></a></h3><p>For memory-constrained applications, use a virtual Brownian tree that generates values on-demand:</p><pre><code class="language-julia hljs"># Create a virtual Brownian tree
+# VirtualBrownianTree(t0, W0; tree_depth, atol, ...)
+# tree_depth controls the cache size for speed/memory tradeoff
+vbt = VirtualBrownianTree(0.0, 0.0; tree_depth = 5, atol = 1e-6)
+
+# The tree generates Brownian motion values on demand without storing them
+prob_vbt = NoiseProblem(vbt, (0.0, 1.0))
+sol_vbt = solve(prob_vbt; dt = 0.01)
+
+println(&quot;VBT memory usage is O(tree_depth) regardless of path length&quot;)
+println(&quot;Final VBT value: $(sol_vbt.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">VBT memory usage is O(tree_depth) regardless of path length
+Final VBT value: 0.3202170378947547</code></pre><h2 id="Noise-Process-Wrappers"><a class="docs-heading-anchor" href="#Noise-Process-Wrappers">Noise Process Wrappers</a><a id="Noise-Process-Wrappers-1"></a><a class="docs-heading-anchor-permalink" href="#Noise-Process-Wrappers" title="Permalink"></a></h2><h3 id="NoiseWrapper"><a class="docs-heading-anchor" href="#NoiseWrapper">NoiseWrapper</a><a id="NoiseWrapper-1"></a><a class="docs-heading-anchor-permalink" href="#NoiseWrapper" title="Permalink"></a></h3><p>Reuse noise from previous simulations in a distributionally-exact manner:</p><pre><code class="language-julia hljs"># First, generate a reference noise process
+W_ref = WienerProcess(0.0, 0.0, 1.0)
+prob_ref = NoiseProblem(W_ref, (0.0, 1.0))
+sol_ref = solve(prob_ref; dt = 0.1)  # Coarse timestep
+
+println(&quot;Reference solution has $(length(sol_ref.t)) points&quot;)
+
+# Now wrap it to use at different timesteps
+# Note: solve(NoiseProblem(...)) returns the noise process directly
+wrapped_noise = NoiseWrapper(sol_ref)
+
+# Use the wrapped noise with finer timestep
+prob_wrapped = NoiseProblem(wrapped_noise, (0.0, 1.0))
+sol_wrapped = solve(prob_wrapped; dt = 0.01)  # Fine timestep
+
+println(&quot;Wrapped solution has $(length(sol_wrapped.t)) points&quot;)
+println(&quot;Both solutions follow the same stochastic trajectory&quot;)
+
+# Verify they agree at common timepoints
+# Note: WienerProcess(t0, W0, Z0) returns tuples (W, Z), so we access [1] for W
+for t in [0.0, 0.5, 1.0]
+    ref_val = sol_ref(t)[1]
+    wrapped_val = sol_wrapped(t)[1]
+    println(&quot;At t=$t: ref=$(round(ref_val, digits=6)), wrapped=$(round(wrapped_val, digits=6))&quot;)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Reference solution has 11 points
+Wrapped solution has 101 points
+Both solutions follow the same stochastic trajectory
+At t=0.0: ref=0.0, wrapped=0.0
+At t=0.5: ref=-1.435275, wrapped=-1.435275
+At t=1.0: ref=-1.672137, wrapped=-1.672137</code></pre><h2 id="Approximation-Methods"><a class="docs-heading-anchor" href="#Approximation-Methods">Approximation Methods</a><a id="Approximation-Methods-1"></a><a class="docs-heading-anchor-permalink" href="#Approximation-Methods" title="Permalink"></a></h2><h3 id="NoiseApproximation"><a class="docs-heading-anchor" href="#NoiseApproximation">NoiseApproximation</a><a id="NoiseApproximation-1"></a><a class="docs-heading-anchor-permalink" href="#NoiseApproximation" title="Permalink"></a></h3><p>Approximate colored noise as solutions to SDEs. <code>NoiseApproximation</code> takes a <code>DEIntegrator</code> from an SDE solve, allowing you to use SDE solutions as noise processes. This is useful for creating correlated or colored noise.</p><pre><code class="language-julia hljs"># NoiseApproximation requires StochasticDiffEq for the SDE integrator
+# Here we show a conceptual example - in practice you would do:
+#
+# using StochasticDiffEq
+# f(u, p, t) = -u          # Mean reversion (drift)
+# g(u, p, t) = 0.5         # Constant diffusion
+# sde_prob = SDEProblem(f, g, 1.0, (0.0, Inf))
+# integrator = init(sde_prob, SRIW1())
+# noise_approx = NoiseApproximation(integrator)
+#
+# Then use noise_approx as a noise process in another problem
+
+println(&quot;NoiseApproximation requires a DEIntegrator from StochasticDiffEq&quot;)
+println(&quot;See the API documentation for full usage examples&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">NoiseApproximation requires a DEIntegrator from StochasticDiffEq
+See the API documentation for full usage examples</code></pre><h2 id="Process-Configuration"><a class="docs-heading-anchor" href="#Process-Configuration">Process Configuration</a><a id="Process-Configuration-1"></a><a class="docs-heading-anchor-permalink" href="#Process-Configuration" title="Permalink"></a></h2><h3 id="Process-Reset-and-Reuse"><a class="docs-heading-anchor" href="#Process-Reset-and-Reuse">Process Reset and Reuse</a><a id="Process-Reset-and-Reuse-1"></a><a class="docs-heading-anchor-permalink" href="#Process-Reset-and-Reuse" title="Permalink"></a></h3><pre><code class="language-julia hljs"># Create a process and use it
+W_reusable = WienerProcess(0.0, 0.0, 1.0)
+prob1 = NoiseProblem(W_reusable, (0.0, 1.0))
+sol1 = solve(prob1; dt = 0.1)
+
+println(&quot;First use - final value: $(sol1.u[end])&quot;)
+
+# Reinitialize and reuse the same process
+reinit!(W_reusable, 0.1)  # Reinitialize with dt=0.1
+prob2 = NoiseProblem(W_reusable, (0.0, 1.0))
+sol2 = solve(prob2; dt = 0.1)
+
+println(&quot;After reinit - final value: $(sol2.u[end])&quot;)
+println(&quot;Values are different due to reinitialization&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">First use - final value: -0.2935603276978926
+After reinit - final value: -0.8481845716767974
+Values are different due to reinitialization</code></pre><h2 id="Performance-Considerations"><a class="docs-heading-anchor" href="#Performance-Considerations">Performance Considerations</a><a id="Performance-Considerations-1"></a><a class="docs-heading-anchor-permalink" href="#Performance-Considerations" title="Permalink"></a></h2><p>Choose the appropriate noise process type based on your application needs:</p><ol><li><strong>In-place versions</strong>: Use in-place versions (Process!) for large systems to reduce allocations</li><li><strong>VirtualBrownianTree</strong>: Use for memory-constrained applications where O(1) memory is critical</li><li><strong>NoiseGrid</strong>: Use for pre-computed data or when you have experimental measurements</li><li><strong>NoiseWrapper</strong>: Use to reuse expensive computations across multiple simulations with different timesteps</li></ol></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../noise_processes/">« Noise Process Types</a><a class="docs-footer-nextpage" href="../../api/noise_processes/">Noise Processes API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Sunday 11 January 2026 23:29">Sunday 11 January 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
