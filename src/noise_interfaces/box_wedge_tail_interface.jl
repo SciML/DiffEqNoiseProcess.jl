@@ -424,7 +424,7 @@ function constrained_optimization_problem end
 
 # Error hint for when Optim extension is not loaded
 function __init__()
-    Base.Experimental.register_error_hint(MethodError) do io, exc, argtypes, kwargs
+    return Base.Experimental.register_error_hint(MethodError) do io, exc, argtypes, kwargs
         if exc.f === constrained_optimization_problem
             print(io, "\nUsing BoxWedgeTail with `sqeezing=true` requires Optim.jl. ")
             print(io, "Please load Optim with `using Optim` before using this feature.")
