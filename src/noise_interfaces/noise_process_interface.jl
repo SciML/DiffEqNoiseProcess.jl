@@ -75,11 +75,18 @@ handling the stacks of pre-computed noise values for adaptive time stepping.
 
 # Details
 The function implements different variants of the RSWM algorithm:
-- RSwM1: Basic rejection sampling
+- RSwM0: No memory - always recalculates (for state-dependent noise like compound Poisson)
+- RSwM1: Basic rejection sampling with single stack
 - RSwM2: Improved version with better memory management
-- RSwM3: Most advanced version with two-stack system
+- RSwM3: Most advanced version with two-stack system (recommended for Brownian motion)
 """
 @inline function setup_next_step!(W::NoiseProcess, u, p)
+    # RSwM0: No memory - always recalculate fresh noise
+    # This is appropriate for state-dependent noise like compound Poisson with variable rates
+    if adaptive_alg(W) == :RSwM0
+        calculate_step!(W, W.dt, u, p)
+        return nothing
+    end
     if adaptive_alg(W) == :RSwM3
         ResettableStacks.reset!(W.S₂) #Empty W.S₂
     end
@@ -278,12 +285,43 @@ maintaining distributional correctness.
 - `p`: Parameters (for state-dependent noise)
 
 # Details
-The function stores unused portions of noise in the RSWM stacks for later use,
-ensuring the noise process remains distributionally exact despite adaptivity.
+The function implements different behaviors based on the RSWM algorithm:
+- RSwM0: Uses bridging but discards future values (appropriate for tau-leaping)
+- RSwM1/2/3: Stores unused portions of noise in stacks for later use
+
+For tau-leaping with state-dependent rates, the rate λ is approximated as constant, so
+storing future values generated with the wrong rate doesn't make sense. RSwM0 discards
+the unused portion after bridging and recalculates fresh noise for subsequent steps.
 """
 @inline function reject_step!(W::NoiseProcess, dtnew, u, p)
     q = dtnew / W.dt
-    if adaptive_alg(W) == :RSwM1 || adaptive_alg(W) == :RSwM2 ||
+    # RSwM0: Use bridging but DON'T store future values
+    # This is appropriate for state-dependent noise (e.g., compound Poisson with variable rates)
+    # where stored future values would have been generated with incorrect parameters
+    if adaptive_alg(W) == :RSwM0
+        if isinplace(W)
+            W.bridge(W.dWtilde, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
+            if W.Z !== nothing
+                W.bridge(W.dZtilde, W, 0, W.dZ, q, dtnew, u, p, W.curt, W.rng)
+            end
+            copyto!(W.dW, W.dWtilde)
+            if W.Z !== nothing
+                copyto!(W.dZ, W.dZtilde)
+            end
+        else
+            W.dWtilde = W.bridge(W.dW, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
+            if W.Z !== nothing
+                W.dZtilde = W.bridge(W.dZ, W, 0, W.dZ, q, dtnew, u, p, W.curt, W.rng)
+            end
+            W.dW = W.dWtilde
+            if W.Z !== nothing
+                W.dZ = W.dZtilde
+            end
+        end
+        # Discard the future portion - do NOT store in S₁ or S₂
+        W.dt = dtnew
+        return nothing
+    elseif adaptive_alg(W) == :RSwM1 || adaptive_alg(W) == :RSwM2 ||
             (adaptive_alg(W) == :RSwM3 && isempty(W.S₂))
         if isinplace(W)
             W.bridge(W.dWtilde, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
