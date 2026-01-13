@@ -49,17 +49,32 @@ and jump sizes determined by a specified distribution.
 
 # Constructor
 ```julia
-CompoundPoissonProcess(rate, t0, W0; computerates = true, kwargs...)
+CompoundPoissonProcess(rate, t0, W0; computerates = true, rswm = RSWM(adaptivealg = :RSwM0), kwargs...)
 ```
+
+# Keyword Arguments
+- `computerates`: If `true`, recompute rates at each step (for state-dependent rates)
+- `rswm`: RSWM algorithm configuration. Defaults to `:RSwM0` (no memory) which is appropriate
+  for state-dependent rates. Use `RSWM(adaptivealg = :RSwM3)` for constant-rate processes
+  if memory reuse is desired.
+
+# Why `:RSwM0` is the Default
+For tau-leaping with state-dependent rates, the rate λ is approximated as constant over each
+step. When a step is rejected, storing the "future" portion doesn't make sense because you
+don't know the correct λ anyway - it's always an approximation. Recalculating fresh is more
+appropriate for this use case than reusing values generated with the wrong rate.
 
 # Examples
 ```julia
 # Constant rate
 proc = CompoundPoissonProcess(2.0, 0.0, 0.0)
 
-# Time-dependent rate
+# State-dependent rate (default RSwM0 is appropriate)
 rate_func(u, p, t) = 1.0 + 0.5*sin(t)
 proc = CompoundPoissonProcess(rate_func, 0.0, 0.0)
+
+# Constant rate with memory reuse (optional optimization)
+proc = CompoundPoissonProcess(2.0, 0.0, 0.0; rswm = RSWM(adaptivealg = :RSwM3))
 ```
 
 # References
@@ -71,7 +86,10 @@ mutable struct CompoundPoissonProcess{R, CR}
     rate::R
     currate::CR
     computerates::Bool
-    function CompoundPoissonProcess(rate, t0, W0; computerates = true, kwargs...)
+    function CompoundPoissonProcess(
+            rate, t0, W0; computerates = true,
+            rswm = RSWM(adaptivealg = :RSwM0), kwargs...
+        )
         cpp = new{typeof(rate), typeof(W0)}(rate, W0, computerates)
         return NoiseProcess{false}(
             t0, W0, nothing, cpp,
@@ -83,7 +101,7 @@ mutable struct CompoundPoissonProcess{R, CR}
                 W0, Wh, q, h,
                 u, p, t, rng
             );
-            continuous = false, cache = cpp, kwargs...
+            continuous = false, cache = cpp, rswm = rswm, kwargs...
         )
     end
 end
@@ -121,14 +139,22 @@ See `CompoundPoissonProcess` for details.
 
 # Constructor
 ```julia
-CompoundPoissonProcess!(rate, t0, W0; computerates = true, kwargs...)
+CompoundPoissonProcess!(rate, t0, W0; computerates = true, rswm = RSWM(adaptivealg = :RSwM0), kwargs...)
 ```
+
+# Keyword Arguments
+- `computerates`: If `true`, recompute rates at each step (for state-dependent rates)
+- `rswm`: RSWM algorithm configuration. Defaults to `:RSwM0` (no memory) which is appropriate
+  for state-dependent rates.
 """
 struct CompoundPoissonProcess!{R, CR}
     rate::R
     currate::CR
     computerates::Bool
-    function CompoundPoissonProcess!(rate, t0, W0; computerates = true, kwargs...)
+    function CompoundPoissonProcess!(
+            rate, t0, W0; computerates = true,
+            rswm = RSWM(adaptivealg = :RSwM0), kwargs...
+        )
         cpp = new{typeof(rate), typeof(W0)}(rate, copy(W0), computerates)
         return NoiseProcess{true}(
             t0, W0, nothing, cpp,
@@ -143,7 +169,7 @@ struct CompoundPoissonProcess!{R, CR}
                 p, t,
                 rng
             );
-            continuous = false, cache = cpp, kwargs...
+            continuous = false, cache = cpp, rswm = rswm, kwargs...
         )
     end
 end
