@@ -8,7 +8,8 @@ Solve a noise problem by simulating the noise process over the specified time sp
 - `dt`: The time step size (required, no default)
 
 ## Keyword Arguments
-- `seed`: Random seed for reproducible results
+- `seed`: Random seed for reproducible results. If `0` (the default), will use the RNG
+    from the `NoiseProcess` or `NoiseTransport`.
 - Additional keyword arguments are passed to the underlying solver
 
 ## Returns
@@ -33,8 +34,6 @@ function DiffEqBase.__solve(
     if W isa Union{NoiseProcess, NoiseTransport}
         if prob.seed != 0
             Random.seed!(W.rng, prob.seed)
-        else
-            Random.seed!(W.rng, rand(UInt64))
         end
     end
     if W.reset
