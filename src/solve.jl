@@ -34,7 +34,7 @@ function DiffEqBase.__solve(
         if prob.seed != 0
             Random.seed!(W.rng, prob.seed)
         else
-            Random.seed!(W.rng, rand(UInt64))
+            Random.seed!(W.rng)
         end
     end
     if W.reset
