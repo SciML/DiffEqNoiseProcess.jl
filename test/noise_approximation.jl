@@ -12,13 +12,13 @@
     dt = 0.1
     calculate_step!(W, dt, nothing, nothing)
     dWold = W.dW
-    @test W.curW == W[1]
+    @test W.curW == W.u[1]
     @test W.curt == 0.0
     accept_step!(W, dt, nothing, nothing)
     @test W.curW == 0.5 + dWold
     @test W.curt == dt
-    @test W.curW + W.dW == W[end]
-    @test W.curW == W[11]
+    @test W.curW + W.dW == W.u[end]
+    @test W.curW == W.u[11]
 
     W = NoiseApproximation(integrator)
     for i in 1:10

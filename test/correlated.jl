@@ -36,7 +36,7 @@ using StaticArrays
     @time sol = Array(solve(ensemble_prob, dt = dt, trajectories = 1_000_000))
 
     @test zero(mean(sol, dims = 2)[:]) ≈ mean(sol, dims = 2)[:] atol = 1.0e-2
-    @test W.W ≈ cov(sol, dims = 2) / dt rtol = 1.0e-2
+    @test W.covariance ≈ cov(sol, dims = 2) / dt rtol = 1.0e-2
 
     # with StaticArrays
     Γ = @SMatrix [
