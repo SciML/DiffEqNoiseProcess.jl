@@ -5,11 +5,9 @@ using DiffEqBase: DiffEqBase
 using RecipesBase: RecipesBase
 using RecursiveArrayTools: RecursiveArrayTools, recursivecopy
 using StaticArraysCore: StaticArraysCore, SArray
-using Random: Random, AbstractRNG, randn!
+using Random: Random, AbstractRNG, randn!, Xoshiro
 using Statistics: Statistics
 using LinearAlgebra: LinearAlgebra, Diagonal, mul!, svd
-
-import Random123
 
 import DiffEqBase: isinplace, AbstractNoiseProcess,
     DEIntegrator, AbstractNoiseProblem

@@ -159,20 +159,20 @@ end
 # split seeds
 
 # for counter-based RNGs
-function split_VBT_seed(rng::Random123.AbstractR123, parent_seed, current_depth, Nt)
+function split_VBT_seed(rng::AbstractRNG, parent_seed, current_depth, Nt)
 
     # seed left
     seed_l = convert(typeof(parent_seed), parent_seed - (Nt - 1) ÷ 2^(current_depth + 1))
     # seed right
     seed_r = convert(typeof(parent_seed), parent_seed + (Nt - 1) ÷ 2^(current_depth + 1))
 
-    Random123.set_counter!(rng, parent_seed)
+    Random.seed!(rng, parent_seed)
     return seed_l, seed_r, parent_seed
 end
 
 # create the cache of the VBT with depth tree_depth
 function create_VBT_cache(
-        bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.AbstractR123,
+        bridge, t0, W0, Z0, tend, Wend, Zend, rng::AbstractRNG,
         tree_depth, search_depth
     )
     # total number of cached time steps and W values
@@ -243,7 +243,7 @@ end
 
 function search_VBT(
         t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
-        rng::Random123.AbstractR123
+        rng::AbstractRNG
     )
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)
@@ -303,7 +303,7 @@ end
 
 function search_VBT!(
         out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
-        rng::Random123.AbstractR123
+        rng::AbstractRNG
     )
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)
