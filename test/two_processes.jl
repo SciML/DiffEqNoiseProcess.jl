@@ -1,5 +1,5 @@
 using StochasticDiffEq, DiffEqNoiseProcess, Test, LinearAlgebra
-using Random, Random123
+using Random
 seed = 100;
 Random.seed!(seed);
 @testset "Two noise processes for different m" begin
@@ -11,7 +11,7 @@ Random.seed!(seed);
         W = WienerProcess!(
             0.0, rand_prototype, rand_prototype2,
             save_everystep = true,
-            rng = Random123.Threefry4x()
+            rng = Xoshiro()
         )
         prob = NoiseProblem(W, (0.0, 1.0))
         sol = solve(prob; dt = 0.2)
@@ -20,7 +20,7 @@ Random.seed!(seed);
         Woop = WienerProcess(
             0.0, rand_prototype, rand_prototype2,
             save_everystep = true,
-            rng = Random123.Threefry4x()
+            rng = Xoshiro()
         )
         proboop = NoiseProblem(Woop, (0.0, 1.0))
         soloop = solve(proboop; dt = 0.2)
