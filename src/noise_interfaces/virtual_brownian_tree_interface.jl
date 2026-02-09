@@ -166,7 +166,7 @@ function split_VBT_seed(rng::AbstractRNG, parent_seed, current_depth, Nt)
     # seed right
     seed_r = convert(typeof(parent_seed), parent_seed + (Nt - 1) ÷ 2^(current_depth + 1))
 
-    Random.seed!(rng, parent_seed)
+    rng.s3 = parent_seed
     return seed_l, seed_r, parent_seed
 end
 
@@ -189,7 +189,7 @@ function create_VBT_cache(
         Zs = [nothing]
     end
 
-    seeds = [convert(typeof(rng.ctr1), rng.ctr1 + (Nt + 1) / 2)]
+    seeds = [convert(typeof(rng.s3), rng.s3 + (Nt + 1) / 2)]
 
     q = 1 // 2
 
@@ -199,12 +199,12 @@ function create_VBT_cache(
         if Z0 !== nothing
             new_Zs = Vector{typeof(Z0)}(undef, 0)
         else
-            new_Zs = [nothing]
+            new_Zs = Nothing[]
         end
-        new_seeds = Vector{typeof(rng.ctr1)}(undef, 0)
+        new_seeds = Vector{typeof(rng.s4)}(undef, 0)
         for (i, parent) in enumerate(seeds)
             seed_l, seed_r, seed_v = split_VBT_seed(rng, parent, level, Nt)
-            append!(new_seeds, [seed_l, seed_r])
+            push!(new_seeds, seed_l, seed_r)
 
             t0, t1 = ts[i], ts[i + 1]
             W0tmp, W1tmp = Ws[i], Ws[i + 1]
@@ -221,8 +221,8 @@ function create_VBT_cache(
                 append!(new_Zs, z)
             end
 
-            append!(new_ts, [t0, t])
-            append!(new_Ws, [W0tmp, w])
+            push!(new_ts, t0, t)
+            push!(new_Ws, W0tmp, w)
         end
         push!(new_ts, tend)
         push!(new_Ws, Wend)
