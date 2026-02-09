@@ -1,4 +1,4 @@
-using StochasticDiffEq, DiffEqNoiseProcess, Test, LinearAlgebra
+using DiffEqBase, DiffEqNoiseProcess, Test, LinearAlgebra
 using Random
 seed = 100;
 Random.seed!(seed);
@@ -11,7 +11,7 @@ Random.seed!(seed);
         W = WienerProcess!(
             0.0, rand_prototype, rand_prototype2,
             save_everystep = true,
-            rng = Xoshiro()
+            rng = Xoshiro(1234)
         )
         prob = NoiseProblem(W, (0.0, 1.0))
         sol = solve(prob; dt = 0.2)
@@ -20,7 +20,7 @@ Random.seed!(seed);
         Woop = WienerProcess(
             0.0, rand_prototype, rand_prototype2,
             save_everystep = true,
-            rng = Xoshiro()
+            rng = Xoshiro(1234)
         )
         proboop = NoiseProblem(Woop, (0.0, 1.0))
         soloop = solve(proboop; dt = 0.2)

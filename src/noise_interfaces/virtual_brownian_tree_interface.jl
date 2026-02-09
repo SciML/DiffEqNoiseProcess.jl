@@ -162,11 +162,11 @@ end
 function split_VBT_seed(rng::AbstractRNG, parent_seed, current_depth, Nt)
 
     # seed left
-    seed_l = convert(typeof(parent_seed), parent_seed - (Nt - 1) ÷ 2^(current_depth + 1))
+    seed_l = parent_seed .- ((Nt + 1) ÷ 2)
     # seed right
-    seed_r = convert(typeof(parent_seed), parent_seed + (Nt - 1) ÷ 2^(current_depth + 1))
+    seed_r = parent_seed .+ ((Nt + 1) ÷ 2)
 
-    rng.s3 = parent_seed
+    Random.setstate!(rng, parent_seed)
     return seed_l, seed_r, parent_seed
 end
 
@@ -189,11 +189,11 @@ function create_VBT_cache(
         Zs = [nothing]
     end
 
-    seeds = [convert(typeof(rng.s3), rng.s3 + (Nt + 1) / 2)]
+    seeds = [Random.getstate(rng) .+ ((Nt + 1) ÷ 2)]
 
     q = 1 // 2
 
-    for level in 1:Int(tree_depth)
+    for depth in 1:Int(tree_depth)
         new_ts = Vector{typeof(t0)}(undef, 0)
         new_Ws = Vector{typeof(W0)}(undef, 0)
         if Z0 !== nothing
@@ -201,15 +201,14 @@ function create_VBT_cache(
         else
             new_Zs = Nothing[]
         end
-        new_seeds = Vector{typeof(rng.s4)}(undef, 0)
+        new_seeds = similar(seeds, 0)
         for (i, parent) in enumerate(seeds)
-            seed_l, seed_r, seed_v = split_VBT_seed(rng, parent, level, Nt)
+            seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
             push!(new_seeds, seed_l, seed_r)
 
             t0, t1 = ts[i], ts[i + 1]
             W0tmp, W1tmp = Ws[i], Ws[i + 1]
             t = (t0 + t1) / 2
-
             h = t1 - t0
             #q = (t-t0)/h # == 1//2 defined above
 
@@ -245,9 +244,9 @@ function search_VBT(
         t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
         rng::AbstractRNG
     )
+    seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)
-    seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
 
     tmid = (t0 + t1) / 2
     h = t1 - t0
@@ -284,8 +283,8 @@ function search_VBT(
                 Z0tmp, Z1tmp = out2, Z1tmp
             end
         end
-
-        seed_l, seed_r, seed_v = split_VBT_seed(rng, seed_v, depth, Nt)
+        
+        seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
         tmid = (t0 + t1) / 2
         h = t1 - t0
 
