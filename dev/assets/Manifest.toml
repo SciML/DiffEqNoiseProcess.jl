@@ -275,7 +275,7 @@ version = "6.201.0"
 deps = ["CommonSolve", "DiffEqBase", "Distributions", "GPUArraysCore", "LinearAlgebra", "Markdown", "PoissonRandom", "QuadGK", "Random", "Random123", "RecipesBase", "RecursiveArrayTools", "ResettableStacks", "SciMLBase", "StaticArraysCore", "Statistics"]
 path = "/home/runner/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
-version = "5.26.0"
+version = "5.27.0"
 
     [deps.DiffEqNoiseProcess.extensions]
     DiffEqNoiseProcessOptimExt = "Optim"
