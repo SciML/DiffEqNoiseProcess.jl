@@ -33,7 +33,7 @@ function DiffEqBase.__solve(
     if W isa Union{NoiseProcess, NoiseTransport}
         if prob.seed != 0
             Random.seed!(W.rng, prob.seed)
-        else
+        elseif W.reseed
             Random.seed!(W.rng)
         end
     end

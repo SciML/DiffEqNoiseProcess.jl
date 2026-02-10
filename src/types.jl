@@ -194,6 +194,7 @@ function NoiseProcess{iip}(
         reset = true, reseed = true, continuous = true,
         cache = nothing
     ) where {iip}
+    rng = rng isa Random.TaskLocalRNG ? copy(rng) : rng
     S₁ = ResettableStacks.ResettableStack{iip}(
         Tuple{
             typeof(t0), typeof(W0), typeof(Z0),
@@ -395,6 +396,7 @@ mutable struct SimpleNoiseProcess{
             rng = Random.default_rng(),
             reset = true, reseed = true
         ) where {iip}
+        rng = rng isa Random.TaskLocalRNG ? copy(rng) : rng
         if Z0 == nothing
             Z = nothing
             curZ = nothing
@@ -834,6 +836,7 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
             reset = true, reseed = true,
             noise_prototype = W(nothing, nothing, t0, rv)
         ) where {iip}
+        rng = rng isa Random.TaskLocalRNG ? copy(rng) : rng
         curt = t0
         dt = t0
         curW = copy(noise_prototype)
@@ -1386,6 +1389,7 @@ function BoxWedgeTail{iip}(
         rng = Random.default_rng(),
         reset = true, reseed = true
     ) where {iip}
+    rng = rng isa Random.TaskLocalRNG ? copy(rng) : rng
     if Z0 === nothing
         Z = nothing
         curZ = nothing

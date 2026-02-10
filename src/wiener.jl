@@ -87,7 +87,7 @@ Fill an arbitrary container with random numbers from the standard normal distrib
 The modified rand_vec filled with standard normal random numbers
 """
 @inline function wiener_randn!(rng::AbstractRNG, rand_vec)
-    return rand_vec .= Base.Broadcast.Broadcasted(randn, ())
+    return rand_vec .= Base.Broadcast.Broadcasted(() -> randn(rng), ())
 end
 
 """
