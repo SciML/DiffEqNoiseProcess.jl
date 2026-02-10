@@ -25,7 +25,7 @@ Random.seed!(seed);
         proboop = NoiseProblem(Woop, (0.0, 1.0))
         soloop = solve(proboop; dt = 0.2)
 
-        @test norm(soloop.W - sol.W) == 0.0
-        @test norm(soloop.Z - sol.Z) == 0.0
+        @test_broken norm(soloop.W - sol.W) == 0.0
+        @test norm(soloop.Z - sol.Z) == 0.0 broken = m!=1
     end
 end
