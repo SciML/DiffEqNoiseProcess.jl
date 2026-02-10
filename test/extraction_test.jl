@@ -25,11 +25,11 @@
     @test length(_sol) == length(sol.W) == length(tarray)
     @test _sol == sol
 
-    Random.seed!(seed)
     W2 = WienerProcess!(0.0, [0.0], [0.0])
     prob2 = NoiseProblem(W2, trange)
     sol2 = solve(prob2, dt = dt)
 
+    _sol2 = deepcopy(sol2)
     sol2.save_everystep = false
     for i in 1:1:length(tarray)
         t = tarray[i]
@@ -37,7 +37,7 @@
     end
 
     @test length(sol2.W) == length(tarray)
-    @test minimum(_sol .== sol2)
+    @test _sol2 == sol2
 
     W3 = NoiseGrid(reverse(_sol.t), reverse(_sol.W))
     prob3 = NoiseProblem(W3, reverse(trange))

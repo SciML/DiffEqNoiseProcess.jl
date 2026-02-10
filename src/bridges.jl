@@ -129,8 +129,8 @@ The jumps are distributed to satisfy the endpoint constraint.
 bridge = CompoundPoissonBridge(2.0, 0.0, 1.0, 0.0, 5.0)
 ```
 """
-function CompoundPoissonBridge(rate, t0, tend, W0, Wend; kwargs...)
-    W = CompoundPoissonProcess(rate, t0, W0; kwargs...)
+function CompoundPoissonBridge(rate, t0, tend, W0, Wend; rswm = RSWM(), kwargs...)
+    W = CompoundPoissonProcess(rate, t0, W0; rswm = rswm, kwargs...)
     h = tend - t0
     Wh = Wend - W0
     push!(W.S₁, (h, Wh, nothing))
@@ -143,8 +143,8 @@ In-place version of `CompoundPoissonBridge`.
 
 See `CompoundPoissonBridge` for details.
 """
-function CompoundPoissonBridge!(rate, t0, tend, W0, Wh; kwargs...)
-    W = CompoundPoissonProcess!(rate, t0, W0; kwargs...)
+function CompoundPoissonBridge!(rate, t0, tend, W0, Wh; rswm = RSWM(), kwargs...)
+    W = CompoundPoissonProcess!(rate, t0, W0; rswm = rswm, kwargs...)
     h = tend - t0
     Wh .-= W0
     push!(W.S₁, (h, Wh, nothing))

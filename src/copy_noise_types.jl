@@ -1,6 +1,8 @@
 function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
     for x in filter(!=(:u), fieldnames(typeof(W)))
-        if !ismutable(getfield(W, x))
+        if getfield(W, x) isa Random.AbstractRNG
+            setfield!(Wnew, x, copy(getfield(W, x)))
+        elseif !ismutable(getfield(W, x))
             setfield!(Wnew, x, getfield(W, x))
         elseif getfield(W, x) isa AbstractNoiseProcess
             copy!(getfield(Wnew, x), getfield(W, x))
@@ -21,8 +23,6 @@ function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
             setfield!(getfield(Wnew, x), :probability, getfield(W, x).probability)
             setfield!(getfield(Wnew, x), :offset, getfield(W, x).offset)
             setfield!(getfield(Wnew, x), :dist, getfield(W, x).dist)
-        elseif getfield(W, x) isa Random.AbstractRNG
-            setfield!(Wnew, x, copy(getfield(W, x)))
         else
             # @warn "Got deep with $x::$(typeof(getfield(W, x))) in $(first(split(string(typeof(W)), '}')))"
             setfield!(Wnew, x, deepcopy(getfield(W, x)))
