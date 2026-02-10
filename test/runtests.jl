@@ -1,4 +1,5 @@
 using Test, Pkg
+# Trigger CI to diagnose test failures
 
 const GROUP = get(ENV, "GROUP", "All")
 
