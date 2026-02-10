@@ -10,7 +10,7 @@ Create noise processes from arbitrary functions of time:
 
 ```@example advanced
 using DiffEqNoiseProcess, SciMLBase
-using Random
+using Random, Random123
 
 # Define a deterministic "noise" function
 # NoiseFunction expects signature f(u, p, t)

@@ -1170,6 +1170,7 @@ In this example, we define a mulitidimensional Brownian process based on a
 is minimized.
 
 ```julia
+using Random123
 W0 = zeros(10)
 W = VirtualBrownianTree(0.0, W0; tree_depth = 0)
 
