@@ -18,7 +18,7 @@ function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
             setfield!(getfield(Wnew, x), :discard_length, getfield(W, x).discard_length)
             setfield!(getfield(Wnew, x), :adaptivealg, getfield(W, x).adaptivealg)
         elseif getfield(W, x) isa
-               Union{BoxGeneration1, BoxGeneration2, BoxGeneration3}
+                Union{BoxGeneration1, BoxGeneration2, BoxGeneration3}
             setfield!(getfield(Wnew, x), :boxes, getfield(W, x).boxes)
             setfield!(getfield(Wnew, x), :probability, getfield(W, x).probability)
             setfield!(getfield(Wnew, x), :offset, getfield(W, x).offset)
