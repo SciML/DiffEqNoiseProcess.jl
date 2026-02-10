@@ -9,7 +9,7 @@
     trange = (tstart, tend)
 
     Random.seed!(seed)
-    W = WienerProcess(0.0, 0.0, 0.0)
+    W = WienerProcess(0.0, 0.0, 0.0; reseed = false)
     prob = NoiseProblem(W, trange)
     sol = solve(prob, dt = dt)
 
@@ -25,11 +25,11 @@
     @test length(_sol) == length(sol.W) == length(tarray)
     @test _sol == sol
 
-    W2 = WienerProcess!(0.0, [0.0], [0.0])
+    Random.seed!(seed)
+    W2 = WienerProcess!(0.0, [0.0], [0.0]; reseed = false)
     prob2 = NoiseProblem(W2, trange)
     sol2 = solve(prob2, dt = dt)
 
-    _sol2 = deepcopy(sol2)
     sol2.save_everystep = false
     for i in 1:1:length(tarray)
         t = tarray[i]
@@ -37,7 +37,7 @@
     end
 
     @test length(sol2.W) == length(tarray)
-    @test _sol2 == sol2
+    @test all(_sol.W[i] == sol2.W[i][1] for i in eachindex(_sol.W))
 
     W3 = NoiseGrid(reverse(_sol.t), reverse(_sol.W))
     prob3 = NoiseProblem(W3, reverse(trange))
