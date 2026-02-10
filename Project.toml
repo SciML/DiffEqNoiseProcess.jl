@@ -13,7 +13,6 @@ Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
 PoissonRandom = "e409e4f3-bfea-5376-8464-e040bb5c01ab"
 QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Random123 = "74087812-796a-5b5d-8853-05524746bad3"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 RecursiveArrayTools = "731186ca-8d62-57ce-b412-fbd966d074cd"
 ResettableStacks = "ae5879a3-cd67-5da8-be7f-38c6eb64a37b"
@@ -23,10 +22,12 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [weakdeps]
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
+Random123 = "74087812-796a-5b5d-8853-05524746bad3"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 
 [extensions]
 DiffEqNoiseProcessOptimExt = "Optim"
+DiffEqNoiseProcessRandom123Ext = "Random123"
 DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
 
 [compat]
@@ -54,6 +55,7 @@ ExplicitImports = "7d51a73a-1435-4ff3-83d9-f097790105c7"
 HypothesisTests = "09f84164-cd44-5f33-b23f-e6b0d136a0d5"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+Random123 = "74087812-796a-5b5d-8853-05524746bad3"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 SDEProblemLibrary = "c72e72a9-a271-4b2b-8966-303ed956772e"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
@@ -62,4 +64,4 @@ StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports", "Optim"]
+test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports", "Optim", "Random123"]

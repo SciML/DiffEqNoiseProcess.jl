@@ -1161,7 +1161,7 @@ as a keyword argument. The following keyword arguments are available:
     to speed up the simulation by reducing the recursion steps.
   - `search_depth` maximal search depth for the tree if `atol` is not reached.
   - `rng` the splittable PRNG used for generating the random numbers.
-    Default: `Threefry4x()` from the Random123 package.
+    Default: `Threefry4x()` from the Random123 package (requires `using Random123`).
 
 ## VirtualBrownianTree Example
 
@@ -1216,9 +1216,13 @@ function VirtualBrownianTree{iip}(
         tend = nothing, Wend = nothing, Zend = nothing,
         atol = 1.0e-10, tree_depth::Int = 4,
         search_depth = nothing,
-        rng = Random123.Threefry4x(),
+        rng = _DefaultVBTRNG(),
         reset = true
     ) where {iip}
+    rng = _resolve_vbt_rng(rng)
+    if rng isa _DefaultVBTRNG
+        error("VirtualBrownianTree requires Random123.jl. Run `using Random123` before constructing a VirtualBrownianTree without an explicit `rng` argument.")
+    end
     if search_depth == nothing
         if atol < 1.0e-10
             search_depth = 50 # maximum search depth

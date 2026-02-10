@@ -1,5 +1,6 @@
 @testset "Copy Noise test" begin
     using DiffEqNoiseProcess, StochasticDiffEq
+    import Random123  # Required for VirtualBrownianTree default rng
     using Optim  # Required for BoxWedgeTail with sqeezing=true
 
     # define a temporary equality suitable for comparing noise types (tab-completed by `\boxminus<tab>`)

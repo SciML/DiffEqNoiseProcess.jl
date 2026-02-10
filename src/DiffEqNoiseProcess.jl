@@ -9,8 +9,6 @@ using Random: Random, AbstractRNG, randn!
 using Statistics: Statistics
 using LinearAlgebra: LinearAlgebra, Diagonal, mul!, svd
 
-import Random123
-
 import DiffEqBase: isinplace, AbstractNoiseProcess,
     DEIntegrator, AbstractNoiseProblem
 
@@ -30,6 +28,16 @@ using Markdown: Markdown, @doc_str
 using DiffEqBase: @..
 
 using Base: deleteat!, convert, copyto!
+
+struct _DefaultVBTRNG end
+
+# Extension adds more specific method for _DefaultVBTRNG to return Random123.Threefry4x()
+_resolve_vbt_rng(rng) = rng
+
+# Extension adds more specific method for Random123.AbstractR123
+function _set_counter!(rng, seed)
+    error("The provided RNG type $(typeof(rng)) does not support `set_counter!`. Use a Random123.jl RNG (e.g., `Random123.Threefry4x()`) or load Random123 with `using Random123`.")
+end
 
 include("types.jl")
 include("copy_noise_types.jl")

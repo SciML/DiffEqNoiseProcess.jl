@@ -1,5 +1,6 @@
 @testset "Brownian Bridge" begin
     using DiffEqNoiseProcess, DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis
+    import Random123  # Required for VirtualBrownianTree default rng
 
     Random.seed!(100)
     W = BrownianBridge(0.0, 1.0, 0.0, 1.0, 0.0, 0.0)
