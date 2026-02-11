@@ -71,13 +71,13 @@ function interpolate!(out1, out2, W::VirtualBrownianTree, u, p, t)
     else
         if W.dZ !== nothing
             search_VBT!(
-                out1, out2, t, seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
+                out1, out2, t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
                 timeseries[i],
                 timeseries2[i - 1], timeseries2[i], W, W.rng
             )
         else
             search_VBT!(
-                out1, out2, t, seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
+                out1, out2, t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
                 timeseries[i],
                 nothing, nothing, W, W.rng
             )
@@ -162,9 +162,9 @@ end
 function split_VBT_seed(rng::AbstractRNG, parent_seed, current_depth, Nt)
 
     # seed left
-    seed_l = parent_seed .- ((Nt + 1) ÷ 2)
+    seed_l = parent_seed .- ((Nt - 1) ÷ 2^(current_depth + 1))
     # seed right
-    seed_r = parent_seed .+ ((Nt + 1) ÷ 2)
+    seed_r = parent_seed .+ ((Nt - 1) ÷ 2^(current_depth + 1))
 
     Random.setstate!(rng, parent_seed)
     return seed_l, seed_r, parent_seed
@@ -203,7 +203,7 @@ function create_VBT_cache(
         end
         new_seeds = similar(seeds, 0)
         for (i, parent) in enumerate(seeds)
-            seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
+            seed_l, seed_r, seed_v = split_VBT_seed(rng, parent, depth, Nt)
             push!(new_seeds, seed_l, seed_r)
 
             t0, t1 = ts[i], ts[i + 1]
@@ -244,9 +244,9 @@ function search_VBT(
         t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
         rng::AbstractRNG
     )
-    seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)
+    seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
 
     tmid = (t0 + t1) / 2
     h = t1 - t0
@@ -283,8 +283,8 @@ function search_VBT(
                 Z0tmp, Z1tmp = out2, Z1tmp
             end
         end
-        
-        seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
+
+        seed_l, seed_r, seed_v = split_VBT_seed(rng, seed_v, depth, Nt)
         tmid = (t0 + t1) / 2
         h = t1 - t0
 
