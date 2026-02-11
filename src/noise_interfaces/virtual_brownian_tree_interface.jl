@@ -71,13 +71,13 @@ function interpolate!(out1, out2, W::VirtualBrownianTree, u, p, t)
     else
         if W.dZ !== nothing
             search_VBT!(
-                out1, out2, t, seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
+                out1, out2, t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
                 timeseries[i],
                 timeseries2[i - 1], timeseries2[i], W, W.rng
             )
         else
             search_VBT!(
-                out1, out2, t, seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
+                out1, out2, t, W.seeds[i - 1], ts[i - 1], ts[i], timeseries[i - 1],
                 timeseries[i],
                 nothing, nothing, W, W.rng
             )
@@ -159,20 +159,20 @@ end
 # split seeds
 
 # for counter-based RNGs
-function split_VBT_seed(rng::Random123.AbstractR123, parent_seed, current_depth, Nt)
+function split_VBT_seed(rng::AbstractRNG, parent_seed, current_depth, Nt)
 
     # seed left
-    seed_l = convert(typeof(parent_seed), parent_seed - (Nt - 1) ÷ 2^(current_depth + 1))
+    seed_l = parent_seed .- ((Nt - 1) ÷ 2^(current_depth + 1))
     # seed right
-    seed_r = convert(typeof(parent_seed), parent_seed + (Nt - 1) ÷ 2^(current_depth + 1))
+    seed_r = parent_seed .+ ((Nt - 1) ÷ 2^(current_depth + 1))
 
-    Random123.set_counter!(rng, parent_seed)
+    Random.setstate!(rng, parent_seed)
     return seed_l, seed_r, parent_seed
 end
 
 # create the cache of the VBT with depth tree_depth
 function create_VBT_cache(
-        bridge, t0, W0, Z0, tend, Wend, Zend, rng::Random123.AbstractR123,
+        bridge, t0, W0, Z0, tend, Wend, Zend, rng::AbstractRNG,
         tree_depth, search_depth
     )
     # total number of cached time steps and W values
@@ -189,27 +189,26 @@ function create_VBT_cache(
         Zs = [nothing]
     end
 
-    seeds = [convert(typeof(rng.ctr1), rng.ctr1 + (Nt + 1) / 2)]
+    seeds = [Random.getstate(rng) .+ ((Nt + 1) ÷ 2)]
 
     q = 1 // 2
 
-    for level in 1:Int(tree_depth)
+    for depth in 1:Int(tree_depth)
         new_ts = Vector{typeof(t0)}(undef, 0)
         new_Ws = Vector{typeof(W0)}(undef, 0)
         if Z0 !== nothing
             new_Zs = Vector{typeof(Z0)}(undef, 0)
         else
-            new_Zs = [nothing]
+            new_Zs = Nothing[]
         end
-        new_seeds = Vector{typeof(rng.ctr1)}(undef, 0)
+        new_seeds = similar(seeds, 0)
         for (i, parent) in enumerate(seeds)
-            seed_l, seed_r, seed_v = split_VBT_seed(rng, parent, level, Nt)
-            append!(new_seeds, [seed_l, seed_r])
+            seed_l, seed_r, seed_v = split_VBT_seed(rng, parent, depth, Nt)
+            push!(new_seeds, seed_l, seed_r)
 
             t0, t1 = ts[i], ts[i + 1]
             W0tmp, W1tmp = Ws[i], Ws[i + 1]
             t = (t0 + t1) / 2
-
             h = t1 - t0
             #q = (t-t0)/h # == 1//2 defined above
 
@@ -221,8 +220,8 @@ function create_VBT_cache(
                 append!(new_Zs, z)
             end
 
-            append!(new_ts, [t0, t])
-            append!(new_Ws, [W0tmp, w])
+            push!(new_ts, t0, t)
+            push!(new_Ws, W0tmp, w)
         end
         push!(new_ts, tend)
         push!(new_Ws, Wend)
@@ -243,7 +242,7 @@ end
 
 function search_VBT(
         t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
-        rng::Random123.AbstractR123
+        rng::AbstractRNG
     )
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)
@@ -303,7 +302,7 @@ end
 
 function search_VBT!(
         out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
-        rng::Random123.AbstractR123
+        rng::AbstractRNG
     )
     Nt = Int(2^W.search_depth + 1)
     depth = Int(W.tree_depth + 1)

@@ -1,5 +1,5 @@
-using StochasticDiffEq, DiffEqNoiseProcess, Test, LinearAlgebra
-using Random, Random123
+using DiffEqBase, DiffEqNoiseProcess, Test, LinearAlgebra
+using Random
 seed = 100;
 Random.seed!(seed);
 @testset "Two noise processes for different m" begin
@@ -8,7 +8,7 @@ Random.seed!(seed);
         rand_prototype2 = similar(rand_prototype, Int(m * (m - 1) / 2))
         rand_prototype2 .= false
 
-        rng_base = Random123.Threefry4x()
+        rng_base = Xoshiro()
         Random.seed!(rng_base)
         rng1 = copy(rng_base)
         rng2 = copy(rng_base)
