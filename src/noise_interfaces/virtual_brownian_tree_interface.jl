@@ -158,15 +158,19 @@ end
 
 # split seeds
 
-# for counter-based RNGs
-function split_VBT_seed(rng::AbstractRNG, parent_seed, current_depth, Nt)
+# For deterministic seeding with integer seeds.
+# Each tree node gets a unique integer seed derived from its parent's seed
+# and position in the tree. This allows reproducible random number generation
+# for each node regardless of traversal order.
+function split_VBT_seed(rng::AbstractRNG, parent_seed::Integer, current_depth, Nt)
+    # Compute child seeds by splitting the seed range
+    # Each level halves the range, ensuring non-overlapping seeds
+    offset = (Nt - 1) ÷ 2^(current_depth + 1)
+    seed_l = parent_seed - offset
+    seed_r = parent_seed + offset
 
-    # seed left
-    seed_l = parent_seed .- ((Nt - 1) ÷ 2^(current_depth + 1))
-    # seed right
-    seed_r = parent_seed .+ ((Nt - 1) ÷ 2^(current_depth + 1))
-
-    Random.setstate!(rng, parent_seed)
+    # Set RNG to deterministic state based on parent seed
+    Random.seed!(rng, parent_seed)
     return seed_l, seed_r, parent_seed
 end
 
@@ -189,7 +193,11 @@ function create_VBT_cache(
         Zs = [nothing]
     end
 
-    seeds = [Random.getstate(rng) .+ ((Nt + 1) ÷ 2)]
+    # Use an integer seed for the root node. We generate a random initial seed
+    # from the RNG and add an offset to center the seed range.
+    # This allows child seeds to be computed by adding/subtracting offsets.
+    initial_seed = abs(rand(rng, Int)) % (Nt * 1000) + (Nt + 1) ÷ 2
+    seeds = [initial_seed]
 
     q = 1 // 2
 
