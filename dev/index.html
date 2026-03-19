@@ -9,7 +9,7 @@ W = WienerProcess(0.0, 0.0, 1.0)
 prob = NoiseProblem(W, (0.0, 1.0))
 sol = solve(prob; dt = 0.01)
 
-println(&quot;Final Brownian motion value: $(sol.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final Brownian motion value: 0.6871775083962861</code></pre><h3 id="Using-Noise-in-SDE-Problems"><a class="docs-heading-anchor" href="#Using-Noise-in-SDE-Problems">Using Noise in SDE Problems</a><a id="Using-Noise-in-SDE-Problems-1"></a><a class="docs-heading-anchor-permalink" href="#Using-Noise-in-SDE-Problems" title="Permalink"></a></h3><p>Noise processes integrate directly with SDE problems:</p><pre><code class="language-julia hljs">using SciMLBase
+println(&quot;Final Brownian motion value: $(sol.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final Brownian motion value: -0.20408451810147282</code></pre><h3 id="Using-Noise-in-SDE-Problems"><a class="docs-heading-anchor" href="#Using-Noise-in-SDE-Problems">Using Noise in SDE Problems</a><a id="Using-Noise-in-SDE-Problems-1"></a><a class="docs-heading-anchor-permalink" href="#Using-Noise-in-SDE-Problems" title="Permalink"></a></h3><p>Noise processes integrate directly with SDE problems:</p><pre><code class="language-julia hljs">using SciMLBase
 
 # Define SDE: dX = μX dt + σX dW (geometric Brownian motion)
 f(u, p, t) = 0.05 * u  # 5% drift
@@ -26,34 +26,32 @@ u: 1-element Vector{Float64}:
 enprob = EnsembleProblem(prob)
 ensemble_sol = solve(enprob; dt = 0.01, trajectories = 100)
 
-println(&quot;Generated $(length(ensemble_sol.u)) noise trajectories&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Generated 100 noise trajectories</code></pre><h2 id="Available-Noise-Processes"><a class="docs-heading-anchor" href="#Available-Noise-Processes">Available Noise Processes</a><a id="Available-Noise-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Available-Noise-Processes" title="Permalink"></a></h2><p>DiffEqNoiseProcess.jl includes a rich collection of noise processes:</p><h3 id="Classic-Processes"><a class="docs-heading-anchor" href="#Classic-Processes">Classic Processes</a><a id="Classic-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Classic-Processes" title="Permalink"></a></h3><ul><li><strong>WienerProcess</strong>: Standard Brownian motion</li><li><strong>RealWienerProcess</strong>: Scalar Brownian motion</li><li><strong>CorrelatedWienerProcess</strong>: Multi-dimensional correlated noise</li><li><strong>OrnsteinUhlenbeckProcess</strong>: Mean-reverting process</li><li><strong>GeometricBrownianMotionProcess</strong>: For financial modeling</li><li><strong>CompoundPoissonProcess</strong>: Jump processes</li></ul><h3 id="Bridge-Processes"><a class="docs-heading-anchor" href="#Bridge-Processes">Bridge Processes</a><a id="Bridge-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Bridge-Processes" title="Permalink"></a></h3><ul><li><strong>BrownianBridge</strong>: Brownian motion with fixed endpoints</li><li><strong>GeometricBrownianBridge</strong>: GBM with boundary conditions</li></ul><h3 id="Advanced-Features"><a class="docs-heading-anchor" href="#Advanced-Features">Advanced Features</a><a id="Advanced-Features-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Features" title="Permalink"></a></h3><ul><li><strong>NoiseFunction</strong>: Custom noise from functions</li><li><strong>NoiseGrid</strong>: Noise from pre-computed data</li><li><strong>NoiseWrapper</strong>: Reuse previous simulations</li><li><strong>VirtualBrownianTree</strong>: Memory-efficient alternative</li><li><strong>NoiseApproximation</strong>: Colored noise via SDE solutions</li></ul><h2 id="Documentation-Structure"><a class="docs-heading-anchor" href="#Documentation-Structure">Documentation Structure</a><a id="Documentation-Structure-1"></a><a class="docs-heading-anchor-permalink" href="#Documentation-Structure" title="Permalink"></a></h2><p>This documentation is organized as follows:</p><ul><li><strong><a href="tutorials/basic_usage/">Basic Usage Tutorial</a></strong>: Get started with fundamental concepts</li><li><strong><a href="tutorials/noise_processes/">Noise Process Types</a></strong>: Comprehensive guide to all available processes</li><li><strong><a href="tutorials/advanced_features/">Advanced Features</a></strong>: Custom processes, wrappers, and optimization</li><li><strong><a href="api/noise_processes/">API Reference</a></strong>: Complete function and type documentation</li><li><strong><a href="api/interface/">Interface API</a></strong>: Step management and internal functions</li></ul><h2 id="Mathematical-Foundation"><a class="docs-heading-anchor" href="#Mathematical-Foundation">Mathematical Foundation</a><a id="Mathematical-Foundation-1"></a><a class="docs-heading-anchor-permalink" href="#Mathematical-Foundation" title="Permalink"></a></h2><p>All noise processes in this package maintain mathematical rigor through:</p><ol><li><strong>Distributional exactness</strong>: Processes follow their theoretical distributions exactly</li><li><strong>Rejection Sampling with Memory (RSWM)</strong>: Ensures correctness when adaptive stepping is used</li><li><strong>Proper bridging</strong>: Conditional processes respect boundary conditions</li><li><strong>Interpolation consistency</strong>: Values between grid points maintain distributional properties</li></ol><h2 id="Contributing"><a class="docs-heading-anchor" href="#Contributing">Contributing</a><a id="Contributing-1"></a><a class="docs-heading-anchor-permalink" href="#Contributing" title="Permalink"></a></h2><ul><li><p>Please refer to the <a href="https://github.com/SciML/ColPrac/blob/master/README.md">SciML ColPrac: Contributor&#39;s Guide on Collaborative Practices for Community Packages</a>&lt;!– ignore linkcheck –&gt; for guidance on PRs, issues, and other matters relating to contributing to SciML.</p></li><li><p>See the <a href="https://github.com/SciML/SciMLStyle">SciML Style Guide</a> for common coding practices and other style decisions.</p></li><li><p>There are a few community forums:</p><ul><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.org/slack/">Julia Slack</a></li><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged">Julia Zulip</a></li><li>On the <a href="https://discourse.julialang.org">Julia Discourse forums</a></li><li>See also <a href="https://sciml.ai/community/">SciML Community page</a></li></ul></li></ul><h2 id="Reproducibility"><a class="docs-heading-anchor" href="#Reproducibility">Reproducibility</a><a id="Reproducibility-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducibility" title="Permalink"></a></h2><details><summary>The documentation of this SciML package was built using these direct dependencies,</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/github-runners/deepsea4-28/_work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl/docs/Project.toml`
-  [77a26b50] DiffEqNoiseProcess v5.27.0 `~/github-runners/deepsea4-28/_work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl`
+println(&quot;Generated $(length(ensemble_sol.u)) noise trajectories&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Generated 100 noise trajectories</code></pre><h2 id="Available-Noise-Processes"><a class="docs-heading-anchor" href="#Available-Noise-Processes">Available Noise Processes</a><a id="Available-Noise-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Available-Noise-Processes" title="Permalink"></a></h2><p>DiffEqNoiseProcess.jl includes a rich collection of noise processes:</p><h3 id="Classic-Processes"><a class="docs-heading-anchor" href="#Classic-Processes">Classic Processes</a><a id="Classic-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Classic-Processes" title="Permalink"></a></h3><ul><li><strong>WienerProcess</strong>: Standard Brownian motion</li><li><strong>RealWienerProcess</strong>: Scalar Brownian motion</li><li><strong>CorrelatedWienerProcess</strong>: Multi-dimensional correlated noise</li><li><strong>OrnsteinUhlenbeckProcess</strong>: Mean-reverting process</li><li><strong>GeometricBrownianMotionProcess</strong>: For financial modeling</li><li><strong>CompoundPoissonProcess</strong>: Jump processes</li></ul><h3 id="Bridge-Processes"><a class="docs-heading-anchor" href="#Bridge-Processes">Bridge Processes</a><a id="Bridge-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Bridge-Processes" title="Permalink"></a></h3><ul><li><strong>BrownianBridge</strong>: Brownian motion with fixed endpoints</li><li><strong>GeometricBrownianBridge</strong>: GBM with boundary conditions</li></ul><h3 id="Advanced-Features"><a class="docs-heading-anchor" href="#Advanced-Features">Advanced Features</a><a id="Advanced-Features-1"></a><a class="docs-heading-anchor-permalink" href="#Advanced-Features" title="Permalink"></a></h3><ul><li><strong>NoiseFunction</strong>: Custom noise from functions</li><li><strong>NoiseGrid</strong>: Noise from pre-computed data</li><li><strong>NoiseWrapper</strong>: Reuse previous simulations</li><li><strong>VirtualBrownianTree</strong>: Memory-efficient alternative</li><li><strong>NoiseApproximation</strong>: Colored noise via SDE solutions</li></ul><h2 id="Documentation-Structure"><a class="docs-heading-anchor" href="#Documentation-Structure">Documentation Structure</a><a id="Documentation-Structure-1"></a><a class="docs-heading-anchor-permalink" href="#Documentation-Structure" title="Permalink"></a></h2><p>This documentation is organized as follows:</p><ul><li><strong><a href="tutorials/basic_usage/">Basic Usage Tutorial</a></strong>: Get started with fundamental concepts</li><li><strong><a href="tutorials/noise_processes/">Noise Process Types</a></strong>: Comprehensive guide to all available processes</li><li><strong><a href="tutorials/advanced_features/">Advanced Features</a></strong>: Custom processes, wrappers, and optimization</li><li><strong><a href="api/noise_processes/">API Reference</a></strong>: Complete function and type documentation</li><li><strong><a href="api/interface/">Interface API</a></strong>: Step management and internal functions</li></ul><h2 id="Mathematical-Foundation"><a class="docs-heading-anchor" href="#Mathematical-Foundation">Mathematical Foundation</a><a id="Mathematical-Foundation-1"></a><a class="docs-heading-anchor-permalink" href="#Mathematical-Foundation" title="Permalink"></a></h2><p>All noise processes in this package maintain mathematical rigor through:</p><ol><li><strong>Distributional exactness</strong>: Processes follow their theoretical distributions exactly</li><li><strong>Rejection Sampling with Memory (RSWM)</strong>: Ensures correctness when adaptive stepping is used</li><li><strong>Proper bridging</strong>: Conditional processes respect boundary conditions</li><li><strong>Interpolation consistency</strong>: Values between grid points maintain distributional properties</li></ol><h2 id="Contributing"><a class="docs-heading-anchor" href="#Contributing">Contributing</a><a id="Contributing-1"></a><a class="docs-heading-anchor-permalink" href="#Contributing" title="Permalink"></a></h2><ul><li><p>Please refer to the <a href="https://github.com/SciML/ColPrac/blob/master/README.md">SciML ColPrac: Contributor&#39;s Guide on Collaborative Practices for Community Packages</a>&lt;!– ignore linkcheck –&gt; for guidance on PRs, issues, and other matters relating to contributing to SciML.</p></li><li><p>See the <a href="https://github.com/SciML/SciMLStyle">SciML Style Guide</a> for common coding practices and other style decisions.</p></li><li><p>There are a few community forums:</p><ul><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.org/slack/">Julia Slack</a></li><li>The #diffeq-bridged and #sciml-bridged channels in the <a href="https://julialang.zulipchat.com/#narrow/stream/279055-sciml-bridged">Julia Zulip</a></li><li>On the <a href="https://discourse.julialang.org">Julia Discourse forums</a></li><li>See also <a href="https://sciml.ai/community/">SciML Community page</a></li></ul></li></ul><h2 id="Reproducibility"><a class="docs-heading-anchor" href="#Reproducibility">Reproducibility</a><a id="Reproducibility-1"></a><a class="docs-heading-anchor-permalink" href="#Reproducibility" title="Permalink"></a></h2><details><summary>The documentation of this SciML package was built using these direct dependencies,</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl/docs/Project.toml`
+  [77a26b50] DiffEqNoiseProcess v5.27.0 `~/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl`
   [31c24e10] Distributions v0.25.123
-  [e30172f5] Documenter v1.16.1
-  [0bca4576] SciMLBase v2.138.0
+  [e30172f5] Documenter v1.17.0
+  [0bca4576] SciMLBase v2.150.0
   [10745b16] Statistics v1.11.1
-  [9a3f8284] Random v1.11.0</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.12.4
-Commit 01a2eadb047 (2026-01-06 16:56 UTC)
+  [9a3f8284] Random v1.11.0</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.12.5
+Commit 5fe89b8ddc1 (2026-02-09 16:05 UTC)
 Build Info:
   Official https://julialang.org release
 Platform Info:
   OS: Linux (x86_64-linux-gnu)
-  CPU: 128 × AMD EPYC 7513 32-Core Processor
+  CPU: 4 × Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz
   WORD_SIZE: 64
-  LLVM: libLLVM-18.1.7 (ORCJIT, znver3)
+  LLVM: libLLVM-18.1.7 (ORCJIT, icelake-server)
   GC: Built with stock GC
-Threads: 1 default, 1 interactive, 1 GC (on 128 virtual cores)
-Environment:
-  JULIA_DEPOT_PATH = /home/chrisrackauckas/github-runners/deepsea4-28/.julia</code></pre></details><details><summary>A more complete overview of all dependencies and their versions is also provided.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/github-runners/deepsea4-28/_work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl/docs/Manifest.toml`
+Threads: 1 default, 1 interactive, 1 GC (on 4 virtual cores)</code></pre></details><details><summary>A more complete overview of all dependencies and their versions is also provided.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Status `~/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl/docs/Manifest.toml`
   [47edcb42] ADTypes v1.21.0
   [a4c015fc] ANSIColoredPrinters v0.0.1
   [1520ce14] AbstractTrees v0.4.5
   [7d9f7c33] Accessors v0.1.43
-  [79e6a3ab] Adapt v4.4.0
+  [79e6a3ab] Adapt v4.5.0
   [66dad0bd] AliasTables v1.1.3
-  [4fba245c] ArrayInterface v7.22.0
+  [4fba245c] ArrayInterface v7.23.0
   [62783981] BitTwiddlingConvenienceFunctions v0.1.6
-  [70df07ce] BracketingNonlinearSolve v1.6.2
+  [70df07ce] BracketingNonlinearSolve v1.11.0
   [2a0fbf3d] CPUSummary v0.2.7
   [fb6a15b2] CloseOpenIntervals v0.1.13
   [944b1d66] CodecZlib v0.7.8
@@ -66,13 +64,13 @@ Environment:
   [adafc99b] CpuId v0.3.1
   [9a962f9c] DataAPI v1.16.0
   [864edb3b] DataStructures v0.19.3
-  [2b5f629d] DiffEqBase v6.201.0
-  [77a26b50] DiffEqNoiseProcess v5.27.0 `~/github-runners/deepsea4-28/_work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl`
+  [2b5f629d] DiffEqBase v6.211.0
+  [77a26b50] DiffEqNoiseProcess v5.27.0 `~/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl`
   [a0c0ee7d] DifferentiationInterface v0.7.16
   [31c24e10] Distributions v0.25.123
   [ffbed154] DocStringExtensions v0.9.5
-  [e30172f5] Documenter v1.16.1
-  [4e289a0a] EnumX v1.0.6
+  [e30172f5] Documenter v1.17.0
+  [4e289a0a] EnumX v1.0.7
   [f151be2c] EnzymeCore v0.8.18
   [e2ba6199] ExprTools v0.1.10
   [55351af7] ExproniconLite v0.10.14
@@ -99,12 +97,12 @@ Environment:
   [e6f89c97] LoggingExtras v1.2.0
   [1914dd2f] MacroTools v0.5.16
   [d125e4d3] ManualMemory v0.1.8
-  [d0879d2d] MarkdownAST v0.1.2
+  [d0879d2d] MarkdownAST v0.1.3
   [bb5d69b7] MaybeInplace v0.1.4
   [e1d29d7a] Missings v1.2.0
   [2e0e35c7] Moshi v0.3.7
   [46d2c3a1] MuladdMacro v0.2.4
-  [be0214bd] NonlinearSolveBase v2.11.2
+  [be0214bd] NonlinearSolveBase v2.15.0
   [bac558e1] OrderedCollections v1.8.1
   [90014a1f] PDMats v0.11.37
   [69de0a69] Parsers v2.8.3
@@ -113,11 +111,11 @@ Environment:
   [1d0040c9] PolyesterWeave v0.2.2
   [d236fae5] PreallocationTools v1.1.2
   [aea7be01] PrecompileTools v1.3.3
-  [21216c6a] Preferences v1.5.1
-  [43287f4e] PtrArrays v1.3.0
+  [21216c6a] Preferences v1.5.2
+  [43287f4e] PtrArrays v1.4.0
   [1fd47b50] QuadGK v2.11.2
   [3cdcf5f2] RecipesBase v1.3.4
-  [731186ca] RecursiveArrayTools v3.47.0
+  [731186ca] RecursiveArrayTools v3.48.0
   [189a3867] Reexport v1.2.2
   [2792f1a3] RegistryInstances v0.1.0
   [ae029012] Requires v1.3.1
@@ -125,25 +123,25 @@ Environment:
   [79098fc4] Rmath v0.9.0
   [7e49a35a] RuntimeGeneratedFunctions v0.5.17
   [94e857df] SIMDTypes v0.1.0
-  [0bca4576] SciMLBase v2.138.0
+  [0bca4576] SciMLBase v2.150.0
   [19f34311] SciMLJacobianOperators v0.1.12
-  [a6db7da4] SciMLLogging v1.8.0
+  [a6db7da4] SciMLLogging v1.9.1
   [c0aeaf25] SciMLOperators v1.15.1
   [431bcebd] SciMLPublic v1.0.1
   [53ae85a6] SciMLStructures v1.10.0
   [efcf1570] Setfield v1.1.2
   [a2af1166] SortingAlgorithms v1.2.2
-  [276daf66] SpecialFunctions v2.6.1
+  [276daf66] SpecialFunctions v2.7.1
   [aedffcd0] Static v1.3.1
   [0d7ed370] StaticArrayInterface v1.9.0
-  [90137ffa] StaticArrays v1.9.16
+  [90137ffa] StaticArrays v1.9.18
   [1e83bf80] StaticArraysCore v1.4.4
   [10745b16] Statistics v1.11.1
   [82ae8749] StatsAPI v1.8.0
   [2913bbd2] StatsBase v0.34.10
   [4c63d2b9] StatsFuns v1.5.2
   [7792a7ef] StrideArraysCore v0.5.8
-  [ec057cc2] StructUtils v2.6.2
+  [ec057cc2] StructUtils v2.7.1
   [2efcf032] SymbolicIndexingInterface v0.3.46
   [8290d209] ThreadingUtilities v0.5.5
   [a759f4b9] TimerOutputs v0.5.29
@@ -201,4 +199,4 @@ Environment:
   [83775a58] Zlib_jll v1.3.1+2
   [8e850b90] libblastrampoline_jll v5.15.0+0
   [8e850ede] nghttp2_jll v1.64.0+1
-  [3f19e933] p7zip_jll v17.7.0+0</code></pre></details><p>You can also download the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.27.0/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.27.0/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="tutorials/basic_usage/">Basic Usage Tutorial »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Wednesday 11 February 2026 00:22">Wednesday 11 February 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+  [3f19e933] p7zip_jll v17.7.0+0</code></pre></details><p>You can also download the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.27.0/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.27.0/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="tutorials/basic_usage/">Basic Usage Tutorial »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Thursday 19 March 2026 06:54">Thursday 19 March 2026</span>. Using Julia version 1.12.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
