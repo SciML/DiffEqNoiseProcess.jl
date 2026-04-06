@@ -1,6 +1,6 @@
 name = "DiffEqNoiseProcess"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
-version = "5.28.0"
+version = "5.29.0"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 
 [deps]
@@ -37,7 +37,7 @@ Optim = "1, 2"
 PoissonRandom = "0.4"
 QuadGK = "2"
 RecipesBase = "0.7, 0.8, 1.0"
-RecursiveArrayTools = "2, 3"
+RecursiveArrayTools = "2, 3, 4"
 ResettableStacks = "0.6, 1.0"
 ReverseDiff = "1"
 SciMLBase = "1, 2"
