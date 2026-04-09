@@ -23,7 +23,7 @@ sol = solve(prob; dt = 0.01)
 """
 function DiffEqBase.__solve(
         prob::AbstractNoiseProblem,
-        args::Union{Nothing, SciMLBase.DEAlgorithm}...; dt = 0.0,
+        args::Union{Nothing, SciMLBase.AbstractDEAlgorithm}...; dt = 0.0,
         kwargs...
     )
     if dt == 0.0 || dt == nothing
