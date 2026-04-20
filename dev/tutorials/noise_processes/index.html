@@ -13,7 +13,7 @@ prob = NoiseProblem(W, (0.0, 2.0))
 sol = solve(prob; dt = 0.01)
 
 println(&quot;Final value: $(sol.u[end])&quot;)
-println(&quot;Path length: $(length(sol.t))&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final value: -0.9203710508604829
+println(&quot;Path length: $(length(sol.t))&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final value: -0.7252900438541281
 Path length: 201</code></pre><h3 id="Correlated-Wiener-Process"><a class="docs-heading-anchor" href="#Correlated-Wiener-Process">Correlated Wiener Process</a><a id="Correlated-Wiener-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Correlated-Wiener-Process" title="Permalink"></a></h3><p>For multi-dimensional systems with correlated noise:</p><pre><code class="language-julia hljs"># 2D correlated Wiener process with correlation matrix
 Γ = [1.0 0.5; 0.5 1.0]  # Correlation matrix
 W0 = [0.0, 0.0]         # Initial values
@@ -25,7 +25,7 @@ corr_W = CorrelatedWienerProcess(Γ, 0.0, W0, Z0)
 prob_corr = NoiseProblem(corr_W, (0.0, 1.0))
 sol_corr = solve(prob_corr; dt = 0.01)
 
-println(&quot;Final 2D noise: $(sol_corr.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final 2D noise: [0.8219027937879014, 0.2971778707187954]</code></pre><h2 id="Mean-Reverting-Processes"><a class="docs-heading-anchor" href="#Mean-Reverting-Processes">Mean-Reverting Processes</a><a id="Mean-Reverting-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Mean-Reverting-Processes" title="Permalink"></a></h2><h3 id="Ornstein-Uhlenbeck-Process"><a class="docs-heading-anchor" href="#Ornstein-Uhlenbeck-Process">Ornstein-Uhlenbeck Process</a><a id="Ornstein-Uhlenbeck-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Ornstein-Uhlenbeck-Process" title="Permalink"></a></h3><p>Models mean-reverting behavior, which is commonly used in interest rate models:</p><pre><code class="language-julia hljs"># Parameters: Θ (mean reversion rate), μ (long-term mean), σ (volatility)
+println(&quot;Final 2D noise: $(sol_corr.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final 2D noise: [1.3656314986074496, 1.211392005402398]</code></pre><h2 id="Mean-Reverting-Processes"><a class="docs-heading-anchor" href="#Mean-Reverting-Processes">Mean-Reverting Processes</a><a id="Mean-Reverting-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Mean-Reverting-Processes" title="Permalink"></a></h2><h3 id="Ornstein-Uhlenbeck-Process"><a class="docs-heading-anchor" href="#Ornstein-Uhlenbeck-Process">Ornstein-Uhlenbeck Process</a><a id="Ornstein-Uhlenbeck-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Ornstein-Uhlenbeck-Process" title="Permalink"></a></h3><p>Models mean-reverting behavior, which is commonly used in interest rate models:</p><pre><code class="language-julia hljs"># Parameters: Θ (mean reversion rate), μ (long-term mean), σ (volatility)
 Θ = 2.0   # Fast mean reversion
 μ = 0.5   # Mean level
 σ = 0.3   # Volatility
@@ -39,7 +39,7 @@ sol_ou = solve(prob_ou; dt = 0.01)
 println(&quot;OU process starts at: $(sol_ou.u[1])&quot;)
 println(&quot;OU process ends at: $(sol_ou.u[end])&quot;)
 println(&quot;Long-term mean μ: $μ&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">OU process starts at: 0.0
-OU process ends at: 0.9672703864762616
+OU process ends at: 0.6533800548631699
 Long-term mean μ: 0.5</code></pre><h2 id="Jump-Processes"><a class="docs-heading-anchor" href="#Jump-Processes">Jump Processes</a><a id="Jump-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Jump-Processes" title="Permalink"></a></h2><h3 id="Compound-Poisson-Process"><a class="docs-heading-anchor" href="#Compound-Poisson-Process">Compound Poisson Process</a><a id="Compound-Poisson-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Compound-Poisson-Process" title="Permalink"></a></h3><p>Models discontinuous jumps at random times:</p><pre><code class="language-julia hljs"># Parameters: λ (jump rate)
 λ = 2.0  # 2 jumps per unit time on average
 
@@ -70,8 +70,8 @@ sol_gbm = solve(prob_gbm; dt = 1/252)  # Daily steps
 println(&quot;Initial stock price: $(sol_gbm.u[1])&quot;)
 println(&quot;Final stock price: $(sol_gbm.u[end])&quot;)
 println(&quot;Return: $((sol_gbm.u[end] - sol_gbm.u[1])/sol_gbm.u[1] * 100)%&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Initial stock price: 100.0
-Final stock price: 127.92716463572113
-Return: 27.927164635721123%</code></pre><h2 id="Bridge-Processes"><a class="docs-heading-anchor" href="#Bridge-Processes">Bridge Processes</a><a id="Bridge-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Bridge-Processes" title="Permalink"></a></h2><p>Bridge processes are conditioned to pass through specific values:</p><h3 id="Brownian-Bridge"><a class="docs-heading-anchor" href="#Brownian-Bridge">Brownian Bridge</a><a id="Brownian-Bridge-1"></a><a class="docs-heading-anchor-permalink" href="#Brownian-Bridge" title="Permalink"></a></h3><p>A Wiener process conditioned to start and end at specific values:</p><pre><code class="language-julia hljs"># Bridge from 0 at t=0 to 1 at t=1
+Final stock price: 122.94514874444761
+Return: 22.945148744447607%</code></pre><h2 id="Bridge-Processes"><a class="docs-heading-anchor" href="#Bridge-Processes">Bridge Processes</a><a id="Bridge-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Bridge-Processes" title="Permalink"></a></h2><p>Bridge processes are conditioned to pass through specific values:</p><h3 id="Brownian-Bridge"><a class="docs-heading-anchor" href="#Brownian-Bridge">Brownian Bridge</a><a id="Brownian-Bridge-1"></a><a class="docs-heading-anchor-permalink" href="#Brownian-Bridge" title="Permalink"></a></h3><p>A Wiener process conditioned to start and end at specific values:</p><pre><code class="language-julia hljs"># Bridge from 0 at t=0 to 1 at t=1
 bridge = BrownianBridge(0.0, 1.0, 0.0, 1.0)
 
 prob_bridge = NoiseProblem(bridge, (0.0, 1.0))
@@ -80,7 +80,7 @@ sol_bridge = solve(prob_bridge; dt = 0.01)
 println(&quot;Bridge starts at: $(sol_bridge.u[1])&quot;)
 println(&quot;Bridge ends at: $(sol_bridge.u[end])&quot;)
 println(&quot;Should be exactly 0 and 1 respectively&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Bridge starts at: 0.0
-Bridge ends at: 0.9999999999999992
+Bridge ends at: 1.0
 Should be exactly 0 and 1 respectively</code></pre><h3 id="Geometric-Brownian-Bridge"><a class="docs-heading-anchor" href="#Geometric-Brownian-Bridge">Geometric Brownian Bridge</a><a id="Geometric-Brownian-Bridge-1"></a><a class="docs-heading-anchor-permalink" href="#Geometric-Brownian-Bridge" title="Permalink"></a></h3><p>A geometric Brownian motion conditioned on endpoints:</p><pre><code class="language-julia hljs"># Bridge parameters
 μ_bridge = 0.05
 σ_bridge = 0.2
@@ -94,7 +94,7 @@ sol_gbm_bridge = solve(prob_gbm_bridge; dt = 0.01)
 
 println(&quot;GBM bridge starts at: $(sol_gbm_bridge.u[1])&quot;)
 println(&quot;GBM bridge ends at: $(sol_gbm_bridge.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">GBM bridge starts at: 1.0
-GBM bridge ends at: 0.7442492539938539</code></pre><h2 id="Process-Comparisons"><a class="docs-heading-anchor" href="#Process-Comparisons">Process Comparisons</a><a id="Process-Comparisons-1"></a><a class="docs-heading-anchor-permalink" href="#Process-Comparisons" title="Permalink"></a></h2><p>Let&#39;s compare different noise processes visually by looking at their statistical properties:</p><pre><code class="language-julia hljs">using Statistics
+GBM bridge ends at: 0.8147188144241372</code></pre><h2 id="Process-Comparisons"><a class="docs-heading-anchor" href="#Process-Comparisons">Process Comparisons</a><a id="Process-Comparisons-1"></a><a class="docs-heading-anchor-permalink" href="#Process-Comparisons" title="Permalink"></a></h2><p>Let&#39;s compare different noise processes visually by looking at their statistical properties:</p><pre><code class="language-julia hljs">using Statistics
 
 # Generate multiple realizations for statistical analysis
 function analyze_process(noise_process, name, n_paths=1000)
@@ -128,4 +128,4 @@ println(&quot;- Compound Poisson: Discrete jumps, possibly skewed distribution&q
 - Wiener process: Mean ≈ 0, increasing variance with time
 - OU process: Mean reverts to long-term level
 - GBM: Log-normal distribution of final values
-- Compound Poisson: Discrete jumps, possibly skewed distribution</code></pre><p>Each noise process has unique characteristics suitable for different modeling scenarios. Choose based on your specific application needs.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../basic_usage/">« Basic Usage Tutorial</a><a class="docs-footer-nextpage" href="../advanced_features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Tuesday 14 April 2026 07:41">Tuesday 14 April 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+- Compound Poisson: Discrete jumps, possibly skewed distribution</code></pre><p>Each noise process has unique characteristics suitable for different modeling scenarios. Choose based on your specific application needs.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../basic_usage/">« Basic Usage Tutorial</a><a class="docs-footer-nextpage" href="../advanced_features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 20 April 2026 23:57">Monday 20 April 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
