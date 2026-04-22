@@ -1,6 +1,6 @@
 name = "DiffEqNoiseProcess"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
-version = "5.29.0"
+version = "5.30.0"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
 
 [deps]
@@ -30,7 +30,7 @@ DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
 
 [compat]
 CommonSolve = "0.2.6"
-DiffEqBase = "6.61"
+DiffEqBase = "6.61, 7"
 Distributions = "0.22, 0.23, 0.24, 0.25"
 GPUArraysCore = "0.1, 0.2"
 Optim = "1, 2"
