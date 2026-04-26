@@ -67,7 +67,7 @@
 
     W = VirtualBrownianTree(0.0, 0.0; Wend = 1.0, tree_depth = 3)
     prob = NoiseProblem(W, (0.0, 1.0))
-    function prob_func(prob, i, repeat)
+    function prob_func(prob, ctx)
         # to re-instantiate PRNG
         Wtmp = VirtualBrownianTree(0.0, 0.0; Wend = 1.0, tree_depth = 3)
         remake(prob, noise = Wtmp)

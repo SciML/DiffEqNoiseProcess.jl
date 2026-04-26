@@ -31,7 +31,7 @@ using StaticArrays
     prob = NoiseProblem(W, (0.0, 1.0))
     sol = solve(prob; dt = 0.01)
 
-    output_func = (sol, i) -> (sol.dW, false)
+    output_func = (sol, ctx) -> (sol.dW, false)
     ensemble_prob = EnsembleProblem(prob, output_func = output_func)
     @time sol = Array(solve(ensemble_prob, dt = dt, trajectories = 1_000_000))
 
