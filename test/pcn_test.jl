@@ -102,7 +102,7 @@
     prob = NoiseProblem(W, (0.0, 1.0))
     sol = solve(prob, dt = 0.1)
 
-    function prob_func(prob, i, repeat)
+    function prob_func(prob, ctx)
         _sol = deepcopy(sol)
         Wtmp = pCN!(_sol, 1.0)
         remake(prob, noise = Wtmp)

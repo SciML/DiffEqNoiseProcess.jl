@@ -17,7 +17,7 @@
         @test varW ≈ expected_variance rtol = 0.1
 
         prob = NoiseProblem(W, tspan)
-        ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
+        ensemble_prob = EnsembleProblem(prob, output_func = (sol, ctx) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
         @test mean(sol) ≈ expected_mean atol = 0.1
         @test var(sol) ≈ expected_variance atol = 0.1
@@ -26,7 +26,7 @@
 
         ensemble_probW = EnsembleProblem(
             prob,
-            output_func = (sol, i) -> (sol.W.W[end], false)
+            output_func = (sol, ctx) -> (sol.W.W[end], false)
         )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
@@ -51,7 +51,7 @@
         @test varW ≈ expected_variance rtol = 0.1
 
         prob = NoiseProblem(W, tspan)
-        ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
+        ensemble_prob = EnsembleProblem(prob, output_func = (sol, ctx) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
         @test mean(sol) ≈ expected_mean rtol = 0.1
         @test var(sol) ≈ expected_variance atol = 0.1
@@ -60,7 +60,7 @@
 
         ensemble_probW = EnsembleProblem(
             prob,
-            output_func = (sol, i) -> (sol.W.W[end], false)
+            output_func = (sol, ctx) -> (sol.W.W[end], false)
         )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
@@ -86,7 +86,7 @@
         @test varW ≈ expected_variance rtol = 0.1
 
         prob = NoiseProblem(W, tspan)
-        ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
+        ensemble_prob = EnsembleProblem(prob, output_func = (sol, ctx) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
         @test mean(sol) ≈ expected_mean rtol = 0.1
         @test var(sol) ≈ expected_variance atol = 0.1
@@ -95,7 +95,7 @@
 
         ensemble_probW = EnsembleProblem(
             prob,
-            output_func = (sol, i) -> (sol.W.W[end], false)
+            output_func = (sol, ctx) -> (sol.W.W[end], false)
         )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
@@ -117,7 +117,7 @@
         @test varW ≈ expected_variance atol = 0.1
 
         prob = NoiseProblem(W, tspan)
-        ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
+        ensemble_prob = EnsembleProblem(prob, output_func = (sol, ctx) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
         @test mean(sol) ≈ expected_mean rtol = 0.1
         @test var(sol) ≈ expected_variance atol = 0.1
@@ -126,7 +126,7 @@
 
         ensemble_probW = EnsembleProblem(
             prob,
-            output_func = (sol, i) -> (sol.W.W[end], false)
+            output_func = (sol, ctx) -> (sol.W.W[end], false)
         )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
@@ -152,7 +152,7 @@
         @test varW ≈ expected_variance atol = 0.1
 
         prob = NoiseProblem(W, tspan)
-        ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
+        ensemble_prob = EnsembleProblem(prob, output_func = (sol, ctx) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
         @test mean(sol) ≈ expected_mean rtol = 0.1
         @test var(sol) ≈ expected_variance atol = 0.1
@@ -161,7 +161,7 @@
 
         ensemble_probW = EnsembleProblem(
             prob,
-            output_func = (sol, i) -> (sol.W.W[end], false)
+            output_func = (sol, ctx) -> (sol.W.W[end], false)
         )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
@@ -184,7 +184,7 @@
         @test varW ≈ expected_variance atol = 0.1
 
         prob = NoiseProblem(W, tspan)
-        ensemble_prob = EnsembleProblem(prob, output_func = (sol, i) -> (sol.u[end], false))
+        ensemble_prob = EnsembleProblem(prob, output_func = (sol, ctx) -> (sol.u[end], false))
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
         @test mean(sol) ≈ expected_mean rtol = 0.1
         @test var(sol) ≈ expected_variance atol = 0.1
@@ -193,7 +193,7 @@
 
         ensemble_probW = EnsembleProblem(
             prob,
-            output_func = (sol, i) -> (sol.W.W[end], false)
+            output_func = (sol, ctx) -> (sol.W.W[end], false)
         )
 
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
@@ -216,7 +216,7 @@
         prob = NoiseProblem(W, tspan)
         ensemble_prob = EnsembleProblem(
             prob,
-            output_func = (sol, i) -> (first(sol(t)), false)
+            output_func = (sol, ctx) -> (first(sol(t)), false)
         )
         sol = solve(ensemble_prob, dt = 1 / 10, trajectories = 40_000)
 
@@ -227,7 +227,7 @@
 
         ensemble_probW = EnsembleProblem(
             prob,
-            output_func = (sol, i) -> (first(sol.W(t)), false)
+            output_func = (sol, ctx) -> (first(sol.W(t)), false)
         )
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
 
