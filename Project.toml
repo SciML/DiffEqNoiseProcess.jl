@@ -50,6 +50,7 @@ StochasticDiffEq = "6, 7"
 julia = "1.10"
 
 [extras]
+ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 ExplicitImports = "7d51a73a-1435-4ff3-83d9-f097790105c7"
@@ -64,4 +65,4 @@ StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports", "Optim"]
+test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports", "Optim", "ChainRulesCore"]
