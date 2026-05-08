@@ -1,7 +1,7 @@
 name = "DiffEqNoiseProcess"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "5.31.0"
+version = "5.31.1"
 
 [deps]
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
@@ -21,14 +21,17 @@ StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [weakdeps]
+ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 
 [extensions]
+DiffEqNoiseProcessChainRulesCoreExt = "ChainRulesCore"
 DiffEqNoiseProcessOptimExt = "Optim"
 DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
 
 [compat]
+ChainRulesCore = "1"
 CommonSolve = "0.2.6"
 DiffEqBase = "6.61, 7"
 Distributions = "0.22, 0.23, 0.24, 0.25"
