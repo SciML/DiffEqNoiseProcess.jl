@@ -45,7 +45,6 @@ end
         include("pcn_test.jl")
         include("savestep_test.jl")
         include("simple_noise_bigfloat_test.jl")
-        include("chainrules_projecto_test.jl")
     end
 
     if GROUP == "All" || GROUP == "Bridge"

@@ -21,17 +21,14 @@ StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [weakdeps]
-ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 
 [extensions]
-DiffEqNoiseProcessChainRulesCoreExt = "ChainRulesCore"
 DiffEqNoiseProcessOptimExt = "Optim"
 DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
 
 [compat]
-ChainRulesCore = "1"
 CommonSolve = "0.2.6"
 DiffEqBase = "6.61, 7"
 Distributions = "0.22, 0.23, 0.24, 0.25"
@@ -50,7 +47,6 @@ StochasticDiffEq = "6, 7"
 julia = "1.10"
 
 [extras]
-ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Cubature = "667455a9-e2ce-5579-9412-b964f529a492"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 ExplicitImports = "7d51a73a-1435-4ff3-83d9-f097790105c7"
@@ -65,4 +61,4 @@ StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports", "Optim", "ChainRulesCore"]
+test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports", "Optim"]
