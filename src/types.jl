@@ -679,7 +679,8 @@ mutable struct NoiseFunction{T, N, wType, zType, Tt, T2, T3, inplace} <:
             dZ = copy(noise_prototype)
         end
         return new{
-            typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
+            eltype(eltype(noise_prototype)), ndims(noise_prototype) + 1,
+            typeof(W), typeof(Z),
             typeof(curt), typeof(curW), typeof(curZ), iip,
         }(
             W, Z, curt, curW, curZ,
@@ -850,7 +851,8 @@ mutable struct NoiseTransport{T, N, wType, zType, Tt, T2, T3, TRV, Trv, RNGType,
         end
 
         return new{
-            typeof(noise_prototype), ndims(noise_prototype), typeof(W), typeof(Z),
+            eltype(eltype(noise_prototype)), ndims(noise_prototype) + 1,
+            typeof(W), typeof(Z),
             typeof(curt), typeof(curW), typeof(curZ), typeof(RV), typeof(rv), typeof(rng),
             iip,
         }(
@@ -993,8 +995,8 @@ function NoiseGrid(t, W, Z = nothing; reset = true)
 
     (val isa AbstractArray && !(val isa SArray)) ? iip = true : iip = false
     return NoiseGrid{
-        typeof(val), ndims(val), typeof(dt), typeof(dW), typeof(dZ), typeof(Z),
-        typeof(cur_time), iip,
+        eltype(eltype(val)), ndims(val) + 1, typeof(dt), typeof(dW), typeof(dZ),
+        typeof(Z), typeof(cur_time), iip,
     }(
         t,
         W,
@@ -1119,7 +1121,7 @@ function NoiseApproximation(
     curt = _source1.t
     _source1.opts.advance_to_tstop = true
     return NoiseApproximation{
-        typeof(val), ndims(val), typeof(curt), typeof(curW), typeof(curZ),
+        eltype(eltype(val)), ndims(val) + 1, typeof(curt), typeof(curW), typeof(curZ),
         typeof(_source1), typeof(_source2), typeof(Z),
         isinplace(_source1.sol.prob),
     }(
@@ -1274,7 +1276,7 @@ function VirtualBrownianTree{iip}(
     end
 
     return VirtualBrownianTree{
-        typeof(W0), ndims(W0),
+        eltype(eltype(W0)), ndims(W0) + 1,
         typeof(dist), typeof(bridge), typeof(curt), typeof(curW),
         typeof(curZ),
         typeof(W0tmp), typeof(Z0tmp), typeof(seeds[1]), typeof(atol),
