@@ -45,6 +45,7 @@ end
         include("pcn_test.jl")
         include("savestep_test.jl")
         include("simple_noise_bigfloat_test.jl")
+        include("abstractarray_shape_test.jl")
     end
 
     if GROUP == "All" || GROUP == "Bridge"
