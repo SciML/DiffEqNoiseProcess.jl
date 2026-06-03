@@ -1,5 +1,7 @@
 [default.extend-words]
 currate = "currate"
+# `indx` is a public keyword-argument name in src/pCN.jl, not a typo
+indx = "indx"
 # Additional SciML terms
 setp = "setp"
 getp = "getp"
