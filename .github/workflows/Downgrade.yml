@@ -11,8 +11,8 @@ on:
     paths-ignore:
       - 'docs/**'
 jobs:
+  # Runs strict (allow_reresolve=false); expected RED until ForwardDiff/LogExpFunctions strict wall (likely) resolves.
   test:
-    if: false  # Disabled: waiting on upstream dependency updates. See issue #245 for details.
     name: "Downgrade"
     strategy:
       matrix:
