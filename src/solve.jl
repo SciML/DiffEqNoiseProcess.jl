@@ -44,10 +44,28 @@ function DiffEqBase.__solve(
     setup_next_step!(W, nothing, nothing)
     tType = typeof(W.curt)
     while W.curt < prob.tspan[2]
-        if tType <: AbstractFloat && abs(W.curt + dt - prob.tspan[2]) < 100 * eps(dt) # Correct the end due to floating point error
-            dt = prob.tspan[2] - W.curt
+        # Tolerance scaled by the magnitude of the time values rather than by `dt`:
+        # the floating point drift accumulated over many steps is on the order of
+        # `eps(tspan[2])`, which can be far larger than `eps(dt)` when `dt` is small.
+        # The previous `100 * eps(dt)` tolerance was therefore essentially never hit,
+        # so the solve took a full extra step and stopped past `tspan[2]`.
+        endtol = tType <: AbstractFloat ?
+            100 * eps(tType(max(abs(prob.tspan[2]), abs(W.curt)))) : zero(W.curt)
+        if tType <: AbstractFloat && abs(prob.tspan[2] - (W.curt + W.dt)) <= endtol
+            # The prepared step lands on `tspan[2]` up to floating point drift. Take it as
+            # usual but snap the recorded endpoint exactly onto `tspan[2]` so the solution
+            # neither overshoots nor stops just short of the requested final time.
             accept_step!(W, dt, nothing, nothing)
             W.curt = prob.tspan[2]
+            W.save_everystep && (W.t[end] = prob.tspan[2])
+        elseif tType <: AbstractFloat && W.curt + W.dt > prob.tspan[2] + endtol
+            # The prepared step would overshoot `tspan[2]` by more than rounding. Recompute
+            # it at exactly the remaining width so the solution ends on `tspan[2]`.
+            dtcorrect = prob.tspan[2] - W.curt
+            calculate_step!(W, dtcorrect, nothing, nothing)
+            accept_step!(W, dtcorrect, nothing, nothing)
+            W.curt = prob.tspan[2]
+            W.save_everystep && (W.t[end] = prob.tspan[2])
         else
             accept_step!(W, dt, nothing, nothing)
         end
