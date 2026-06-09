@@ -1,7 +1,12 @@
 using Test
 using DiffEqNoiseProcess
+using Aqua
 using JET
 using Random
+
+@testset "Aqua quality assurance" begin
+    Aqua.test_all(DiffEqNoiseProcess)
+end
 
 @testset "JET static analysis" begin
     # Note: JET.report_package is skipped here because it creates a virtualized

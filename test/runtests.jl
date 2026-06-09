@@ -15,7 +15,7 @@ function activate_qa_env()
 end
 
 @time begin
-    if GROUP == "All" || GROUP == "Core1"
+    if GROUP == "All" || GROUP == "Core" || GROUP == "Core1"
         include("explicit_imports_test.jl")
         include("interpolation_test.jl")
         include("RSwM1_test.jl")
@@ -48,7 +48,7 @@ end
         include("abstractarray_shape_test.jl")
     end
 
-    if GROUP == "All" || GROUP == "Bridge"
+    if GROUP == "All" || GROUP == "Core" || GROUP == "Bridge"
         include("bridge_test.jl")
     end
 
