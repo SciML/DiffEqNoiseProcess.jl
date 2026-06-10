@@ -1,10 +1,45 @@
+# Memory discipline for this file: it draws 4 x 100k ensemble trajectories and
+# 9 x 500k bridge trajectories. Retaining full solution objects peaks at ~21GB
+# resident and OOMs the 7GB hosted CI runners, so the ensembles keep only the
+# value arrays (timestep_mean/timestep_meanvar need `el.u[i]`) and the Ou-Bridge
+# testsets accumulate streaming sums instead of solution collections — only the
+# elementwise mean/std are asserted.
+keep_u = (sol, ctx) -> ((u = sol.u,), false)
+
+mutable struct RunningStats
+    n::Int
+    sum::Vector{Float64}
+    sumsq::Vector{Float64}
+    RunningStats() = new(0, Float64[], Float64[])
+end
+function push_stats!(rs::RunningStats, u)
+    if rs.n == 0
+        resize!(rs.sum, length(u))
+        fill!(rs.sum, 0.0)
+        resize!(rs.sumsq, length(u))
+        fill!(rs.sumsq, 0.0)
+    end
+    rs.n += 1
+    for i in eachindex(u)
+        v = first(u[i])
+        rs.sum[i] += v
+        rs.sumsq[i] += abs2(v)
+    end
+    return rs
+end
+stats_mean(rs::RunningStats) = rs.sum ./ rs.n
+function stats_std(rs::RunningStats)
+    m = stats_mean(rs)
+    return sqrt.(max.(rs.sumsq ./ rs.n .- abs2.(m), 0.0) .* (rs.n / (rs.n - 1)))
+end
+
 @testset "Brownian Bridge" begin
     using DiffEqNoiseProcess, DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis
 
     Random.seed!(100)
     W = BrownianBridge(0.0, 1.0, 0.0, 1.0, 0.0, 0.0)
     prob = NoiseProblem(W, (0.0, 1.0))
-    ensemble_prob = EnsembleProblem(prob)
+    ensemble_prob = EnsembleProblem(prob, output_func = keep_u)
     @time sol = solve(ensemble_prob, dt = 0.1, trajectories = 100000)
 
     # Spot check the mean and the variance
@@ -28,7 +63,7 @@
 
     W = GeometricBrownianBridge(μ, σ, t0, tend, GB0, GBend)
     prob = NoiseProblem(W, (t0, tend))
-    ensemble_prob = EnsembleProblem(prob)
+    ensemble_prob = EnsembleProblem(prob, output_func = keep_u)
     @time sol = solve(ensemble_prob, dt = 1.0, trajectories = 100000)
     ts = t0:1.0:tend
     for i in 2:10
@@ -47,7 +82,7 @@
     rate(u, p, t) = r
     W = CompoundPoissonBridge(rate, 0.0, 1.0, 0.0, 1.0)
     prob = NoiseProblem(W, (0.0, 1.0))
-    ensemble_prob = EnsembleProblem(prob)
+    ensemble_prob = EnsembleProblem(prob, output_func = keep_u)
     @time sol = solve(ensemble_prob, dt = 0.1, trajectories = 100000)
 
     # Spot check the mean and the variance
@@ -72,7 +107,7 @@
         Wtmp = VirtualBrownianTree(0.0, 0.0; Wend = 1.0, tree_depth = 3)
         remake(prob, noise = Wtmp)
     end
-    ensemble_prob = EnsembleProblem(prob, prob_func = prob_func)
+    ensemble_prob = EnsembleProblem(prob, prob_func = prob_func, output_func = keep_u)
     @time sol = solve(ensemble_prob, dt = 0.125, trajectories = 100000)
 
     # Spot check the mean and the variance
@@ -91,94 +126,79 @@ end
 @testset "Scalar Ou-Bridge" begin
     using DiffEqNoiseProcess,
         DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis, StatsBase, Statistics
-    sols_forward = []
+    stats_forward = RunningStats()
     dt = 0.125
     t_max = 20.0
-    n = Int(t_max / dt + 2)
     st = []
     Random.seed!(1234)
     for i in 1:500_000
         local ou = OrnsteinUhlenbeckProcess(1.5, 0.25, 0.2, 0.0, 0.0)
         local prob = NoiseProblem(ou, (0.0, t_max))
         local s = solve(prob; dt = dt)
-        push!(sols_forward, s.u)
+        push_stats!(stats_forward, s.u)
         if i == 1
             st = s.t
         end
     end
 
-    st2 = []
-    sols_interpolated = []
+    stats_interpolated = RunningStats()
     Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess(1.5, 0.25, 0.2, 0.0, 0.0)
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
         local s2 = solve(prob; dt = t_max)
         s2.(st)
-        push!(sols_interpolated, s2.u)
-        if i == 1
-            st2 = s2.t
-        end
+        push_stats!(stats_interpolated, s2.u)
     end
 
     Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess(1.5, 0.25, 0.2, 0.0, 0.0)
     prob = NoiseProblem(ou, (0.0, t_max))
-    sols_solver = []
-    st = []
+    stats_solver = RunningStats()
     for i in 1:500_000
         local s = solve(prob; dt = t_max)
         ou_bridge = OrnsteinUhlenbeckBridge(1.5, 0.25, 0.2, 0.0, t_max, 0.0, s.u[end])
         s = solve(NoiseProblem(ou_bridge, (0.0, t_max)); dt = 0.125)
-        push!(sols_solver, s.u)
-        if i == 1
-            st = s.t
-        end
+        push_stats!(stats_solver, s.u)
     end
 
-    @test all(isapprox.(mean(sols_forward), mean(sols_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(mean(sols_forward), mean(sols_solver); atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_solver); atol = 1.0e-3))
 
-    @test all(isapprox.(std(sols_forward), std(sols_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(std(sols_forward), std(sols_solver); atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_solver); atol = 1.0e-3))
 end
 
 @testset "Vector Ou-Bridge" begin
-    sols_forward = []
+    stats_forward = RunningStats()
     dt = 0.125
     t_max = 20.0
-    n = Int(t_max / dt + 2)
     st = []
     Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess([1.5], [0.25], [0.2], 0.0, [0.0])
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
         local s = solve(prob; dt = dt)
-        push!(sols_forward, s.u)
+        push_stats!(stats_forward, s.u)
         if i == 1
             st = s.t
         end
     end
 
-    st2 = []
-    sols_interpolated = []
+    stats_interpolated = RunningStats()
     Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess([1.5], [0.25], [0.2], 0.0, [0.0])
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
         local s2 = solve(prob; dt = t_max)
         s2.(st)
-        push!(sols_interpolated, s2.u)
-        if i == 1
-            st2 = s2.t
-        end
+        push_stats!(stats_interpolated, s2.u)
     end
 
     Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess([1.5], [0.25], [0.2], 0.0, [0.0])
     prob = NoiseProblem(ou, (0.0, t_max))
-    sols_solver = []
-    st = []
+    stats_solver = RunningStats()
     for i in 1:500_000
         local s = solve(prob; dt = t_max)
         local ou_bridge = OrnsteinUhlenbeckBridge(
@@ -190,66 +210,47 @@ end
             [0.0],
             s.u[end]
         )
-        local s = solve(NoiseProblem(ou_bridge, (0.0, t_max)); dt = 0.125)
-        push!(sols_solver, s.u)
-        if i == 1
-            st = s.t
-        end
+        local s2 = solve(NoiseProblem(ou_bridge, (0.0, t_max)); dt = 0.125)
+        push_stats!(stats_solver, s2.u)
     end
 
-    sols_forward = map(sols_forward) do x
-        [y[1] for y in x]
-    end
-    sols_interpolated = map(sols_interpolated) do x
-        [y[1] for y in x]
-    end
-    sols_solver = map(sols_solver) do x
-        [y[1] for y in x]
-    end
+    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_solver); atol = 1.0e-3))
 
-    @test all(isapprox.(mean(sols_forward), mean(sols_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(mean(sols_forward), mean(sols_solver); atol = 1.0e-3))
-
-    @test all(isapprox.(std(sols_forward), std(sols_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(std(sols_forward), std(sols_solver); atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_solver); atol = 1.0e-3))
 end
 
 @testset "Inplace OU-Bridge" begin
-    sols_forward = []
+    stats_forward = RunningStats()
     dt = 0.125
     t_max = 20.0
-    n = Int(t_max / dt + 2)
     st = []
     Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess!([1.5], [0.25], [0.2], 0.0, [0.0])
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
         local s = solve(prob; dt = dt)
-        push!(sols_forward, s.u)
+        push_stats!(stats_forward, s.u)
         if i == 1
             st = s.t
         end
     end
 
-    st2 = []
-    sols_interpolated = []
+    stats_interpolated = RunningStats()
     Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess!([1.5], [0.25], [0.2], 0.0, [0.0])
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
         local s2 = solve(prob; dt = t_max)
         s2.(st)
-        push!(sols_interpolated, s2.u)
-        if i == 1
-            st2 = s2.t
-        end
+        push_stats!(stats_interpolated, s2.u)
     end
 
     Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess!([1.5], [0.25], [0.2], 0.0, [0.0])
     prob = NoiseProblem(ou, (0.0, t_max))
-    sols_solver = []
-    st = []
+    stats_solver = RunningStats()
     for i in 1:500_000
         local s = solve(prob; dt = t_max)
         local ou_bridge = OrnsteinUhlenbeckBridge!(
@@ -261,26 +262,13 @@ end
             [0.0],
             s.u[end]
         )
-        local s = solve(NoiseProblem(ou_bridge, (0.0, t_max)); dt = 0.125)
-        push!(sols_solver, s.u)
-        if i == 1
-            st = s.t
-        end
+        local s2 = solve(NoiseProblem(ou_bridge, (0.0, t_max)); dt = 0.125)
+        push_stats!(stats_solver, s2.u)
     end
 
-    sols_forward = map(sols_forward) do x
-        [y[1] for y in x]
-    end
-    sols_interpolated = map(sols_interpolated) do x
-        [y[1] for y in x]
-    end
-    sols_solver = map(sols_solver) do x
-        [y[1] for y in x]
-    end
+    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_solver); atol = 1.0e-3))
 
-    @test all(isapprox.(mean(sols_forward), mean(sols_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(mean(sols_forward), mean(sols_solver); atol = 1.0e-3))
-
-    @test all(isapprox.(std(sols_forward), std(sols_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(std(sols_forward), std(sols_solver); atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_interpolated); atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_solver); atol = 1.0e-3))
 end

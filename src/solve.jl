@@ -21,6 +21,16 @@ prob = NoiseProblem(W, (0.0, 1.0))
 sol = solve(prob; dt = 0.01)
 ```
 """
+# After the endpoint is snapped onto `tspan[2]`, the next step prepared inside
+# `accept_step!` still corresponds to the unsnapped `curt`. For function-evaluated
+# noises the prepared step is a pure function of `curt`, so recompute it at the
+# snapped time to keep `dW == W(curt + dt) - curW` exact. Stateful processes can't
+# be re-prepared (RSwM stack pops, grid domain guards), and for them the prepared
+# step is random so the sub-eps time label drift is unobservable.
+resync_prepared_step!(W::Union{NoiseFunction, NoiseTransport}) =
+    calculate_step!(W, W.dt, nothing, nothing)
+resync_prepared_step!(W) = nothing
+
 function DiffEqBase.__solve(
         prob::AbstractNoiseProblem,
         args::Union{Nothing, SciMLBase.AbstractDEAlgorithm}...; dt = 0.0,
@@ -57,7 +67,11 @@ function DiffEqBase.__solve(
             # neither overshoots nor stops just short of the requested final time.
             accept_step!(W, dt, nothing, nothing)
             W.curt = prob.tspan[2]
-            W.save_everystep && (W.t[end] = prob.tspan[2])
+            # Only NoiseProcess/SimpleNoiseProcess record a `t` timeseries to snap;
+            # types like NoiseFunction and NoiseGrid have no `save_everystep` field.
+            hasfield(typeof(W), :save_everystep) && W.save_everystep &&
+                (W.t[end] = prob.tspan[2])
+            resync_prepared_step!(W)
         elseif tType <: AbstractFloat && W.curt + W.dt > prob.tspan[2] + endtol
             # The prepared step would overshoot `tspan[2]` by more than rounding. Recompute
             # it at exactly the remaining width so the solution ends on `tspan[2]`.
@@ -65,7 +79,9 @@ function DiffEqBase.__solve(
             calculate_step!(W, dtcorrect, nothing, nothing)
             accept_step!(W, dtcorrect, nothing, nothing)
             W.curt = prob.tspan[2]
-            W.save_everystep && (W.t[end] = prob.tspan[2])
+            hasfield(typeof(W), :save_everystep) && W.save_everystep &&
+                (W.t[end] = prob.tspan[2])
+            resync_prepared_step!(W)
         else
             accept_step!(W, dt, nothing, nothing)
         end

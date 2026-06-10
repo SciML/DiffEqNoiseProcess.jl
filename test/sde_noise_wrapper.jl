@@ -39,7 +39,9 @@
 
     sol2 = solve(prob1, EM(), dt = dt)
 
-    for i in 1:length(sol1)
+    # length(sol1) counts scalars (4 × timesteps) under the AbstractArray
+    # solution semantics, so index the timeseries explicitly.
+    for i in eachindex(sol1.u)
         @test sol1.u[i] ≈ sol2.u[i]
     end
 

@@ -237,7 +237,10 @@ end
     proboop = SDEProblem(f, g, u₀, trange, p)
     soloop = solve(proboop, EM(), dt = dtmix, save_noise = true, save_end = false)
 
-    @test soloop.u ≈ sol.u
+    # save_end = false drops the final time point (matching OrdinaryDiffEq's
+    # documented semantics), so soloop is sol without the t = tspan[2] save.
+    @test soloop.t == sol.t[1:(end - 1)]
+    @test soloop.u ≈ sol.u[1:(end - 1)]
 
     @test length(sol.u) != 1.0e4 + 1
 
@@ -288,9 +291,11 @@ end
 
     @test length(checkWrapper.u) != length(soloop.u)
 
+    # soloop has no save at t = tspan[2] (save_end = false), so checkWrapper's
+    # last two points line up against soloop.u[end] and sol.u[end].
     @test checkWrapper.u[1] ≈ sol.u[indx1] rtol = 1.0e-10
-    @test checkWrapper.u[end - 1] ≈ soloop.u[end - 1] rtol = 1.0e-10
-    @test checkWrapper.u[end] ≈ soloop.u[end] rtol = 1.0e-10
+    @test checkWrapper.u[end - 1] ≈ soloop.u[end] rtol = 1.0e-10
+    @test checkWrapper.u[end] ≈ sol.u[end] rtol = 1.0e-10
     @test checkWrapper.W.W[end] ≈ soloop.W.W[end] rtol = 1.0e-10
     @test checkWrapper(soloop.t[indx1:end]).u ≈ soloop.u[indx1:end] rtol = 1.0e-10
 end

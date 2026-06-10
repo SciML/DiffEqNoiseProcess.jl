@@ -38,8 +38,11 @@ end
 function construct_correlated_noisefunc!(Γ)
     γ = svd(Γ)
     A = γ.U * Diagonal(sqrt.(γ.S))
-    b = Vector{eltype(Γ)}(undef, size(Γ, 1))
+    # The scratch vector must live inside the call: the closure is shared across
+    # `copy`s of the process, so a captured buffer is raced on by ensemble
+    # trajectories running on different threads.
     dist = function (rand_vec, W, dt, u, p, t, rng)
+        b = Vector{eltype(rand_vec)}(undef, length(rand_vec))
         wiener_randn!(rng, b)
         b .*= sqrt.(abs(dt))
         return mul!(rand_vec, A, b)

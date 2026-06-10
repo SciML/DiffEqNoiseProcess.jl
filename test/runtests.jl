@@ -1,6 +1,10 @@
 using Test, Pkg
 
-const GROUP = get(ENV, "GROUP", "All")
+# The SciML reusable Tests workflow exports GROUP="" when no group input is
+# given; treat that the same as unset so CI doesn't silently run zero tests.
+const GROUP = let g = get(ENV, "GROUP", "All")
+    isempty(g) ? "All" : g
+end
 
 function activate_gpu_env()
     Pkg.activate("gpu")
