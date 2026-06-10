@@ -47,7 +47,9 @@
 
     W4 = NoiseWrapper(_sol, reverse = true)
     for i in 1:1:length(tarray)
-        t = tarray[end - i + 1]
+        # Query the actually saved times: the accumulated tarray drifts past
+        # tspan[2] while the solve snaps its final time onto tspan[2] exactly.
+        t = _sol.t[end - i + 1]
         tmp = DiffEqNoiseProcess.interpolate!(W4, nothing, nothing, t)
         @test _sol.W[end - i + 1] ≈ tmp[1]
         @test _sol.Z[end - i + 1] ≈ tmp[2]
