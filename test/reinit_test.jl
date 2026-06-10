@@ -225,8 +225,15 @@
 
         prob = SDEProblem(f, g, 1.0, tspan, noise = W, save_noise = true)
 
+        # Construct a fresh transport per trajectory: the ensemble layer skips
+        # reseeding an explicitly passed noise process rng, so trajectories
+        # sharing W duplicate their rv draws under EnsembleThreads and bias the
+        # sampled variance. See https://github.com/SciML/OrdinaryDiffEq.jl/issues/3737
         ensemble_probW = EnsembleProblem(
             prob,
+            prob_func = (p, ctx) -> remake(
+                p, noise = NoiseTransport(0.0, (u, p, t, Y) -> Y * t, randn)
+            ),
             output_func = (sol, ctx) -> (first(sol.W(t)), false)
         )
         solW_at_1 = solve(ensemble_probW, EM(), dt = 1 / 10, trajectories = 40_000)
