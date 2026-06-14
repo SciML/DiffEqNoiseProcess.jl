@@ -1,6 +1,6 @@
-using DiffEqNoiseProcess, Test, Random
-using StochasticDiffEq, LinearAlgebra
-@testset "NoiseWrapper" begin
+@safetestset "NoiseWrapper" begin
+    using DiffEqNoiseProcess, Test, Random
+    using StochasticDiffEq, LinearAlgebra
     _W = WienerProcess(0.0, 0.0, 0.0)
 
     dt = 0.1
@@ -84,7 +84,9 @@ using StochasticDiffEq, LinearAlgebra
     @test W2.W[end] ≈ _W.W[end - 1]
 end
 
-@testset "NoiseWrapper restart tests to interpolate" begin
+@safetestset "NoiseWrapper restart tests to interpolate" begin
+    using DiffEqNoiseProcess, Test, Random
+    using StochasticDiffEq, LinearAlgebra
     seed = 100
     u₀ = [0.75, 0.5]
     p = [-1.5, 0.05, 0.2, 0.01]
@@ -202,7 +204,9 @@ end
     @show checkGrid.u[end] - sol.u[end]
 end
 
-@testset "Interpolation with small eps jumps" begin
+@safetestset "Interpolation with small eps jumps" begin
+    using DiffEqNoiseProcess, Test, Random
+    using StochasticDiffEq, LinearAlgebra
     seed = 100
     u₀ = [1.0]
     p = [1.1, 0.87]
@@ -300,7 +304,9 @@ end
     @test checkWrapper(soloop.t[indx1:end]).u ≈ soloop.u[indx1:end] rtol = 1.0e-10
 end
 
-@testset "Diagonal to Non-diagonal NoiseProcess conversion" begin
+@safetestset "Diagonal to Non-diagonal NoiseProcess conversion" begin
+    using DiffEqNoiseProcess, Test, Random
+    using StochasticDiffEq, LinearAlgebra
     t = 0.0
     dtleft = 0.01
     rand_prototype = [0.0 0.0 0.0; 0.0 0.0 0.0]

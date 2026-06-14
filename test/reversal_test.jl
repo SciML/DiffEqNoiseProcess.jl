@@ -1,5 +1,5 @@
-using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
-@testset "SDE Stratonovich Reversal Tests" begin
+@safetestset "SDE Stratonovich Reversal Tests" begin
+    using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
     Random.seed!(100)
     α = 1.01
     β = 0.87
@@ -145,7 +145,8 @@ using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
     @test sol1.u ≈ sol2.u atol = 1.0e-5
 end
 
-@testset "Reverse a given NoiseProcess " begin
+@safetestset "Reverse a given NoiseProcess " begin
+    using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
     # Noise Wrapper
     _W = WienerProcess(0.0, 0.0, 0.0)
 
@@ -199,7 +200,8 @@ end
     @test isapprox(sol.Z, reverse(sol2.Z), atol = 1.0e-12)
 end
 
-@testset "SDE Ito Basic Reversal Tests" begin
+@safetestset "SDE Ito Basic Reversal Tests" begin
+    using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
     n = 100000
     T = 2.0
     dt = T / n
@@ -281,7 +283,8 @@ end
 Some more Ito reversals
 """
 
-@testset "SDE Ito Reversal Tests" begin
+@safetestset "SDE Ito Reversal Tests" begin
+    using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
     Random.seed!(100)
     α = 1.0
     β = 0.3
@@ -349,7 +352,8 @@ Some more Ito reversals
     # plot(vcat(sol.u - reverse(sol1.u) ...))
 end
 
-@testset "SDE Ito additive noise Reversal Tests" begin
+@safetestset "SDE Ito additive noise Reversal Tests" begin
+    using StochasticDiffEq, DiffEqNoiseProcess, Test, Random
     using SDEProblemLibrary: prob_sde_additive, prob_sde_additivesystem
     Random.seed!(100)
     dt = 1.0e-3

@@ -1,4 +1,4 @@
-@testset "RSwM3" begin
+@safetestset "RSwM3" begin
     using DiffEqNoiseProcess
 
     W = WienerProcess(0.0, 0.0, 0.0, rswm = RSWM(adaptivealg = :RSwM3))

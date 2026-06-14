@@ -1,4 +1,4 @@
-@testset "Noise Interpolation Test" begin
+@safetestset "Noise Interpolation Test" begin
     using DiffEqNoiseProcess
 
     W = WienerProcess(0.0, 0.0, 0.0)

@@ -1,4 +1,4 @@
-@testset "NoiseFunction" begin
+@safetestset "NoiseFunction" begin
     using DiffEqNoiseProcess, DiffEqBase, Test
     f = (u, p, t) -> exp(t)
 

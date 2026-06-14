@@ -1,4 +1,4 @@
-@testset "OU" begin
+@safetestset "OU" begin
     using DiffEqNoiseProcess, DiffEqBase, Test, Statistics
     Θ = 1.0
     μ = 1.2

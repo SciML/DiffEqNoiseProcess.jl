@@ -1,4 +1,4 @@
-@testset "CompoundPoissonProcess" begin
+@safetestset "CompoundPoissonProcess" begin
     using DiffEqNoiseProcess, DiffEqBase, Test, Statistics
 
     r = 2

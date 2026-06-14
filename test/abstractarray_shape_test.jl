@@ -1,4 +1,4 @@
-@testset "AbstractNoiseProcess T/N parameterization" begin
+@safetestset "AbstractNoiseProcess T/N parameterization" begin
     using DiffEqNoiseProcess, StochasticDiffEq, Test
 
     # AbstractNoiseProcess <: AbstractDiffEqArray <: AbstractVectorOfArray <: AbstractArray{T, N}

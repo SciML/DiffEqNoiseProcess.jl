@@ -45,6 +45,7 @@ RecursiveArrayTools = "2, 3, 4"
 ResettableStacks = "0.6, 1.0"
 ReverseDiff = "1"
 SDEProblemLibrary = "0.1, 1"
+SafeTestsets = "0.1, 1"
 SciMLBase = "1, 2, 3"
 StaticArrays = "1"
 StaticArraysCore = "1.4"
@@ -63,10 +64,11 @@ Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
 SDEProblemLibrary = "c72e72a9-a271-4b2b-8966-303ed956772e"
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 StochasticDiffEq = "789caeaf-c7a9-5a7d-9973-96adeb23e2a0"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports", "Optim"]
+test = ["Test", "SafeTestsets", "SDEProblemLibrary", "Pkg", "StatsBase", "StaticArrays", "StochasticDiffEq", "Distributions", "HypothesisTests", "Cubature", "ExplicitImports", "Optim"]

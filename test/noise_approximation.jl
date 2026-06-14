@@ -1,4 +1,4 @@
-@testset "NoiseApproximation" begin
+@safetestset "NoiseApproximation" begin
     using DiffEqNoiseProcess, DiffEqBase, StochasticDiffEq
     using Test
 

@@ -1,4 +1,4 @@
-@testset "Restart" begin
+@safetestset "Restart" begin
     using Test, LinearAlgebra
     using StochasticDiffEq, DiffEqNoiseProcess
     using Random

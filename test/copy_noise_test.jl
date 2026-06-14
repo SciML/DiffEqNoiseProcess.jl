@@ -1,4 +1,4 @@
-@testset "Copy Noise test" begin
+@safetestset "Copy Noise test" begin
     using DiffEqNoiseProcess, StochasticDiffEq
     using Optim  # Required for BoxWedgeTail with sqeezing=true
 

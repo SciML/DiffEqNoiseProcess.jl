@@ -1,4 +1,4 @@
-@testset "Multidim" begin
+@safetestset "Multidim" begin
     using DiffEqNoiseProcess, Random, Statistics
 
     W = WienerProcess(0.0, rand(4, 4), rswm = RSWM(adaptivealg = :RSwM3))

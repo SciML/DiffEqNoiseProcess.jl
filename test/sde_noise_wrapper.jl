@@ -1,4 +1,4 @@
-@testset "SDE NoiseWrapper" begin
+@safetestset "SDE NoiseWrapper" begin
     using StochasticDiffEq, DiffEqBase, DiffEqNoiseProcess, Test
 
     f1 = (u, p, t) -> 1.01u

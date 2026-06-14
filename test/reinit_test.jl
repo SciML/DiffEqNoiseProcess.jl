@@ -1,4 +1,4 @@
-@testset "Reinit" begin
+@safetestset "Reinit" begin
     using StochasticDiffEq, DiffEqNoiseProcess, Statistics
 
     f = (u, p, t) -> 1.0

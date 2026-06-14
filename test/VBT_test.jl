@@ -1,4 +1,4 @@
-@testset "Virtual Brownian Tree tests" begin
+@safetestset "Virtual Brownian Tree tests" begin
     using DiffEqNoiseProcess, DiffEqBase, StochasticDiffEq, Test, Random
 
     W = VirtualBrownianTree(0.0, 0.0; tree_depth = 3, search_depth = 5)

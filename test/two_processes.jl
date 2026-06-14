@@ -1,8 +1,8 @@
-using DiffEqBase, DiffEqNoiseProcess, Test, LinearAlgebra
-using Random
-seed = 100;
-Random.seed!(seed);
-@testset "Two noise processes for different m" begin
+@safetestset "Two noise processes for different m" begin
+    using DiffEqBase, DiffEqNoiseProcess, Test, LinearAlgebra
+    using Random
+    seed = 100
+    Random.seed!(seed)
     for m in 1:4
         rand_prototype = zeros(m)
         rand_prototype2 = similar(rand_prototype, Int(m * (m - 1) / 2))

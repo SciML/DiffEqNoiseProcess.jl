@@ -1,4 +1,4 @@
-@testset "save_everystep Keyword" begin
+@safetestset "save_everystep Keyword" begin
     #Test whether the result of the process is dependent on 'save_everystep'.
     using DiffEqNoiseProcess, DiffEqBase, Test, Statistics, Random
     processes = [
@@ -23,7 +23,7 @@
     end
 end
 
-@testset "Noise solution lands exactly on the endpoint" begin
+@safetestset "Noise solution lands exactly on the endpoint" begin
     # A NoiseProblem solve must stop exactly on tspan[2] and never step past it.
     # Floating point drift accumulated over many steps is ~eps(tspan[2]), which can be
     # far larger than eps(dt) for small dt, so the end correction must be scaled by the

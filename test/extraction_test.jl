@@ -1,4 +1,4 @@
-@testset "Noise Extraction Test" begin
+@safetestset "Noise Extraction Test" begin
     using Random, DiffEqNoiseProcess, DiffEqBase, Test
     seed = 100
     Random.seed!(seed)

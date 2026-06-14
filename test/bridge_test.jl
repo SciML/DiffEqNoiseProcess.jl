@@ -4,37 +4,13 @@
 # value arrays (timestep_mean/timestep_meanvar need `el.u[i]`) and the Ou-Bridge
 # testsets accumulate streaming sums instead of solution collections — only the
 # elementwise mean/std are asserted.
-keep_u = (sol, ctx) -> ((u = sol.u,), false)
-
-mutable struct RunningStats
-    n::Int
-    sum::Vector{Float64}
-    sumsq::Vector{Float64}
-    RunningStats() = new(0, Float64[], Float64[])
-end
-function push_stats!(rs::RunningStats, u)
-    if rs.n == 0
-        resize!(rs.sum, length(u))
-        fill!(rs.sum, 0.0)
-        resize!(rs.sumsq, length(u))
-        fill!(rs.sumsq, 0.0)
-    end
-    rs.n += 1
-    for i in eachindex(u)
-        v = first(u[i])
-        rs.sum[i] += v
-        rs.sumsq[i] += abs2(v)
-    end
-    return rs
-end
-stats_mean(rs::RunningStats) = rs.sum ./ rs.n
-function stats_std(rs::RunningStats)
-    m = stats_mean(rs)
-    return sqrt.(max.(rs.sumsq ./ rs.n .- abs2.(m), 0.0) .* (rs.n / (rs.n - 1)))
-end
-
-@testset "Brownian Bridge" begin
+#
+# The shared streaming-statistics helpers (keep_u, RunningStats, push_stats!,
+# stats_mean, stats_std) live in bridge_runningstats.jl and are included into each
+# @safetestset, since each runs in its own module.
+@safetestset "Brownian Bridge" begin
     using DiffEqNoiseProcess, DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis
+    include("bridge_runningstats.jl")
 
     Random.seed!(100)
     W = BrownianBridge(0.0, 1.0, 0.0, 1.0, 0.0, 0.0)
@@ -123,9 +99,10 @@ end
     @test ≈(timestep_meanvar(sol, Int(2^(W.tree_depth) + 1))[2], 0.0, atol = 1.0e-16)
 end
 
-@testset "Scalar Ou-Bridge" begin
+@safetestset "Scalar Ou-Bridge" begin
     using DiffEqNoiseProcess,
         DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis, StatsBase, Statistics
+    include("bridge_runningstats.jl")
     stats_forward = RunningStats()
     dt = 0.125
     t_max = 20.0
@@ -169,7 +146,10 @@ end
     @test all(isapprox.(stats_std(stats_forward), stats_std(stats_solver); atol = 1.0e-3))
 end
 
-@testset "Vector Ou-Bridge" begin
+@safetestset "Vector Ou-Bridge" begin
+    using DiffEqNoiseProcess,
+        DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis, StatsBase, Statistics
+    include("bridge_runningstats.jl")
     stats_forward = RunningStats()
     dt = 0.125
     t_max = 20.0
@@ -221,7 +201,10 @@ end
     @test all(isapprox.(stats_std(stats_forward), stats_std(stats_solver); atol = 1.0e-3))
 end
 
-@testset "Inplace OU-Bridge" begin
+@safetestset "Inplace OU-Bridge" begin
+    using DiffEqNoiseProcess,
+        DiffEqBase, Test, Random, DiffEqBase.EnsembleAnalysis, StatsBase, Statistics
+    include("bridge_runningstats.jl")
     stats_forward = RunningStats()
     dt = 0.125
     t_max = 20.0

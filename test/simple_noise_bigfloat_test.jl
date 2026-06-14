@@ -2,8 +2,9 @@
 # Tests that SimpleWienerProcess correctly passes dW as first argument to dist/bridge functions
 # Before PR #230, this would fail with BigFloat because WHITE_NOISE_DIST uses dW to determine output type
 
-@testset "SimpleNoiseProcess BigFloat" begin
+@safetestset "SimpleNoiseProcess BigFloat" begin
     using DiffEqNoiseProcess
+    using Test
 
     # Test 1: Out-of-place SimpleWienerProcess with BigFloat scalar
     @testset "Scalar BigFloat (out-of-place)" begin

@@ -1,4 +1,4 @@
-@testset "NoiseGrid" begin
+@safetestset "NoiseGrid" begin
     using DiffEqNoiseProcess, DiffEqBase, Test
 
     t = 0:0.001:1

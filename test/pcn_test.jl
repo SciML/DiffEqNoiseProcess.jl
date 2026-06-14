@@ -1,4 +1,4 @@
-@testset "preconditioned Crank Nicolson tests" begin
+@safetestset "preconditioned Crank Nicolson tests" begin
     using DiffEqNoiseProcess, Test, Random
     using Statistics
     using DiffEqBase

@@ -1,6 +1,6 @@
-using StaticArrays
-@testset "Correlated Wiener Process" begin
+@safetestset "Correlated Wiener Process" begin
     using DiffEqNoiseProcess, DiffEqBase, Test, Statistics
+    using StaticArrays
 
     W_not_correlated = WienerProcess(0.0, zeros(2), zeros(2))
     @test W_not_correlated.covariance == nothing
@@ -39,11 +39,11 @@ using StaticArrays
     @test W.covariance ≈ cov(sol, dims = 2) / dt rtol = 1.0e-2
 
     # with StaticArrays
-    Γ = @SMatrix [
-        1.0 ρ
-        ρ 1.0
-    ]
-    W = CorrelatedWienerProcess(Γ, 0.0, @SVector(zeros(2)), @SVector(zeros(2)))
+    # Constructor forms (rather than @SMatrix/@SVector) so the body stays
+    # self-contained inside the @safetestset module, where a package macro
+    # cannot resolve against a `using` that runs in the same testset block.
+    Γ = SMatrix{2, 2}(1.0, ρ, ρ, 1.0)
+    W = CorrelatedWienerProcess(Γ, 0.0, SVector{2}(0.0, 0.0), SVector{2}(0.0, 0.0))
 
     dt = 0.1
     calculate_step!(W, dt, nothing, nothing)

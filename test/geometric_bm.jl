@@ -1,4 +1,4 @@
-@testset "GeometricBM" begin
+@safetestset "GeometricBM" begin
     using DiffEqNoiseProcess, DiffEqBase, Test, Statistics
 
     μ = 1.0

@@ -1,4 +1,4 @@
-@testset "BoxWedgeTail tests" begin
+@safetestset "BoxWedgeTail tests" begin
     using DiffEqNoiseProcess, Test, Random
     import Distributions
     using Cubature

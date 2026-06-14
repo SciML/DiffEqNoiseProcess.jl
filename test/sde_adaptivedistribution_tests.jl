@@ -1,6 +1,8 @@
-@testset "SDE Adaptive Distribution Tests" begin
+@safetestset "SDE Adaptive Distribution Tests" begin
     using StochasticDiffEq, StatsBase, Distributions, HypothesisTests
+    using DiffEqNoiseProcess
     using Random
+    import SDEProblemLibrary: prob_sde_linear
 
     prob = prob_sde_linear
     Random.seed!(200)
