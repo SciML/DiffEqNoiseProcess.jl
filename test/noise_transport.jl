@@ -1,5 +1,5 @@
 @testset "NoiseTransport" begin
-    using DiffEqNoiseProcess, Distributions, Random, Test
+    using DiffEqNoiseProcess, DiffEqBase, Distributions, Random, Test
 
     # test steps
     f = (u, p, t, Y) -> exp(Y * t)
