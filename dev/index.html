@@ -9,7 +9,7 @@ W = WienerProcess(0.0, 0.0, 1.0)
 prob = NoiseProblem(W, (0.0, 1.0))
 sol = solve(prob; dt = 0.01)
 
-println(&quot;Final Brownian motion value: $(sol.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final Brownian motion value: -0.4393728367549567</code></pre><h3 id="Using-Noise-in-SDE-Problems"><a class="docs-heading-anchor" href="#Using-Noise-in-SDE-Problems">Using Noise in SDE Problems</a><a id="Using-Noise-in-SDE-Problems-1"></a><a class="docs-heading-anchor-permalink" href="#Using-Noise-in-SDE-Problems" title="Permalink"></a></h3><p>Noise processes integrate directly with SDE problems:</p><pre><code class="language-julia hljs">using SciMLBase
+println(&quot;Final Brownian motion value: $(sol.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final Brownian motion value: -0.6414508818842128</code></pre><h3 id="Using-Noise-in-SDE-Problems"><a class="docs-heading-anchor" href="#Using-Noise-in-SDE-Problems">Using Noise in SDE Problems</a><a id="Using-Noise-in-SDE-Problems-1"></a><a class="docs-heading-anchor-permalink" href="#Using-Noise-in-SDE-Problems" title="Permalink"></a></h3><p>Noise processes integrate directly with SDE problems:</p><pre><code class="language-julia hljs">using SciMLBase
 
 # Define SDE: dX = μX dt + σX dW (geometric Brownian motion)
 f(u, p, t) = 0.05 * u  # 5% drift
@@ -30,7 +30,7 @@ println(&quot;Generated $(length(ensemble_sol.u)) noise trajectories&quot;)</cod
   <span class="sgr90">[77a26b50] </span>DiffEqNoiseProcess v5.32.0 `~/_work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl`
   <span class="sgr90">[31c24e10] </span>Distributions v0.25.126
   <span class="sgr90">[e30172f5] </span>Documenter v1.17.0
-  <span class="sgr90">[0bca4576] </span>SciMLBase v3.19.0
+  <span class="sgr90">[0bca4576] </span>SciMLBase v3.21.0
   <span class="sgr90">[10745b16] </span>Statistics v1.11.1
   <span class="sgr90">[9a3f8284] </span>Random v1.11.0</code></pre></details><details><summary>and using this machine and Julia version.</summary><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Julia Version 1.12.6
 Commit 15346901f00 (2026-04-09 19:20 UTC)
@@ -38,7 +38,7 @@ Build Info:
   Official https://julialang.org release
 Platform Info:
   OS: Linux (x86_64-linux-gnu)
-  CPU: 112 × AMD EPYC 7663 56-Core Processor
+  CPU: 128 × AMD EPYC 7513 32-Core Processor
   WORD_SIZE: 64
   LLVM: libLLVM-18.1.7 (ORCJIT, znver3)
   GC: Built with stock GC
@@ -94,7 +94,7 @@ Environment:
   <span class="sgr90">[bb5d69b7] </span>MaybeInplace v0.1.4
   <span class="sgr90">[e1d29d7a] </span>Missings v1.2.0
   <span class="sgr90">[46d2c3a1] </span>MuladdMacro v0.2.4
-  <span class="sgr90">[be0214bd] </span>NonlinearSolveBase v2.30.3
+  <span class="sgr90">[be0214bd] </span>NonlinearSolveBase v2.31.0
 <span class="sgr33">⌅</span> <span class="sgr90">[bac558e1] </span>OrderedCollections v1.8.2
   <span class="sgr90">[90014a1f] </span>PDMats v0.11.37
   <span class="sgr90">[69de0a69] </span>Parsers v2.8.5
@@ -111,7 +111,7 @@ Environment:
   <span class="sgr90">[ae5879a3] </span>ResettableStacks v1.2.0
   <span class="sgr90">[79098fc4] </span>Rmath v0.9.0
   <span class="sgr90">[7e49a35a] </span>RuntimeGeneratedFunctions v0.5.19
-  <span class="sgr90">[0bca4576] </span>SciMLBase v3.19.0
+  <span class="sgr90">[0bca4576] </span>SciMLBase v3.21.0
   <span class="sgr90">[19f34311] </span>SciMLJacobianOperators v0.1.13
   <span class="sgr90">[a6db7da4] </span>SciMLLogging v2.0.0
   <span class="sgr90">[c0aeaf25] </span>SciMLOperators v1.22.0
@@ -184,4 +184,4 @@ Environment:
   <span class="sgr90">[8e850b90] </span>libblastrampoline_jll v5.15.0+0
   <span class="sgr90">[8e850ede] </span>nghttp2_jll v1.64.0+1
   <span class="sgr90">[3f19e933] </span>p7zip_jll v17.7.0+0
-<span class="sgr36"><span class="sgr1">Info</span></span> Packages marked with <span class="sgr33">⌅</span> have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.32.0/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.32.0/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="tutorials/basic_usage/">Basic Usage Tutorial »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 10 June 2026 14:02">Wednesday 10 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+<span class="sgr36"><span class="sgr1">Info</span></span> Packages marked with <span class="sgr33">⌅</span> have new versions available but compatibility constraints restrict them from upgrading. To see why use `status --outdated -m`</code></pre></details><p>You can also download the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.32.0/assets/Manifest.toml">manifest</a> file and the <a href="https://github.com/SciML/DiffEqNoiseProcess.jl/tree/gh-pages/v5.32.0/assets/Project.toml">project</a> file.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="tutorials/basic_usage/">Basic Usage Tutorial »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 15 June 2026 00:02">Monday 15 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
