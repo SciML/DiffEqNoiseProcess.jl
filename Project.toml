@@ -1,7 +1,7 @@
 name = "DiffEqNoiseProcess"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
 authors = ["Chris Rackauckas <accounts@chrisrackauckas.com>"]
-version = "5.32.0"
+version = "5.32.2"
 
 [deps]
 CommonSolve = "38540f10-b2f7-11e9-35d8-d573e4eb0ff2"
@@ -45,7 +45,7 @@ ResettableStacks = "0.6, 1.0"
 ReverseDiff = "1"
 SDEProblemLibrary = "1"
 SafeTestsets = "0.0.1, 0.1"
-SciMLBase = "1, 2, 3"
+SciMLBase = "3.4.3"
 SciMLTesting = "1"
 StaticArrays = "1"
 StaticArraysCore = "1.4"
