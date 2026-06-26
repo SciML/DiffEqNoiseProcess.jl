@@ -54,4 +54,21 @@ end
             @test issorted(sol.t)
         end
     end
+
+    # A Float32 dt with a Float64 tspan: the per-step error is set by dt's (coarser)
+    # precision, so `0.0:dt:1.0` lands ~2e-8 short of 1.0. The end correction must snap
+    # onto tspan[2] rather than append a sub-dt sliver point past the last grid point
+    # (which produced an off-by-one extra sample, SciML/NeuralPDE.jl#1077).
+    @testset "Float32 dt, Float64 tspan: process = $(proc.dist)" for proc in processes
+        @testset "dt = $dt" for dt in (1 / 50.0f0, 1 / 100.0f0)
+            cproc = deepcopy(proc)
+            prob = NoiseProblem(cproc, (0.0, 1.0); seed = 1234)
+            sol = solve(prob; dt = dt)
+            @test sol.t[end] == 1.0
+            @test sol.curt == 1.0
+            @test issorted(sol.t)
+            # No spurious extra point: the grid has exactly length(0.0:dt:1.0) samples.
+            @test length(sol.t) == length(0.0:Float64(dt):1.0)
+        end
+    end
 end
