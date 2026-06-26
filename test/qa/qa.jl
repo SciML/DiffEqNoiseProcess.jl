@@ -16,9 +16,11 @@ run_qa(
         ),
         all_explicit_imports_are_public = (;
             ignore = (
-                Symbol("@.."), :AbstractNoiseProblem, :AbstractNoiseProcess, :DEIntegrator,
-                :step!,
-            ),  # step! owned by CommonSolve, not declared public there
+                Symbol("@.."),          # FastBroadcast (via DiffEqBase), not public
+                :AbstractNoiseProblem,  # SciMLBase (via DiffEqBase), not public
+                :AbstractNoiseProcess,  # SciMLBase (via DiffEqBase), not public
+                :DEIntegrator,          # SciMLBase (via DiffEqBase), not public
+            ),
         ),
         # __solve / has_reinit are SciMLBase names re-exported by DiffEqBase and
         # extended here via DiffEqBase.<name>(...).
@@ -29,13 +31,10 @@ run_qa(
                 :Broadcasted,           # Base.Broadcast
                 :Experimental,          # Base
                 :register_error_hint,   # Base.Experimental
-                :AbstractDEAlgorithm,   # SciMLBase
-                :ODE_DEFAULT_NORM,      # DiffEqBase
-                :__solve,               # SciMLBase (extended via DiffEqBase)
-                :has_reinit,            # SciMLBase (extended via DiffEqBase)
-                :copyat_or_push!,       # ResettableStacks
-                :default_rng, :seed!,   # Random — public on 1.11+, only flagged on the 1.10 LTS
-                :sample_box, :sample_tail, :sample_wedge,  # own self-qualified names
+                :ODE_DEFAULT_NORM,      # DiffEqBase, not public
+                :__solve,               # DiffEqBase (SciMLBase name extended via DiffEqBase)
+                :has_reinit,            # DiffEqBase (SciMLBase name extended via DiffEqBase)
+                :copyat_or_push!,       # ResettableStacks, not public
             ),
         ),
     ),
