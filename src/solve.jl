@@ -53,14 +53,27 @@ function DiffEqBase.__solve(
 
     setup_next_step!(W, nothing, nothing)
     tType = typeof(W.curt)
+    dtType = typeof(dt)
     while W.curt < prob.tspan[2]
         # Tolerance scaled by the magnitude of the time values rather than by `dt`:
         # the floating point drift accumulated over many steps is on the order of
         # `eps(tspan[2])`, which can be far larger than `eps(dt)` when `dt` is small.
         # The previous `100 * eps(dt)` tolerance was therefore essentially never hit,
         # so the solve took a full extra step and stopped past `tspan[2]`.
+        #
+        # When `dt` is given at a coarser precision than the time type (e.g. a Float32
+        # `dt = 1/50f0` with a Float64 tspan), the per-step error is set by `dt`'s
+        # precision, so the drift accumulated over the span reaches ~`eps(dtType(tspan[2]))`
+        # (~1e-7 for Float32) — orders of magnitude larger than `eps(tType(tspan[2]))`
+        # (~1e-16 for Float64). Use the coarser of the two so the near-endpoint step is
+        # snapped onto `tspan[2]` instead of having a sub-`dt` sliver step appended past it.
+        mag = max(abs(prob.tspan[2]), abs(W.curt))
         endtol = tType <: AbstractFloat ?
-            100 * eps(tType(max(abs(prob.tspan[2]), abs(W.curt)))) : zero(W.curt)
+            100 * max(
+                eps(tType(mag)),
+                dtType <: AbstractFloat ? eps(dtType(mag)) : zero(tType(mag))
+            ) :
+            zero(W.curt)
         if tType <: AbstractFloat && abs(prob.tspan[2] - (W.curt + W.dt)) <= endtol
             # The prepared step lands on `tspan[2]` up to floating point drift. Take it as
             # usual but snap the recorded endpoint exactly onto `tspan[2]` so the solution
