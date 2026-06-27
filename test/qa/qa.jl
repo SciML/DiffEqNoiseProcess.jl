@@ -7,19 +7,15 @@ run_qa(
     # https://github.com/SciML/DiffEqNoiseProcess.jl/issues/283
     aqua_broken = (:ambiguities, :deps_compat, :piracies),
     ei_kwargs = (;
-        # AbstractNoiseProcess/AbstractNoiseProblem/DEIntegrator and @.. are
-        # re-exported by DiffEqBase but owned by SciMLBase/FastBroadcast; they are
-        # imported via DiffEqBase by long-standing convention (and are not declared
-        # public in the owner module yet).
+        # @.. (FastBroadcast) and DEIntegrator (SciMLBase) are re-exported by
+        # DiffEqBase but owned elsewhere; imported via DiffEqBase by convention.
         all_explicit_imports_via_owners = (;
-            ignore = (Symbol("@.."), :AbstractNoiseProblem, :AbstractNoiseProcess, :DEIntegrator),
+            ignore = (Symbol("@.."), :DEIntegrator),
         ),
         all_explicit_imports_are_public = (;
             ignore = (
-                Symbol("@.."),          # FastBroadcast (via DiffEqBase), not public
-                :AbstractNoiseProblem,  # SciMLBase (via DiffEqBase), not public
-                :AbstractNoiseProcess,  # SciMLBase (via DiffEqBase), not public
-                :DEIntegrator,          # SciMLBase (via DiffEqBase), not public
+                Symbol("@.."),   # FastBroadcast (via DiffEqBase), not public
+                :DEIntegrator,   # SciMLBase (via DiffEqBase), not public
             ),
         ),
         # __solve / has_reinit are SciMLBase names re-exported by DiffEqBase and
@@ -31,7 +27,6 @@ run_qa(
                 :Broadcasted,           # Base.Broadcast
                 :Experimental,          # Base
                 :register_error_hint,   # Base.Experimental
-                :ODE_DEFAULT_NORM,      # DiffEqBase, not public
                 :__solve,               # DiffEqBase (SciMLBase name extended via DiffEqBase)
                 :has_reinit,            # DiffEqBase (SciMLBase name extended via DiffEqBase)
                 :copyat_or_push!,       # ResettableStacks, not public
