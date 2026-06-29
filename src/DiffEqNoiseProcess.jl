@@ -9,11 +9,10 @@ using Random: Random, AbstractRNG, randn!, Xoshiro
 using Statistics: Statistics
 using LinearAlgebra: LinearAlgebra, Diagonal, mul!, svd
 
-import DiffEqBase: isinplace, AbstractNoiseProcess,
-    DEIntegrator, AbstractNoiseProblem
+import DiffEqBase: isinplace, DEIntegrator
 
 import SciMLBase
-import SciMLBase: add_tstop!, reinit!
+import SciMLBase: add_tstop!, reinit!, AbstractNoiseProcess, AbstractNoiseProblem
 
 import CommonSolve: step!
 
