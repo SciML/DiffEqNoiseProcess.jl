@@ -1300,6 +1300,16 @@ function VirtualBrownianTree(
     return VirtualBrownianTree{false}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
+"""
+    VirtualBrownianTree!(t0, W0, Z0 = nothing,
+        dist = INPLACE_WHITE_NOISE_DIST, bridge = INPLACE_VBT_BRIDGE; kwargs...)
+
+Construct an in-place `VirtualBrownianTree` noise process.
+
+This is the mutating-distribution variant of [`VirtualBrownianTree`](@ref). It
+uses `dist` and `bridge` functions that write noise increments into their output
+argument, which is useful when `W0` is an array-like noise prototype.
+"""
 function VirtualBrownianTree!(
         t0, W0, Z0 = nothing, dist = INPLACE_WHITE_NOISE_DIST,
         bridge = INPLACE_VBT_BRIDGE; kwargs...
@@ -1532,6 +1542,16 @@ function BoxWedgeTail(
     return BoxWedgeTail{false}(t0, W0, Z0, dist, bridge; kwargs...)
 end
 
+"""
+    BoxWedgeTail!(t0, W0, Z0 = nothing,
+        dist = INPLACE_WHITE_NOISE_DIST, bridge = INPLACE_WHITE_NOISE_BRIDGE; kwargs...)
+
+Construct an in-place `BoxWedgeTail` noise process.
+
+This is the mutating-distribution variant of [`BoxWedgeTail`](@ref) for
+two-dimensional Brownian processes with stochastic area. The supplied `dist` and
+`bridge` functions must write their increments into the provided output arrays.
+"""
 function BoxWedgeTail!(
         t0, W0, Z0 = nothing, dist = INPLACE_WHITE_NOISE_DIST,
         bridge = INPLACE_WHITE_NOISE_BRIDGE; kwargs...
