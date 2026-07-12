@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Basic Usage Tutorial · DiffEqNoiseProcess.jl</title><meta name="title" content="Basic Usage Tutorial · DiffEqNoiseProcess.jl"/><meta property="og:title" content="Basic Usage Tutorial · DiffEqNoiseProcess.jl"/><meta property="twitter:title" content="Basic Usage Tutorial · DiffEqNoiseProcess.jl"/><meta name="description" content="Documentation for DiffEqNoiseProcess.jl."/><meta property="og:description" content="Documentation for DiffEqNoiseProcess.jl."/><meta property="twitter:description" content="Documentation for DiffEqNoiseProcess.jl."/><meta property="og:url" content="https://docs.sciml.ai/DiffEqNoiseProcess/stable/tutorials/basic_usage/"/><meta property="twitter:url" content="https://docs.sciml.ai/DiffEqNoiseProcess/stable/tutorials/basic_usage/"/><link rel="canonical" href="https://docs.sciml.ai/DiffEqNoiseProcess/stable/tutorials/basic_usage/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="DiffEqNoiseProcess.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DiffEqNoiseProcess.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li class="is-active"><a class="tocitem" href>Basic Usage Tutorial</a><ul class="internal"><li><a class="tocitem" href="#Creating-and-Using-Noise-Processes"><span>Creating and Using Noise Processes</span></a></li><li><a class="tocitem" href="#Using-Noise-in-SDE-Problems"><span>Using Noise in SDE Problems</span></a></li><li><a class="tocitem" href="#Direct-Simulation"><span>Direct Simulation</span></a></li><li><a class="tocitem" href="#Direct-Interface-for-Advanced-Usage"><span>Direct Interface for Advanced Usage</span></a></li></ul></li><li><a class="tocitem" href="../noise_processes/">Noise Process Types</a></li><li><a class="tocitem" href="../advanced_features/">Advanced Features</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/noise_processes/">Noise Processes API</a></li><li><a class="tocitem" href="../../api/interface/">Noise Process Interface</a></li></ul></li><li><span class="tocitem">Legacy Docs</span><ul><li><a class="tocitem" href="../../noise_processes/">Classic Noise Processes</a></li><li><a class="tocitem" href="../../abstract_noise_processes/">Abstract Noise Processes</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Basic Usage Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Basic Usage Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqNoiseProcess.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqNoiseProcess.jl/blob/master/docs/src/tutorials/basic_usage.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Basic-Usage-Tutorial"><a class="docs-heading-anchor" href="#Basic-Usage-Tutorial">Basic Usage Tutorial</a><a id="Basic-Usage-Tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Usage-Tutorial" title="Permalink"></a></h1><p>This tutorial covers the fundamental usage patterns of DiffEqNoiseProcess.jl, including creating noise processes, using them in problems, and direct simulation.</p><h2 id="Creating-and-Using-Noise-Processes"><a class="docs-heading-anchor" href="#Creating-and-Using-Noise-Processes">Creating and Using Noise Processes</a><a id="Creating-and-Using-Noise-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Creating-and-Using-Noise-Processes" title="Permalink"></a></h2><h3 id="Basic-Wiener-Process"><a class="docs-heading-anchor" href="#Basic-Wiener-Process">Basic Wiener Process</a><a id="Basic-Wiener-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Basic-Wiener-Process" title="Permalink"></a></h3><p>A Wiener process (Brownian motion) is the most fundamental noise process:</p><pre><code class="language-julia hljs">using DiffEqNoiseProcess, SciMLBase
+
+# Create a standard Wiener process
+# Parameters: t0 (start time), W0 (initial value), Z0 (end value)
+W = WienerProcess(0.0, 0.0, 1.0)
+
+# You can specify additional options
+W_custom = WienerProcess(0.0, 0.0, 1.0;
+                        save_everystep = true,
+                        rswm = RSWM())</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">t: 1-element Vector{Float64}:
+ 0.0
+u: 1-element Vector{Float64}:
+ 0.0</code></pre><h3 id="Real-Valued-Wiener-Process"><a class="docs-heading-anchor" href="#Real-Valued-Wiener-Process">Real-Valued Wiener Process</a><a id="Real-Valued-Wiener-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Real-Valued-Wiener-Process" title="Permalink"></a></h3><p>For scalar problems, use a real-valued Wiener process:</p><pre><code class="language-julia hljs"># Real-valued Wiener process
+W_real = RealWienerProcess(0.0, 0.0, 1.0)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">t: 1-element Vector{Float64}:
+ 0.0
+u: 1-element Vector{Float64}:
+ 0.0</code></pre><h3 id="Geometric-Brownian-Motion"><a class="docs-heading-anchor" href="#Geometric-Brownian-Motion">Geometric Brownian Motion</a><a id="Geometric-Brownian-Motion-1"></a><a class="docs-heading-anchor-permalink" href="#Geometric-Brownian-Motion" title="Permalink"></a></h3><p>A geometric Brownian motion process is useful for financial modeling:</p><pre><code class="language-julia hljs"># Parameters: μ (drift), σ (volatility), t0, W0, Z0
+μ = 0.05  # 5% drift
+σ = 0.2   # 20% volatility
+GBM = GeometricBrownianMotionProcess(μ, σ, 0.0, 1.0, 1.0)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">t: 1-element Vector{Float64}:
+ 0.0
+u: 1-element Vector{Float64}:
+ 1.0</code></pre><h2 id="Using-Noise-in-SDE-Problems"><a class="docs-heading-anchor" href="#Using-Noise-in-SDE-Problems">Using Noise in SDE Problems</a><a id="Using-Noise-in-SDE-Problems-1"></a><a class="docs-heading-anchor-permalink" href="#Using-Noise-in-SDE-Problems" title="Permalink"></a></h2><p>Noise processes can be passed directly to SDE problems:</p><pre><code class="language-julia hljs"># Define a simple SDE: du = u*dt + 0.1*u*dW
+function f(u, p, t)
+    return u
+end
+
+function g(u, p, t)
+    return 0.1 * u
+end
+
+u0 = 1.0
+tspan = (0.0, 1.0)
+
+# Create the problem with custom noise
+prob = SDEProblem(f, g, u0, tspan, noise = W)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"><span class="sgr38_2" style="color:#56b6c2">SDEProblem</span> with uType <span class="sgr38_2" style="color:#56b6c2">Float64</span> and tType <span class="sgr38_2" style="color:#56b6c2">Float64</span>. In-place: <span class="sgr38_2" style="color:#56b6c2">false</span>
+Non-trivial mass matrix: <span class="sgr38_2" style="color:#56b6c2">false</span>
+timespan: (0.0, 1.0)
+u0: 1.0</code></pre><h2 id="Direct-Simulation"><a class="docs-heading-anchor" href="#Direct-Simulation">Direct Simulation</a><a id="Direct-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Direct-Simulation" title="Permalink"></a></h2><p>You can simulate noise processes directly without solving an SDE:</p><pre><code class="language-julia hljs"># Create a noise problem
+prob = NoiseProblem(W, (0.0, 1.0))
+
+# Solve it with a specified timestep
+sol = solve(prob; dt = 0.01)
+
+# Access the noise values
+println(&quot;Final noise value: &quot;, sol.u[end])
+println(&quot;Number of steps: &quot;, length(sol.t))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final noise value: -1.5102604952421415
+Number of steps: 101</code></pre><h3 id="Ensemble-Simulations"><a class="docs-heading-anchor" href="#Ensemble-Simulations">Ensemble Simulations</a><a id="Ensemble-Simulations-1"></a><a class="docs-heading-anchor-permalink" href="#Ensemble-Simulations" title="Permalink"></a></h3><p>Generate multiple realizations of the same noise process:</p><pre><code class="language-julia hljs"># Create ensemble problem
+enprob = EnsembleProblem(prob)
+
+# Generate 100 trajectories
+ensol = solve(enprob; dt = 0.01, trajectories = 100)
+
+println(&quot;Generated $(length(ensol.u)) noise trajectories&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Generated 100 noise trajectories</code></pre><h2 id="Direct-Interface-for-Advanced-Usage"><a class="docs-heading-anchor" href="#Direct-Interface-for-Advanced-Usage">Direct Interface for Advanced Usage</a><a id="Direct-Interface-for-Advanced-Usage-1"></a><a class="docs-heading-anchor-permalink" href="#Direct-Interface-for-Advanced-Usage" title="Permalink"></a></h2><p>For advanced users, noise processes support a direct stepping interface:</p><pre><code class="language-julia hljs"># Create a fresh Wiener process
+W_direct = WienerProcess(0.0, 0.0, 1.0)
+
+# Set the timestep
+dt = 0.1
+W_direct.dt = dt
+
+# For state-dependent noise (not applicable here, but required by interface)
+u = nothing
+p = nothing
+
+# Calculate and accept steps
+calculate_step!(W_direct, dt, u, p)
+for i in 1:5
+    accept_step!(W_direct, dt, u, p)
+    println(&quot;Step $i: W = $(W_direct.curW)&quot;)
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Step 1: W = -0.10671619714290562
+Step 2: W = 0.14156516417076823
+Step 3: W = -0.03729584725419072
+Step 4: W = -0.13657936130589254
+Step 5: W = -0.24017182215070354</code></pre><p>This direct interface is primarily used internally by the SDE solvers but can be useful for custom implementations.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../">« Home</a><a class="docs-footer-nextpage" href="../noise_processes/">Noise Process Types »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Monday 12 January 2026 23:29">Monday 12 January 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

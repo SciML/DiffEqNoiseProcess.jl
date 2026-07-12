@@ -1,0 +1,7 @@
+[deps]
+DiffEqNoiseProcess = "77a26b50-5914-5dd7-bc55-306e6241c503"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+DiffEqNoiseProcess = "5"
+Documenter = "0.27"
