@@ -14,9 +14,9 @@ jobs:
         julia-version: [1]
         os: [ubuntu-latest]
         package:
-          - {user: SciML, repo: StochasticDiffEq.jl, group: Interface}
-          - {user: SciML, repo: StochasticDiffEq.jl, group: Interface2}
-          - {user: SciML, repo: StochasticDiffEq.jl, group: Interface3}
+          - {user: SciML, repo: OrdinaryDiffEq.jl, subdir: lib/StochasticDiffEq, group: Interface1}
+          - {user: SciML, repo: OrdinaryDiffEq.jl, subdir: lib/StochasticDiffEq, group: Interface2}
+          - {user: SciML, repo: OrdinaryDiffEq.jl, subdir: lib/StochasticDiffEq, group: Interface3}
           - {user: SciML, repo: SciMLSensitivity.jl, group: SDE1}
           - {user: SciML, repo: SciMLSensitivity.jl, group: SDE2}
           - {user: SciML, repo: SciMLSensitivity.jl, group: SDE3}
@@ -26,5 +26,6 @@ jobs:
       os: "${{ matrix.os }}"
       owner: "${{ matrix.package.user }}"
       repo: "${{ matrix.package.repo }}"
+      subdir: "${{ matrix.package.subdir }}"
       group: "${{ matrix.package.group }}"
     secrets: "inherit"
