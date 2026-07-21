@@ -2,7 +2,6 @@ using SciMLTesting, DiffEqNoiseProcess, JET, Test
 
 run_qa(
     DiffEqNoiseProcess;
-    explicit_imports = true,
     # ambiguities / deps_compat / piracies are genuine findings tracked in
     # https://github.com/SciML/DiffEqNoiseProcess.jl/issues/283
     aqua_broken = (:ambiguities, :deps_compat, :piracies),
@@ -20,7 +19,6 @@ run_qa(
     # Unexpected Pass there.
     # Tracked in https://github.com/SciML/DiffEqNoiseProcess.jl/issues/283
     jet_broken = VERSION >= v"1.12",
-    api_docs_kwargs = (; rendered = true),
     ei_kwargs = (;
         # @.. (FastBroadcast) and DEIntegrator (SciMLBase) are re-exported by
         # DiffEqBase but owned elsewhere; imported via DiffEqBase by convention.
