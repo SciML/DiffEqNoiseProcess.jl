@@ -1,10 +1,12 @@
 module DiffEqNoiseProcessReverseDiffExt
 
-using DiffEqNoiseProcess, DiffEqBase, Random
+using DiffEqNoiseProcess: DiffEqNoiseProcess
+using Random: AbstractRNG
+using SciMLBase: value
 import ReverseDiff
 
 @inline function DiffEqNoiseProcess.wiener_randn(
-        rng::Random.AbstractRNG,
+        rng::AbstractRNG,
         proto::ReverseDiff.TrackedArray
     )
     return ReverseDiff.track(convert.(eltype(proto.value), randn(rng, size(proto))))
@@ -15,7 +17,7 @@ end
             <:ReverseDiff.TrackedReal,
         }
     )
-    return rand_vec .= ReverseDiff.track.(randn.((rng,), typeof.(DiffEqBase.value.(rand_vec))))
+    return rand_vec .= ReverseDiff.track.(randn.((rng,), typeof.(value.(rand_vec))))
 end
 @inline function DiffEqNoiseProcess.wiener_randn!(
         rng::AbstractRNG,
@@ -23,7 +25,7 @@ end
             <:ReverseDiff.TrackedReal,
         }
     )
-    return rand_vec .= ReverseDiff.track.(randn.((rng,), typeof.(DiffEqBase.value.(rand_vec))))
+    return rand_vec .= ReverseDiff.track.(randn.((rng,), typeof.(value.(rand_vec))))
 end
 
 end
