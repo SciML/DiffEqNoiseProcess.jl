@@ -1,5 +1,11 @@
 using SciMLTesting, DiffEqNoiseProcess, JET, Test
 
+# ExplicitImports can only scan an extension whose module actually exists, and an
+# extension module is only created once its trigger package is loaded. Loading the
+# weakdeps here is what puts DiffEqNoiseProcessOptimExt and
+# DiffEqNoiseProcessReverseDiffExt under the QA checks at all.
+using Optim, ReverseDiff
+
 run_qa(
     DiffEqNoiseProcess;
     # ambiguities / deps_compat / piracies are genuine findings tracked in
@@ -29,6 +35,11 @@ run_qa(
             ignore = (
                 Symbol("@.."),   # FastBroadcast (via DiffEqBase), not public
                 :DEIntegrator,   # SciMLBase (via DiffEqBase), not public
+                # An extension is a separate `Base.moduleroot` from the package it
+                # extends, so pulling in the package's own unexported functions --
+                # the whole point of an extension -- reads as a non-public import.
+                :constrained_optimization_problem, # DiffEqNoiseProcess (Optim ext)
+                :linear_interpolation_wedges,      # DiffEqNoiseProcess (Optim ext)
             ),
         ),
         # __solve / has_reinit are SciMLBase names re-exported by DiffEqBase and
@@ -43,6 +54,19 @@ run_qa(
                 :__solve,               # DiffEqBase (SciMLBase name extended via DiffEqBase)
                 :has_reinit,            # DiffEqBase (SciMLBase name extended via DiffEqBase)
                 :copyat_or_push!,       # ResettableStacks, not public
+                # Same extension/moduleroot caveat as above: the ReverseDiff ext adds
+                # methods to DiffEqNoiseProcess's own unexported functions.
+                :wiener_randn,          # DiffEqNoiseProcess (ReverseDiff ext)
+                :wiener_randn!,         # DiffEqNoiseProcess (ReverseDiff ext)
+                # ReverseDiff declares nothing public; its tracked types and `track`
+                # are the only way to write a ReverseDiff rule.
+                :TrackedArray,          # ReverseDiff, not public
+                :TrackedReal,           # ReverseDiff, not public
+                :track,                 # ReverseDiff, not public
+                # Optim owns its own `minimum` (it does not extend Base's) and never
+                # declares it public, but it is the documented accessor for the
+                # objective value of an optimization result.
+                :minimum,               # Optim, not public
             ),
         ),
     ),

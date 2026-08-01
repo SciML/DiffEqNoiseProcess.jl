@@ -1,6 +1,5 @@
 module DiffEqNoiseProcessOptimExt
 
-using DiffEqNoiseProcess
 import DiffEqNoiseProcess: constrained_optimization_problem, linear_interpolation_wedges
 import Optim
 
