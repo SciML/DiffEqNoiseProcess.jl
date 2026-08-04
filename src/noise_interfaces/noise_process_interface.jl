@@ -92,7 +92,21 @@ The function implements different variants of the RSWM algorithm:
     end
     if adaptive_alg(W) == :RSwM1
         if !isempty(W.S₁)
-            W.dt, W.dW, W.dZ = pop!(W.S₁)
+            L₁, L₂, L₃ = pop!(W.S₁)
+            W.dt = L₁
+            # copy rather than rebind: the popped tuple still points into the
+            # stack's storage, which later pushes reuse
+            if isinplace(W)
+                copyto!(W.dW, L₂)
+                if W.Z !== nothing
+                    copyto!(W.dZ, L₃)
+                end
+            else
+                W.dW = L₂
+                if W.Z !== nothing
+                    W.dZ = L₃
+                end
+            end
         else # Stack is empty
             calculate_step!(W, W.dt, u, p)
         end
@@ -128,7 +142,7 @@ The function implements different variants of the RSWM algorithm:
                 end
                 if adaptive_alg(W) == :RSwM3
                     if L₁ > W.rswm.discard_length
-                        push!(W.S₂, (L₁, L₂, L₃))
+                        ResettableStacks.copyat_or_push!(W.S₂, (L₁, L₂, L₃))
                     end
                 end
             else #Popped too far
@@ -172,28 +186,32 @@ The function implements different variants of the RSWM algorithm:
                         end
                     end
                     if W.Z == nothing
-                        push!(W.S₁, ((1 - qtmp) * L₁, L₂, nothing))
+                        ResettableStacks.copyat_or_push!(
+                            W.S₁, ((1 - qtmp) * L₁, L₂, nothing)
+                        )
                     else
-                        push!(W.S₁, ((1 - qtmp) * L₁, L₂, L₃))
+                        ResettableStacks.copyat_or_push!(
+                            W.S₁, ((1 - qtmp) * L₁, L₂, L₃)
+                        )
                     end
-                    if adaptive_alg(W) == :RSwM3 && qtmp * L₁ > W.rswm.discard_length
-                        if W.Z == nothing
-                            ResettableStacks.copyat_or_push!(
-                                W.S₂,
-                                (
-                                    qtmp * L₁, W.dWtilde,
-                                    nothing,
-                                )
-                            )
-                        else
-                            ResettableStacks.copyat_or_push!(
-                                W.S₂,
-                                (
-                                    qtmp * L₁, W.dWtilde,
-                                    W.dZtilde,
-                                )
-                            )
-                        end
+                    if length(W.S₁) > W.maxstacksize
+                        W.maxstacksize = length(W.S₁)
+                    end
+                end
+                # S₂ must decompose the whole step regardless of whether the
+                # right-hand remainder was large enough to keep on S₁.
+                if adaptive_alg(W) == :RSwM3 && qtmp * L₁ > W.rswm.discard_length
+                    if W.Z == nothing
+                        ResettableStacks.copyat_or_push!(
+                            W.S₂, (qtmp * L₁, W.dWtilde, nothing)
+                        )
+                    else
+                        ResettableStacks.copyat_or_push!(
+                            W.S₂, (qtmp * L₁, W.dWtilde, W.dZtilde)
+                        )
+                    end
+                    if length(W.S₂) > W.maxstacksize2
+                        W.maxstacksize2 = length(W.S₂)
                     end
                 end
                 break
@@ -300,18 +318,18 @@ the unused portion after bridging and recalculates fresh noise for subsequent st
     # where stored future values would have been generated with incorrect parameters
     if adaptive_alg(W) == :RSwM0
         if isinplace(W)
-            W.bridge(W.dWtilde, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
+            W.bridge(W.dWtilde, W, 0, W.dW, q, W.dt, u, p, W.curt, W.rng)
             if W.Z !== nothing
-                W.bridge(W.dZtilde, W, 0, W.dZ, q, dtnew, u, p, W.curt, W.rng)
+                W.bridge(W.dZtilde, W, 0, W.dZ, q, W.dt, u, p, W.curt, W.rng)
             end
             copyto!(W.dW, W.dWtilde)
             if W.Z !== nothing
                 copyto!(W.dZ, W.dZtilde)
             end
         else
-            W.dWtilde = W.bridge(W.dW, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
+            W.dWtilde = W.bridge(W.dW, W, 0, W.dW, q, W.dt, u, p, W.curt, W.rng)
             if W.Z !== nothing
-                W.dZtilde = W.bridge(W.dZ, W, 0, W.dZ, q, dtnew, u, p, W.curt, W.rng)
+                W.dZtilde = W.bridge(W.dZ, W, 0, W.dZ, q, W.dt, u, p, W.curt, W.rng)
             end
             W.dW = W.dWtilde
             if W.Z !== nothing
@@ -323,23 +341,29 @@ the unused portion after bridging and recalculates fresh noise for subsequent st
         return nothing
     elseif adaptive_alg(W) == :RSwM1 || adaptive_alg(W) == :RSwM2 ||
             (adaptive_alg(W) == :RSwM3 && isempty(W.S₂))
+        # The bridge spans the whole step being shrunk, so its total length is
+        # W.dt; q = dtnew/W.dt already carries where inside it the cut lands.
         if isinplace(W)
-            W.bridge(W.dWtilde, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
+            W.bridge(W.dWtilde, W, 0, W.dW, q, W.dt, u, p, W.curt, W.rng)
             if W.Z !== nothing
-                W.bridge(W.dZtilde, W, 0, W.dZ, q, dtnew, u, p, W.curt, W.rng)
+                W.bridge(W.dZtilde, W, 0, W.dZ, q, W.dt, u, p, W.curt, W.rng)
             end
         else
-            W.dWtilde = W.bridge(W.dW, W, 0, W.dW, q, dtnew, u, p, W.curt, W.rng)
+            W.dWtilde = W.bridge(W.dW, W, 0, W.dW, q, W.dt, u, p, W.curt, W.rng)
             if W.Z !== nothing
-                W.dZtilde = W.bridge(W.dZ, W, 0, W.dZ, q, dtnew, u, p, W.curt, W.rng)
+                W.dZtilde = W.bridge(W.dZ, W, 0, W.dZ, q, W.dt, u, p, W.curt, W.rng)
             end
         end
         cutLength = W.dt - dtnew
         if cutLength > W.rswm.discard_length
             if W.Z == nothing
-                push!(W.S₁, (cutLength, W.dW - W.dWtilde, nothing))
+                ResettableStacks.copyat_or_push!(
+                    W.S₁, (cutLength, W.dW - W.dWtilde, nothing)
+                )
             else
-                push!(W.S₁, (cutLength, W.dW - W.dWtilde, W.dZ - W.dZtilde))
+                ResettableStacks.copyat_or_push!(
+                    W.S₁, (cutLength, W.dW - W.dWtilde, W.dZ - W.dZtilde)
+                )
             end
         end
         if length(W.S₁) > W.maxstacksize
@@ -349,13 +373,15 @@ the unused portion after bridging and recalculates fresh noise for subsequent st
             cutLength = dtnew
             if cutLength > W.rswm.discard_length
                 if W.Z == nothing
-                    push!(W.S₂, (cutLength, W.dWtilde, nothing))
+                    ResettableStacks.copyat_or_push!(W.S₂, (cutLength, W.dWtilde, nothing))
                 else
-                    push!(W.S₂, (cutLength, W.dWtilde, W.dZtilde))
+                    ResettableStacks.copyat_or_push!(
+                        W.S₂, (cutLength, W.dWtilde, W.dZtilde)
+                    )
                 end
             end
             if length(W.S₂) > W.maxstacksize2
-                W.maxstacksize = length(W.S₂)
+                W.maxstacksize2 = length(W.S₂)
             end
         end
         if isinplace(W)
@@ -374,7 +400,7 @@ the unused portion after bridging and recalculates fresh noise for subsequent st
             dttmp = zero(W.dt)
             W.dWtmp = zero(W.dW)
             if W.Z !== nothing
-                W.dZtmp = zero(W.dZtmp)
+                W.dZtmp = zero(W.dZ)
             end
         else
             dttmp = zero(W.dt)
@@ -386,6 +412,7 @@ the unused portion after bridging and recalculates fresh noise for subsequent st
         if length(W.S₂) > W.maxstacksize2
             W.maxstacksize2 = length(W.S₂)
         end
+        bridged = false
         while !isempty(W.S₂)
             L₁, L₂, L₃ = pop!(W.S₂)
             dttmp += L₁
@@ -401,7 +428,10 @@ the unused portion after bridging and recalculates fresh noise for subsequent st
                 end
             end
             if dttmp < (1 - q) * W.dt #while the backwards movement is less than chop off
-                push!(W.S₁, (L₁, L₂, L₃))
+                ResettableStacks.copyat_or_push!(W.S₁, (L₁, L₂, L₃))
+                if length(W.S₁) > W.maxstacksize
+                    W.maxstacksize = length(W.S₁)
+                end
             else
                 dtM = (q - 1) * W.dt + dttmp
                 qM = dtM / L₁
@@ -416,12 +446,18 @@ the unused portion after bridging and recalculates fresh noise for subsequent st
                         W.dZtilde = W.bridge(W.dZ, W, 0, L₃, qM, L₁, u, p, W.curt, W.rng)
                     end
                 end
+                # The right part of this chunk must reach S₁ before S₂ reuses the
+                # slot L₂ was popped from.
                 cutLength = L₁ - dtM
                 if cutLength > W.rswm.discard_length
                     if W.Z == nothing
-                        push!(W.S₁, (cutLength, L₂ - W.dWtilde, nothing))
+                        ResettableStacks.copyat_or_push!(
+                            W.S₁, (cutLength, L₂ - W.dWtilde, nothing)
+                        )
                     else
-                        push!(W.S₁, (cutLength, L₂ - W.dWtilde, L₃ - W.dZtilde))
+                        ResettableStacks.copyat_or_push!(
+                            W.S₁, (cutLength, L₂ - W.dWtilde, L₃ - W.dZtilde)
+                        )
                     end
                 end
                 if length(W.S₁) > W.maxstacksize
@@ -430,18 +466,83 @@ the unused portion after bridging and recalculates fresh noise for subsequent st
                 cutLength = dtM
                 if cutLength > W.rswm.discard_length
                     if W.Z == nothing
-                        push!(W.S₂, (cutLength, W.dWtilde, nothing))
+                        ResettableStacks.copyat_or_push!(
+                            W.S₂, (cutLength, W.dWtilde, nothing)
+                        )
                     else
-                        push!(W.S₂, (cutLength, W.dWtilde, W.dZtilde))
+                        ResettableStacks.copyat_or_push!(
+                            W.S₂, (cutLength, W.dWtilde, W.dZtilde)
+                        )
                     end
                 end
                 if length(W.S₂) > W.maxstacksize2
-                    W.maxstacksize = length(W.S₂)
+                    W.maxstacksize2 = length(W.S₂)
                 end
+                bridged = true
                 break
             end
         end # end while
-        if isinplace(W)
+        if !bridged
+            # S₂ did not account for the whole step (chunks below discard_length are
+            # dropped), so the head [curt, curt+dtK] is still undecomposed. Bridge it
+            # directly, exactly as the S₂-empty branch does for the full step.
+            dtK = W.dt - dttmp
+            qK = dtnew / dtK
+            if isinplace(W)
+                @.. W.dWtmp = W.dW - W.dWtmp
+                W.bridge(W.dWtilde, W, 0, W.dWtmp, qK, dtK, u, p, W.curt, W.rng)
+                if W.Z !== nothing
+                    @.. W.dZtmp = W.dZ - W.dZtmp
+                    W.bridge(W.dZtilde, W, 0, W.dZtmp, qK, dtK, u, p, W.curt, W.rng)
+                end
+            else
+                W.dWtmp = W.dW - W.dWtmp
+                W.dWtilde = W.bridge(W.dW, W, 0, W.dWtmp, qK, dtK, u, p, W.curt, W.rng)
+                if W.Z !== nothing
+                    W.dZtmp = W.dZ - W.dZtmp
+                    W.dZtilde = W.bridge(W.dZ, W, 0, W.dZtmp, qK, dtK, u, p, W.curt, W.rng)
+                end
+            end
+            cutLength = dtK - dtnew
+            if cutLength > W.rswm.discard_length
+                if W.Z == nothing
+                    ResettableStacks.copyat_or_push!(
+                        W.S₁, (cutLength, W.dWtmp - W.dWtilde, nothing)
+                    )
+                else
+                    ResettableStacks.copyat_or_push!(
+                        W.S₁, (cutLength, W.dWtmp - W.dWtilde, W.dZtmp - W.dZtilde)
+                    )
+                end
+            end
+            if length(W.S₁) > W.maxstacksize
+                W.maxstacksize = length(W.S₁)
+            end
+            if dtnew > W.rswm.discard_length
+                if W.Z == nothing
+                    ResettableStacks.copyat_or_push!(W.S₂, (dtnew, W.dWtilde, nothing))
+                else
+                    ResettableStacks.copyat_or_push!(
+                        W.S₂, (dtnew, W.dWtilde, W.dZtilde)
+                    )
+                end
+            end
+            if length(W.S₂) > W.maxstacksize2
+                W.maxstacksize2 = length(W.S₂)
+            end
+            # the bridged head *is* the new increment
+            if isinplace(W)
+                copyto!(W.dW, W.dWtilde)
+                if W.Z !== nothing
+                    copyto!(W.dZ, W.dZtilde)
+                end
+            else
+                W.dW = W.dWtilde
+                if W.Z !== nothing
+                    W.dZ = W.dZtilde
+                end
+            end
+        elseif isinplace(W)
             @.. W.dW += W.dWtilde - W.dWtmp
             if W.Z !== nothing
                 @.. W.dZ += W.dZtilde - W.dZtmp
