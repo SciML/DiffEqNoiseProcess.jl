@@ -1,5 +1,12 @@
 # Noise Processes API
 
+## Core Types
+
+```@docs
+NoiseProcess
+SimpleNoiseProcess
+```
+
 ## Wiener Processes
 
 ### Standard Wiener Process

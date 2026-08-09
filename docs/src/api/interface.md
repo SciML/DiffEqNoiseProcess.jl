@@ -12,21 +12,6 @@ setup_next_step!
 save_noise!
 ```
 
-## Noise Process Types
-
-### Abstract Types
-
-```@docs
-AbstractNoiseProcess
-```
-
-### Core Types
-
-```@docs
-NoiseProcess
-SimpleNoiseProcess
-```
-
 ## Configuration
 
 ### Rejection Sampling with Memory (RSWM)
@@ -83,8 +68,6 @@ DiffEqNoiseProcess.gbm_bridge!
 ### Compound Poisson Specific
 
 ```@docs
-DiffEqNoiseProcess.CompoundPoissonProcess
-DiffEqNoiseProcess.CompoundPoissonProcess!
 DiffEqNoiseProcess.cpp_bridge
 DiffEqNoiseProcess.cpp_bridge!
 ```
