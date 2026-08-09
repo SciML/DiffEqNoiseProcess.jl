@@ -10,11 +10,11 @@
     # sizes, since RSwM1's setup_next_step! overrides W.dt from the stack.
 
     # (:reject, q) shrinks to q*W.dt; (:accept, g) proposes g*W.dt for the next step
-    function make_schedule(; nacc = 8, seed = 1, preject = 0.55)
+    function make_schedule(; nacc = 8, seed = 1, rejection_probability = 0.55)
         rng = Xoshiro(seed)
         ops = Tuple{Symbol, Float64}[]
         for _ in 1:nacc
-            while rand(rng) < preject
+            while rand(rng) < rejection_probability
                 push!(ops, (:reject, 0.2 + 0.7 * rand(rng)))
             end
             push!(ops, (:accept, 1.0 + 1.5 * rand(rng)))
@@ -134,6 +134,27 @@
                     @test !(entries[a] === entries[b])
                 end
             end
+        end
+    end
+
+    @testset "cached stack entries resize before reuse" begin
+        W = build(:RSwM3, true, 1, true, 7)
+        calculate_step!(W, 0.2, nothing, nothing)
+        reject_step!(W, 0.1, nothing, nothing)
+        @test length(W.S₁) == length(W.S₂) == 1
+        pop!(W.S₁)
+        pop!(W.S₂)
+
+        for field in (:dW, :dWtilde, :dWtmp, :curW, :dZ, :dZtilde, :dZtmp, :curZ)
+            resize!(getproperty(W, field), 2)
+        end
+
+        DiffEqNoiseProcess.resize_stack!(W, 2)
+        calculate_step!(W, 0.2, nothing, nothing)
+        reject_step!(W, 0.1, nothing, nothing)
+
+        for stack in (W.S₁, W.S₂), entry in stack, noise in (entry[2], entry[3])
+            @test length(noise) == 2
         end
     end
 

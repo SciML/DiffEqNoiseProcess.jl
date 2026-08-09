@@ -795,9 +795,9 @@ end
 end
 
 function resize_stack!(W::NoiseProcess, i)
-    for j in eachindex(W.S₂.data)
-        resize!(W.S₂.data[j][2], i)
-        W.S₂.data[j][3] !== nothing && resize!(W.S₂.data[j][3], i)
+    for stack in (W.S₁, W.S₂), j in eachindex(stack.data)
+        resize!(stack.data[j][2], i)
+        stack.data[j][3] !== nothing && resize!(stack.data[j][3], i)
     end
     return nothing
 end
