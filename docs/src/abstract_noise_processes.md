@@ -23,12 +23,6 @@ with `tmid` or when the maximum depth of the tree is reached.
 Lastly, the `NoiseFunction` allows you to use any function of time as the
 noise process, while `NoiseTransport` lets you define a random process as the transport of a random variable or a random vector by a time-dependent function. Together, these functionalities allow you to define any colored noise process and use it efficiently and accurately in your simulations.
 
-## The Standard `AbstractNoiseProcess`
-
-```@docs
-NoiseProcess
-```
-
 ## Alternative `AbstractNoiseProcess` Types
 
 In addition to the mathematically-defined noise processes above, there exists
@@ -36,14 +30,4 @@ more generic functionality for building noise processes from other noise process
 from arbitrary functions, from arrays, and from approximations of stochastic
 differential equations.
 
-```@docs
-NoiseWrapper
-NoiseFunction
-NoiseTransport
-NoiseGrid
-NoiseApproximation
-VirtualBrownianTree
-SimpleNoiseProcess
-BoxWedgeTail
-pCN
-```
+See the [Noise Processes API](@ref) for the constructor reference.

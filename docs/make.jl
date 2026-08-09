@@ -9,8 +9,7 @@ makedocs(
     sitename = "DiffEqNoiseProcess.jl",
     authors = "Chris Rackauckas",
     modules = [DiffEqNoiseProcess],
-    clean = true, doctest = false, linkcheck = true,
-    warnonly = [:docs_block, :missing_docs],
+    clean = true, linkcheck = true,
     format = Documenter.HTML(
         assets = ["assets/favicon.ico"],
         canonical = "https://docs.sciml.ai/DiffEqNoiseProcess/stable/"
