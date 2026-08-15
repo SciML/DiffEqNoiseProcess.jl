@@ -30,7 +30,7 @@ DiffEqNoiseProcessReverseDiffExt = "ReverseDiff"
 
 [compat]
 CommonSolve = "0.2.6"
-Cubature = "1"
+Cubature = "1.5.1"
 DiffEqBase = "7"
 Distributions = "0.25"
 GPUArraysCore = "0.1, 0.2"
