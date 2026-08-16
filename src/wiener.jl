@@ -214,32 +214,75 @@ function VBT_BRIDGE(dW, W, W0, Wh, q, h, u, p, t, rng)
     end
 end
 
-@doc doc"""
-The `WienerProcess`, also known as Brownian motion, or
-the noise in the Langevin equation, is the stationary process with
-white noise increments and a distribution `N(0,dt)`. The constructor is:
+"""
+    WienerProcess(t0, W0, Z0 = nothing; kwargs...)
+
+Construct an out-of-place Wiener process (Brownian motion). Its increments
+have distribution `N(0, abs(dt))`, and values between generated points are
+sampled with a Brownian bridge.
 
 ```julia
-WienerProcess(t0,W0,Z0=nothing;kwargs...)
-WienerProcess!(t0,W0,Z0=nothing;kwargs...)
+W = WienerProcess(0.0, 0.0)
+sol = solve(NoiseProblem(W, (0.0, 1.0)); dt = 0.01)
+sol(0.5)
 ```
+
+# Arguments
+- `t0`: Initial time.
+- `W0`: Initial noise value and prototype for the process shape and element type.
+- `Z0`: Optional auxiliary process value for higher-order methods.
+
+# Keywords
+- `rswm`: Rejection Sampling with Memory configuration.
+- `save_everystep`: Whether to retain every generated time and value.
+- `covariance`: Optional covariance metadata.
+- `rng`: Random number generator used for increments.
+- `reset`: Whether solving a problem reinitializes the process.
+- `reseed`: Whether solving without an explicit seed reseeds `rng`.
+- `continuous`: Whether interpolation includes the left endpoint in its mean.
+
+Additional keywords are forwarded to `NoiseProcess`.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == false`.
 """
 function WienerProcess(t0, W0, Z0 = nothing; kwargs...)
     return NoiseProcess{false}(t0, W0, Z0, WHITE_NOISE_DIST, WHITE_NOISE_BRIDGE; kwargs...)
 end
 
-@doc doc"""
-The `SimpleWienerProcess`, also known as Brownian motion, or
-the noise in the Langevin equation, is the stationary process with
-white noise increments and a distribution `N(0,dt)`. The constructor is:
+"""
+    SimpleWienerProcess(t0, W0, Z0 = nothing; kwargs...)
+
+Construct a lightweight out-of-place Wiener process. Unlike
+[`WienerProcess`](@ref), this process cannot recover a rejected adaptive step
+and must be used with a fixed-step solver.
 
 ```julia
-SimpleWienerProcess(t0,W0,Z0=nothing;kwargs...)
-SimpleWienerProcess(t0,W0,Z0=nothing;kwargs...)
+W = SimpleWienerProcess(0.0, 0.0)
+sol = solve(NoiseProblem(W, (0.0, 1.0)); dt = 0.01)
 ```
 
-Unlike WienerProcess, this uses the SimpleNoiseProcess and thus does not
-support adaptivity, but is slightly more lightweight.
+# Arguments
+- `t0`: Initial time.
+- `W0`: Initial noise value and prototype for the process shape and element type.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+- `save_everystep`: Whether to retain every generated time and value.
+- `covariance`: Optional covariance metadata.
+- `rng`: Random number generator used for increments.
+- `reset`: Whether solving a problem reinitializes the process.
+- `reseed`: Whether solving without an explicit seed reseeds `rng`.
+
+Additional keywords are forwarded to `SimpleNoiseProcess`.
+
+# Returns
+A `SimpleNoiseProcess` with `isinplace(W) == false`.
+
+!!! warning
+
+    `SimpleWienerProcess` does not support adaptive step rejection. Use
+    `WienerProcess` when the solver may reject a step.
 """
 function SimpleWienerProcess(t0, W0, Z0 = nothing; kwargs...)
     return SimpleNoiseProcess{false}(t0, W0, Z0, WHITE_NOISE_DIST, WHITE_NOISE_BRIDGE; kwargs...)
@@ -326,15 +369,29 @@ function INPLACE_VBT_BRIDGE(rand_vec, W, W0, Wh, q, h, u, p, t, rng)
     return @.. rand_vec = sqrtcoeff * rand_vec + q * (W0 + Wh)
 end
 
-@doc doc"""
-The `WienerProcess`, also known as Brownian motion, or
-the noise in the Langevin equation, is the stationary process with
-white noise increments and a distribution `N(0,dt)`. The constructor is:
+"""
+    WienerProcess!(t0, W0, Z0 = nothing; kwargs...)
+
+Construct an in-place Wiener process. It has the same distribution and solver
+contract as [`WienerProcess`](@ref), but its distribution and bridge functions
+write into preallocated storage.
 
 ```julia
-WienerProcess(t0,W0,Z0=nothing;kwargs...)
-WienerProcess!(t0,W0,Z0=nothing;kwargs...)
+W = WienerProcess!(0.0, zeros(2))
+calculate_step!(W, 0.01, nothing, nothing)
 ```
+
+# Arguments
+- `t0`: Initial time.
+- `W0`: Initial array-valued noise and storage prototype.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+The same process-control keywords as [`WienerProcess`](@ref) are accepted and
+forwarded to `NoiseProcess`.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == true`.
 """
 function WienerProcess!(t0, W0, Z0 = nothing; kwargs...)
     return NoiseProcess{true}(
@@ -343,18 +400,32 @@ function WienerProcess!(t0, W0, Z0 = nothing; kwargs...)
     )
 end
 
-@doc doc"""
-The `SimpleWienerProcess`, also known as Brownian motion, or
-the noise in the Langevin equation, is the stationary process with
-white noise increments and a distribution `N(0,dt)`. The constructor is:
+"""
+    SimpleWienerProcess!(t0, W0, Z0 = nothing; kwargs...)
+
+Construct an in-place lightweight Wiener process. It has the same
+non-adaptive restriction as [`SimpleWienerProcess`](@ref).
 
 ```julia
-SimpleWienerProcess(t0,W0,Z0=nothing;kwargs...)
-SimpleWienerProcess(t0,W0,Z0=nothing;kwargs...)
+W = SimpleWienerProcess!(0.0, zeros(2))
+calculate_step!(W, 0.01, nothing, nothing)
 ```
 
-Unlike WienerProcess, this uses the SimpleNoiseProcess and thus does not
-support adaptivity, but is slightly more lightweight.
+# Arguments
+- `t0`: Initial time.
+- `W0`: Initial array-valued noise and storage prototype.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+The same process-control keywords as [`SimpleWienerProcess`](@ref) are
+accepted and forwarded to `SimpleNoiseProcess`.
+
+# Returns
+A `SimpleNoiseProcess` with `isinplace(W) == true`.
+
+!!! warning
+
+    Do not pass this process to an adaptive solver.
 """
 function SimpleWienerProcess!(t0, W0, Z0 = nothing; kwargs...)
     return SimpleNoiseProcess{true}(
@@ -420,17 +491,27 @@ function REAL_WHITE_NOISE_BRIDGE(dW, W, W0, Wh, q, h, u, p, t, rng)
     end
 end
 
-@doc doc"""
-The `RealWienerProcess` is a Brownian motion that is forced to be
-real-valued. While the normal `WienerProcess` becomes complex valued
-if `W0` is complex, this version is real valued for when you want to,
-for example, solve an SDE defined by complex numbers where the noise
-is in the reals.
+"""
+    RealWienerProcess(t0, W0, Z0 = nothing; kwargs...)
+
+Construct an out-of-place Brownian process whose increments are real-valued,
+even when `W0` is complex. This is useful for complex SDE states driven by real
+noise.
 
 ```julia
-RealWienerProcess(t0,W0,Z0=nothing;kwargs...)
-RealWienerProcess!(t0,W0,Z0=nothing;kwargs...)
+W = RealWienerProcess(0.0, 0.0 + 0im)
 ```
+
+# Arguments
+- `t0`: Initial time.
+- `W0`: Initial value and prototype for the process shape.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+The same process-control keywords as [`WienerProcess`](@ref) are accepted.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == false`.
 """
 function RealWienerProcess(t0, W0, Z0 = nothing; kwargs...)
     return NoiseProcess{false}(
@@ -488,17 +569,27 @@ function REAL_INPLACE_WHITE_NOISE_BRIDGE(rand_vec, W, W0, Wh, q, h, u, p, t, rng
     return @.. rand_vec = @fastmath sqrt((1 - q) * q * abs(h)) * rand_vec + q * Wh
 end
 
-@doc doc"""
-The `RealWienerProcess` is a Brownian motion that is forced to be
-real-valued. While the normal `WienerProcess` becomes complex valued
-if `W0` is complex, this version is real valued for when you want to,
-for example, solve an SDE defined by complex numbers where the noise
-is in the reals.
+"""
+    RealWienerProcess!(t0, W0, Z0 = nothing; kwargs...)
+
+Construct the in-place variant of [`RealWienerProcess`](@ref). It stores and
+updates its increment buffers rather than allocating new arrays.
 
 ```julia
-RealWienerProcess(t0,W0,Z0=nothing;kwargs...)
-RealWienerProcess!(t0,W0,Z0=nothing;kwargs...)
+W = RealWienerProcess!(0.0, zeros(2))
+calculate_step!(W, 0.01, nothing, nothing)
 ```
+
+# Arguments
+- `t0`: Initial time.
+- `W0`: Initial value and storage prototype.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+The same process-control keywords as [`WienerProcess`](@ref) are accepted.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == true`.
 """
 function RealWienerProcess!(t0, W0, Z0 = nothing; kwargs...)
     return NoiseProcess{true}(

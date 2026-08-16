@@ -134,22 +134,36 @@ function ou_bridge!(rand_vec, ou, W, W0, Wh, q, h, u, p, t, rng)
     ) * rand_vec
 end
 
-@doc doc"""
-a `Ornstein-Uhlenbeck` process, which is a Wiener process defined
+"""
+    OrnsteinUhlenbeckProcess(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
+
+An `Ornstein-Uhlenbeck` process is a Wiener process defined
 by the stochastic differential equation
 
 ```math
-dX_t = \theta (\mu - X_t) dt + \sigma dW_t
+dX_t = \\theta (\\mu - X_t) dt + \\sigma dW_t
 ```
 
-The `OrnsteinUhlenbeckProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, but instead follows the exact
-distribution properties). The constructor is:
+The process is distribution exact rather than a numerical approximation.
 
 ```julia
-OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
-OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
+W = OrnsteinUhlenbeckProcess(2.0, 0.0, 0.3, 0.0, 1.0)
+sol = solve(NoiseProblem(W, (0.0, 1.0)); dt = 0.01)
 ```
+
+# Arguments
+- `Θ`: Mean-reversion rate.
+- `μ`: Long-term mean.
+- `σ`: Diffusion coefficient.
+- `t0`: Initial time.
+- `W0`: Initial process value and prototype.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+Additional keywords are forwarded to `NoiseProcess`.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == false`.
 """
 function OrnsteinUhlenbeckProcess(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
     ou = OrnsteinUhlenbeck(Θ, μ, σ)
@@ -216,22 +230,37 @@ function (X::OrnsteinUhlenbeck!)(rand_vec, W, dt, u, p, t, rng) #dist!
         rand_vec * X.σ * sqrt((-expm1.(-2 * X.Θ .* dt)) / (2 * X.Θ)) - W.curW
 end
 
-@doc doc"""
-A `Ornstein-Uhlenbeck` process, which is a Wiener process defined
+"""
+    OrnsteinUhlenbeckProcess!(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
+
+An `Ornstein-Uhlenbeck` process is a Wiener process defined
 by the stochastic differential equation
 
 ```math
-dX_t = \theta (\mu - X_t) dt + \sigma dW_t
+dX_t = \\theta (\\mu - X_t) dt + \\sigma dW_t
 ```
 
-The `OrnsteinUhlenbeckProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, but instead follows the exact
-distribution properties). The constructor is:
+The process is distribution exact rather than a numerical approximation. This
+variant writes increments into preallocated storage.
 
 ```julia
-OrnsteinUhlenbeckProcess(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
-OrnsteinUhlenbeckProcess!(Θ,μ,σ,t0,W0,Z0=nothing;kwargs...)
+W = OrnsteinUhlenbeckProcess!(2.0, 0.0, 0.3, 0.0, zeros(2))
+calculate_step!(W, 0.01, nothing, nothing)
 ```
+
+# Arguments
+- `Θ`: Mean-reversion rate.
+- `μ`: Long-term mean.
+- `σ`: Diffusion coefficient.
+- `t0`: Initial time.
+- `W0`: Initial process value and storage prototype.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+Additional keywords are forwarded to `NoiseProcess`.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == true`.
 """
 function OrnsteinUhlenbeckProcess!(Θ, μ, σ, t0, W0, Z0 = nothing; kwargs...)
     ou = OrnsteinUhlenbeck!(Θ, μ, σ)

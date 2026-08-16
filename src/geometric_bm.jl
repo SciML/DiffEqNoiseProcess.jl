@@ -125,23 +125,38 @@ function gbm_bridge!(rand_vec, gbm, W, W0, Wh, q, h, u, p, t, rng)
     return @.. rand_vec = exp(rand_vec) - W0
 end
 
-@doc doc"""
+"""
+    GeometricBrownianMotionProcess(μ, σ, t0, W0, Z0 = nothing; kwargs...)
+
 A `GeometricBrownianMotion` process is a Wiener process with
 constant drift `μ` and constant diffusion `σ`. I.e. this is the solution of the
 stochastic differential equation
 
 ```math
-dX_t = \mu X_t dt + \sigma X_t dW_t
+dX_t = \\mu X_t dt + \\sigma X_t dW_t
 ```
 
-The `GeometricBrownianMotionProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, but instead follows the exact
-distribution properties). It can be back interpolated exactly as well. The constructor is:
+The process is distribution exact rather than a numerical approximation and can
+be back-interpolated exactly.
 
 ```julia
-GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0=nothing;kwargs...)
-GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
+W = GeometricBrownianMotionProcess(0.05, 0.2, 0.0, 1.0)
+sol = solve(NoiseProblem(W, (0.0, 1.0)); dt = 0.01)
 ```
+
+# Arguments
+- `μ`: Constant drift coefficient.
+- `σ`: Constant diffusion coefficient.
+- `t0`: Initial time.
+- `W0`: Initial process value and prototype.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+Additional keywords are forwarded to `NoiseProcess`, including `rswm`,
+`save_everystep`, `rng`, `reset`, `reseed`, and `continuous`.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == false`.
 """
 function GeometricBrownianMotionProcess(μ, σ, t0, W0, Z0 = nothing; kwargs...)
     gbm = GeometricBrownianMotion(μ, σ)
@@ -196,23 +211,38 @@ function (X::GeometricBrownianMotion!)(rand_vec, W, dt, u, p, t, rng) #dist!
     return @.. rand_vec = W.W[end] * expm1(X.μ - (1 / 2) * X.σ * dt + X.σ * sqrt(dt) * rand_vec)
 end
 
-@doc doc"""
+"""
+    GeometricBrownianMotionProcess!(μ, σ, t0, W0, Z0 = nothing; kwargs...)
+
 A `GeometricBrownianMotion` process is a Wiener process with
 constant drift `μ` and constant diffusion `σ`. I.e. this is the solution of the
 stochastic differential equation
 
 ```math
-dX_t = \mu X_t dt + \sigma X_t dW_t
+dX_t = \\mu X_t dt + \\sigma X_t dW_t
 ```
 
-The `GeometricBrownianMotionProcess` is distribution exact (meaning, not a numerical
-solution of the stochastic differential equation, but instead follows the exact
-distribution properties). It can be back interpolated exactly as well. The constructor is:
+The process is distribution exact rather than a numerical approximation and can
+be back-interpolated exactly. This variant writes increments into preallocated
+storage.
 
 ```julia
-GeometricBrownianMotionProcess(μ,σ,t0,W0,Z0=nothing;kwargs...)
-GeometricBrownianMotionProcess!(μ,σ,t0,W0,Z0=nothing;kwargs...)
+W = GeometricBrownianMotionProcess!(0.05, 0.2, 0.0, zeros(2))
+calculate_step!(W, 0.01, nothing, nothing)
 ```
+
+# Arguments
+- `μ`: Constant drift coefficient.
+- `σ`: Constant diffusion coefficient.
+- `t0`: Initial time.
+- `W0`: Initial process value and storage prototype.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+Additional keywords are forwarded to `NoiseProcess`.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == true`.
 """
 function GeometricBrownianMotionProcess!(μ, σ, t0, W0, Z0 = nothing; kwargs...)
     gbm = GeometricBrownianMotion!(μ, σ)
