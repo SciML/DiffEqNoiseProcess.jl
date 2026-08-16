@@ -30,6 +30,19 @@ NoiseProcess(t0, W0, Z0, dist, bridge;
   - `reset` whether to reset the process with each solve.
   - `reseed` whether to reseed the process with each solve.
 
+# Fields
+- `t`: Saved time points, in traversal order.
+- `W`: Saved primary process values corresponding to `t`.
+- `Z`: Saved auxiliary process values, or `nothing` when unused.
+- `curt`, `curW`, `curZ`: Current time and current primary/auxiliary values.
+- `dt`, `dW`, `dZ`: Proposed step width and pending increments.
+- `dist`, `bridge`: Step and bridge callbacks.
+- `covariance`, `rswm`, `save_everystep`, `rng`, `reset`, `reseed`, `continuous`:
+  Process configuration.
+
+The stack and scratch-buffer fields are implementation details. Solvers should
+use the exported step functions instead of reading or mutating those fields.
+
 The signature for the `dist` is:
 
 ```julia
@@ -362,6 +375,16 @@ SimpleNoiseProcess{iip}(t0, W0, Z0, dist, bridge;
   - `rng` the local RNG used for generating the random numbers.
   - `reset` whether to reset the process with each solve.
   - `reseed` whether to reseed the process with each solve.
+
+# Fields
+- `t`, `W`, `Z`: Saved times and primary/auxiliary values.
+- `curt`, `curW`, `curZ`: Current time and current values.
+- `dt`, `dW`, `dZ`: Proposed step and pending increments.
+- `dist`, `bridge`: Distribution and bridge callbacks.
+- `covariance`, `save_everystep`, `rng`, `reset`, `reseed`: Stored options.
+
+The process does not retain rejection-memory stacks. Adaptive solvers must not
+call `reject_step!` on it.
 """
 mutable struct SimpleNoiseProcess{
         T, N, Tt, T2, T3, ZType, F, F2, CovType, inplace, RNGType,
@@ -452,6 +475,24 @@ convergence testing.
 NoiseWrapper(source::AbstractNoiseProcess{T, N, Vector{T2}, inplace};
     reset = true, reverse = false, indx = nothing) where {T, N, T2, inplace}
 ```
+
+# Arguments
+- `source`: Existing noise process whose saved path will be replayed.
+
+# Keywords
+- `reset`: Whether solving a problem reinitializes the wrapper.
+- `reverse`: Whether interpolation follows the source path backwards.
+- `indx`: Initial source index. It defaults to the first index, or the last
+  index when `reverse = true`.
+
+# Fields
+- `t`, `W`, `Z`: The wrapper's saved replay path.
+- `curt`, `curW`, `curZ`: Current replay position and values.
+- `source`: Underlying process providing interpolation.
+- `reset`, `reverse`: Replay options.
+
+The saved path and current values are owned by the wrapper; the source is not
+mutated by interpolation.
 
 ## NoiseWrapper Example
 
@@ -624,8 +665,27 @@ NoiseFunction{iip}(t0, W, Z = nothing;
     reset = true) where {iip}
 ```
 
+# Arguments
+- `t0`: Initial time.
+- `W`: Primary function, called as `W(u, p, t)` or `W(out, u, p, t)`.
+- `Z`: Optional auxiliary function with the same calling convention.
+
+# Keywords
+- `noise_prototype`: Initial value and storage prototype for in-place functions.
+- `reset`: Whether solving a problem resets the current time and values.
+
+# Fields
+- `W`, `Z`: Primary and optional auxiliary functions.
+- `t0`, `curt`: Initial and current times.
+- `curW`, `curZ`: Current function values.
+- `dt`, `dW`, `dZ`: Proposed step and pending increments.
+- `reset`: Reset behavior.
+
+`NoiseFunction` evaluates a deterministic function lazily; it does not retain
+a complete saved path.
+
 Additionally, one can use an in-place function `W(out1,out2,t)` for more efficient
-generation of the arrays for mulitidimensional processes. When the in-place version
+generation of the arrays for multidimensional processes. When the in-place version
 is used without a dispatch for the out-of-place version, the `noise_prototype`
 needs to be set.
 
@@ -639,7 +699,7 @@ f(u, p, t) = exp(t)
 W = NoiseFunction(0.0, f)
 ```
 
-If it's mulitidimensional and an in-place function is used, the `noise_prototype`
+If it's multidimensional and an in-place function is used, the `noise_prototype`
 must be given. For example:
 
 ```julia
@@ -753,8 +813,28 @@ NoiseTransport(t0,
     kwargs...)
 ```
 
+# Arguments
+- `t0`: Initial time.
+- `W`: Primary transport function, called as `W(u, p, t, rv)` or
+  `W(out, u, p, t, rv)`.
+- `RV`: Random-variable generator, called as `RV(rng)` or `RV(rng, rv)`.
+- `rv`: Optional realization or mutable realization prototype.
+- `Z`: Optional auxiliary transport function.
+
+# Keywords
+- `rng`: Random number generator used to draw realizations.
+- `reset`: Whether solving a problem resets the process.
+- `reseed`: Whether a new realization is drawn when the process is reseeded.
+- `noise_prototype`: Initial output shape for in-place transport functions.
+
+# Fields
+- `W`, `Z`: Primary and optional auxiliary transport functions.
+- `RV`, `rv`: Random-variable generator and current realization.
+- `curt`, `curW`, `curZ`: Current time and transported values.
+- `rng`, `reset`, `reseed`: Randomness and reset controls.
+
 Additionally, one can use an in-place function `W(out, u, p, t, rv)` for more efficient
-generation of the arrays for mulitidimensional processes. When the in-place version
+generation of the arrays for multidimensional processes. When the in-place version
 is used without a dispatch for the out-of-place version, the `noise_prototype`
 needs to be set.
 
@@ -783,7 +863,7 @@ p = (π, 2π)
 W = NoiseTransport(t0, f, randn!, rv, noise_prototype = f(nothing, p, t0, rv))
 ```
 
-If the random process is expected to be mulitidimensional, it is preferable to use an in-place transport function, and, in this case, the `noise_prototype` must be given. Here is an example with a scalar random vector with a beta distribution, from `Distributions.jl`.
+If the random process is expected to be multidimensional, it is preferable to use an in-place transport function, and, in this case, the `noise_prototype` must be given. Here is an example with a scalar random vector with a beta distribution, from `Distributions.jl`.
 
 ```julia
 f!(out, u, p, t, rv) = (out .= sin.(rv * t))
@@ -793,7 +873,7 @@ rv = 0.0
 W = NoiseTransport(t0, f!, RV, rv, noise_prototype = zeros(4))
 ```
 
-We can also have a random vector with a mulitidimensional process, in which case an in-place version of `RV` is required. For example.
+We can also have a random vector with a multidimensional process, in which case an in-place version of `RV` is required. For example.
 
 ```julia
 using Random: randn!
@@ -926,8 +1006,25 @@ suggested that the grid size at least approximates the number of
 time steps in the integration to ensure accuracy.
 
 For a one-dimensional process, `W` should be an `AbstractVector` of `Number`s.
-For mulitidimensional processes, `W` should be an `AbstractVector` of the
+For multidimensional processes, `W` should be an `AbstractVector` of the
 `noise_prototype`.
+
+# Arguments
+- `t`: Strictly monotone time points.
+- `W`: Values at the time points, with `length(W) == length(t)`.
+- `Z`: Optional auxiliary values with the same time grid.
+
+# Keywords
+- `reset`: Whether solving a problem resets the current grid position.
+
+# Fields
+- `t`, `W`, `Z`: Input grid and primary/auxiliary values.
+- `curt`, `curW`, `curZ`: Current interpolated position and values.
+- `dt`, `dW`, `dZ`: Proposed step and pending increments.
+- `reset`: Reset behavior.
+
+Interpolation is linear. A grid is convenient for replaying sampled data, but
+it is not distributionally exact between sparse points.
 
 ## NoiseGrid
 
@@ -1041,6 +1138,19 @@ final time point as `Inf`. Note that the time points do not have to match the
 time points of the future integration, since the interpolant of the SDE solution
 will be used. Thus, the limiting factor is error tolerance, and not hitting specific
 points.
+
+# Arguments
+- `source1`: Initialized `DEIntegrator` providing the primary noise path.
+- `source2`: Optional second integrator providing the auxiliary path.
+
+# Keywords
+- `reset`: Whether solving a problem reinitializes both copied integrators.
+
+# Fields
+- `source1`, `source2`: Deep-copied integrators used for interpolation.
+- `t`, `W`, `Z`: Saved source time points and values.
+- `curt`, `curW`, `curZ`: Current time and values.
+- `reset`: Reset behavior.
 
 ## NoiseApproximation Example
 
@@ -1165,9 +1275,21 @@ as a keyword argument. The following keyword arguments are available:
   - `rng` the splittable PRNG used for generating the random numbers.
     Default: `Xoshiro()` from the Random package.
 
+# Fields
+- `dist`, `bridge`: Endpoint distribution and bridge callbacks.
+- `t`, `W`, `Z`: Cached endpoints and auxiliary values.
+- `curt`, `curW`, `curZ`: Current time and values.
+- `dt`, `dW`, `dZ`: Proposed step and pending increments.
+- `seeds`: Integer seeds used to make recursive bridge queries reproducible.
+- `atol`, `tree_depth`, `search_depth`, `rng`: Accuracy, cache, search, and
+  random-generation controls.
+
+The recursive cache and scratch buffers are implementation details; use the
+callable and step interfaces rather than mutating them directly.
+
 ## VirtualBrownianTree Example
 
-In this example, we define a mulitidimensional Brownian process based on a
+In this example, we define a multidimensional Brownian process based on a
 `VirtualBrownianTree` with a minimal `tree_depth=0` such that memory consumption
 is minimized.
 
@@ -1347,6 +1469,29 @@ BoxWedgeTail{iip}(t0, W0, Z0, dist, bridge;
     rng = Random.default_rng(),
     reset = true, reseed = true) where {iip}
 ```
+
+# Arguments
+- `t0`: Initial time.
+- `W0`: Two-dimensional Brownian initial value.
+- `Z0`: Optional auxiliary process value.
+- `dist`, `bridge`: In-place or out-of-place increment callbacks.
+
+# Keywords
+- `rtol`: Relative tolerance used to build the stochastic-area density.
+- `nr`, `na`, `nz`: Discretization levels for radius, angle, and tail grids.
+- `box_grouping`: `:MinEntropy`, `:Columns`, or `:none`.
+- `sqeezing`: Whether the wedge sampler uses squeezing bounds.
+- `save_everystep`, `rng`, `reset`, `reseed`: Standard process controls.
+
+# Fields
+- `t`, `W`, `Z`: Saved times and primary/auxiliary values.
+- `A`: Saved stochastic-area values.
+- `curt`, `curW`, `curZ`, `curA`: Current state.
+- `rtol`, `Δr`, `Δa`, `Δz`: Stochastic-area discretization controls.
+- `boxes`, `wedges`, `tails`: Sampling tables used by the implementation.
+
+The sampling tables are generated data, not extension points. Use the process
+and step interfaces rather than mutating them directly.
 """
 mutable struct BoxWedgeTail{
         T, N, Tt, TA, T2, T3, ZType, F, F2, inplace, RNGType, tolType,

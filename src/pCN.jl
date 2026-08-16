@@ -26,11 +26,31 @@ function generate_innovation(W0, t, rng)
     )
 end
 
-@doc doc"""
+"""
     pCN!(noise::AbstractNoiseProcess, ρ; reset=true,reverse=false,indx=nothing)
 
-Create a new, but correlated noise process from `noise` and additional entropy with correlation ρ.
-This update defines an autoregressive process in the space of Wiener (or noise process) trajectories, which can be used as proposal distribution in Metropolis-Hastings algorithms (often called the "preconditioned Crank–Nicolson scheme".)
+Create a correlated noise proposal in-place using the preconditioned
+Crank–Nicolson update. The source path is replaced by
+`ρ * source + sqrt(1 - ρ^2) * innovation`.
+
+# Arguments
+- `noise`: Source `AbstractNoiseProcess` whose saved path is updated.
+- `ρ`: Correlation parameter, normally in `[-1, 1]`.
+
+# Keywords
+- `reset`: Whether the returned wrapper resets before solving.
+- `reverse`: Whether the returned wrapper traverses the source backwards.
+- `indx`: Initial source index for the wrapper; defaults to the start (or end
+  when `reverse = true`).
+
+# Returns
+A `NoiseWrapper` around the updated source. The source itself is mutated.
+
+# Example
+```julia
+W = WienerProcess(0.0, 0.0)
+proposal = pCN!(W, 0.9)
+```
 
 External links
  * [Preconditioned Crank–Nicolson algorithm on Wikipedia](https://en.wikipedia.org/wiki/Preconditioned_Crank–Nicolson_algorithm)
@@ -51,7 +71,26 @@ end
 """
     pCN(noise::AbstractNoiseProcess, ρ; reset=true,reverse=false,indx=nothing)
 
-Create a new, but correlated noise process from `noise` and additional entropy with correlation ρ.
+Create a correlated noise proposal from a copy of `noise` using the
+preconditioned Crank–Nicolson update. The input process is not mutated.
+
+# Arguments
+- `noise`: Source `AbstractNoiseProcess` with a saved path.
+- `ρ`: Correlation parameter, normally in `[-1, 1]`.
+
+# Keywords
+- `reset`: Whether the returned wrapper resets before solving.
+- `reverse`: Whether the returned wrapper traverses the source backwards.
+- `indx`: Initial source index for the wrapper.
+
+# Returns
+A `NoiseWrapper` containing the correlated proposal.
+
+# Example
+```julia
+W = WienerProcess(0.0, 0.0)
+proposal = pCN(W, 0.9)
+```
 """
 function pCN(
         source::AbstractNoiseProcess{T, N, Vector{T2}, inplace}, ρ;
@@ -70,8 +109,25 @@ end
 """
     pCN(noise::NoiseGrid, ρ; reset=true, rng = Random.default_rng())
 
-Create a new, but correlated noise process from `noise` and additional entropy with correlation ρ.
-This update defines an autoregressive process in the space of Wiener (or noise process) trajectories, which can be used as proposal distribution in Metropolis-Hastings algorithms (often called the "preconditioned Crank–Nicolson scheme".)
+Create a correlated proposal from a `NoiseGrid`. The source grid is not
+mutated; the returned grid has the same time points and auxiliary process.
+
+# Arguments
+- `noise`: Source `NoiseGrid`.
+- `ρ`: Correlation parameter, normally in `[-1, 1]`.
+
+# Keywords
+- `reset`: Reset flag stored on the returned grid.
+- `rng`: Random number generator used for the innovation.
+
+# Returns
+A new `NoiseGrid` containing the correlated proposal.
+
+# Example
+```julia
+grid = NoiseGrid(0.0:0.1:1.0, zeros(11))
+proposal = pCN(grid, 0.9)
+```
 
 External links
 

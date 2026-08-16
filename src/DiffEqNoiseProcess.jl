@@ -22,8 +22,6 @@ import QuadGK
 
 import GPUArraysCore
 
-using Markdown: Markdown, @doc_str
-
 using DiffEqBase: @..
 
 using Base: deleteat!, convert, copyto!

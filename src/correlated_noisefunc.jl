@@ -14,16 +14,28 @@ function construct_correlated_noisefunc(Γ)
     return dist, bridge
 end
 
-@doc doc"""
-One can define a `CorrelatedWienerProcess` which is a Wiener process with
-correlations between the Wiener processes. The constructor is:
+"""
+    CorrelatedWienerProcess(Γ, t0, W0, Z0 = nothing; rng = Random.default_rng())
+
+Construct an out-of-place Wiener process with constant covariance matrix `Γ`.
+The covariance is factored once and applied to independent normal increments.
 
 ```julia
-CorrelatedWienerProcess(Γ,t0,W0,Z0=nothing;kwargs...)
-CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;kwargs...)
+Γ = [1.0 0.2; 0.2 1.0]
+W = CorrelatedWienerProcess(Γ, 0.0, zeros(2))
 ```
 
-where `Γ` is the constant covariance matrix.
+# Arguments
+- `Γ`: Square, positive-semidefinite covariance matrix.
+- `t0`: Initial time.
+- `W0`: Initial process value and prototype; its length must match `Γ`.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+- `rng`: Random number generator used for increments.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == false`.
 """
 function CorrelatedWienerProcess(
         Γ, t0, W0, Z0 = nothing;
@@ -53,16 +65,30 @@ function construct_correlated_noisefunc!(Γ)
     return dist, bridge
 end
 
-@doc doc"""
-One can define a `CorrelatedWienerProcess` which is a Wiener process with
-correlations between the Wiener processes. The constructor is:
+"""
+    CorrelatedWienerProcess!(Γ, t0, W0, Z0 = nothing; rng = Random.default_rng())
+
+Construct the in-place variant of [`CorrelatedWienerProcess`](@ref). It uses
+the same constant covariance model and writes increments into `W0`-shaped
+storage.
 
 ```julia
-CorrelatedWienerProcess(Γ,t0,W0,Z0=nothing;kwargs...)
-CorrelatedWienerProcess!(Γ,t0,W0,Z0=nothing;kwargs...)
+Γ = [1.0 0.2; 0.2 1.0]
+W = CorrelatedWienerProcess!(Γ, 0.0, zeros(2))
+calculate_step!(W, 0.01, nothing, nothing)
 ```
 
-where `Γ` is the constant covariance matrix.
+# Arguments
+- `Γ`: Square, positive-semidefinite covariance matrix.
+- `t0`: Initial time.
+- `W0`: Initial process value and storage prototype.
+- `Z0`: Optional auxiliary process value.
+
+# Keywords
+- `rng`: Random number generator used for increments.
+
+# Returns
+A `NoiseProcess` with `isinplace(W) == true`.
 """
 function CorrelatedWienerProcess!(
         Γ, t0, W0, Z0 = nothing;

@@ -1,8 +1,18 @@
 """
-    save_noise!(W::NoiseProcess)
+    save_noise!(W::AbstractNoiseProcess)
 
-Save the current noise value and time to the process history if it hasn't been saved already.
-This function is called automatically by the stepping algorithms to maintain the noise trajectory.
+Save the current time and noise value to the process history when the concrete
+process stores a history. Solver integrations call this after an accepted step.
+
+# Interface rules
+- Implementations must be idempotent when the current time is already the last
+  saved time.
+- Primary and optional auxiliary values must remain aligned with the saved times.
+- Function- and transport-based processes may implement this as a no-op because
+  they evaluate values lazily.
+
+# Returns
+`nothing`.
 """
 @inline function save_noise!(W::NoiseProcess)
     if W.t != W.curt
@@ -16,17 +26,22 @@ This function is called automatically by the stepping algorithms to maintain the
 end
 
 """
-    accept_step!(W::NoiseProcess, dt, u, p, setup_next = true)
+    accept_step!(W::AbstractNoiseProcess, dt, u, p, setup_next = true)
 
-Accept a noise step, updating the current time and noise values.
-This function is called by the SDE solvers after a successful integration step.
+Commit the pending increment prepared by `calculate_step!` or
+`setup_next_step!`. A concrete implementation must advance the current time by
+the pending step, update primary and auxiliary values exactly once, and store
+the proposed next step `dt`.
 
-## Arguments
-- `W`: The noise process
-- `dt`: Time step size (may differ from W.dt due to adaptivity)
-- `u`: Current solution value (for state-dependent noise)
-- `p`: Parameters (for state-dependent noise)
-- `setup_next`: Whether to prepare for the next step
+# Arguments
+- `W`: Noise process being advanced.
+- `dt`: Proposed width of the next step; it may differ from the pending width.
+- `u`: Current differential-equation state, or `nothing` when unused.
+- `p`: Current parameters, or `nothing` when unused.
+- `setup_next`: If `true`, prepare the next pending increment before returning.
+
+# Returns
+`nothing`.
 """
 @inline function accept_step!(W::NoiseProcess, dt, u, p, setup_next = true)
     W.curt += W.dt
@@ -61,24 +76,24 @@ This function is called by the SDE solvers after a successful integration step.
 end
 
 """
-    setup_next_step!(W::NoiseProcess, u, p)
+    setup_next_step!(W::AbstractNoiseProcess, u, p)
 
-Prepare the noise process for the next integration step.
+Prepare the pending increment for the process's current `W.dt`.
 
-This function manages the Rejection Sampling with Memory (RSWM) algorithm,
-handling the stacks of pre-computed noise values for adaptive time stepping.
+# Interface rules
+The method is called before the first step and after an accepted step. It must
+leave a valid pending increment for `calculate_step!`/`accept_step!`, and it must
+preserve the distributional contract of the concrete process when adaptive
+steps are reused. `NoiseProcess` uses RSwM stacks; function, transport, grid,
+and VBT implementations may prepare a value directly.
 
 # Arguments
-- `W`: The noise process
-- `u`: Current solution value (for state-dependent noise)
-- `p`: Parameters (for state-dependent noise)
+- `W`: Noise process to prepare.
+- `u`: Current differential-equation state, or `nothing` when unused.
+- `p`: Current parameters, or `nothing` when unused.
 
-# Details
-The function implements different variants of the RSWM algorithm:
-- RSwM0: No memory - always recalculates (for state-dependent noise like compound Poisson)
-- RSwM1: Basic rejection sampling with single stack
-- RSwM2: Improved version with better memory management
-- RSwM3: Most advanced version with two-stack system (recommended for Brownian motion)
+# Returns
+`nothing`.
 """
 @inline function setup_next_step!(W::NoiseProcess, u, p)
     # RSwM0: No memory - always recalculate fresh noise
@@ -255,21 +270,25 @@ The function implements different variants of the RSWM algorithm:
 end
 
 """
-    calculate_step!(W::NoiseProcess, dt, u, p)
+    calculate_step!(W::AbstractNoiseProcess, dt, u, p)
 
-Calculate noise increments for the given time step.
+Calculate and store the pending noise increment for a proposed step.
 
-This function generates new random values for the noise process according
-to its distribution function.
+# Interface rules
+The pending increment must represent the process change over `dt` from the
+current state. Implementations must update pending-step state without committing
+the step; `accept_step!` performs the commit. In-place processes write into
+existing increment buffers, while out-of-place processes may allocate values.
 
 # Arguments
-- `W`: The noise process
-- `dt`: Time step size
-- `u`: Current solution value (for state-dependent noise)
-- `p`: Parameters (for state-dependent noise)
+- `W`: Noise process whose increment is prepared.
+- `dt`: Proposed step width.
+- `u`: Current differential-equation state, or `nothing` when unused.
+- `p`: Current parameters, or `nothing` when unused.
 
-# Effects
-Updates W.dW (and W.dZ if auxiliary process exists) with new noise increments
+# Returns
+The concrete process may return `nothing` or the selected step width. Callers
+should use the process state rather than depend on this return value.
 """
 @inline function calculate_step!(W::NoiseProcess, dt, u, p)
     if isinplace(W)
@@ -288,28 +307,25 @@ Updates W.dW (and W.dZ if auxiliary process exists) with new noise increments
 end
 
 """
-    reject_step!(W::NoiseProcess, dtnew, u, p)
+    reject_step!(W::AbstractNoiseProcess, dtnew, u, p)
 
-Handle rejection of a time step in adaptive algorithms.
+Replace the pending step after an adaptive solver rejects the current proposal.
 
-When an adaptive SDE solver rejects a step, this function uses bridge
-interpolation to generate appropriate noise values for the smaller time step,
-maintaining distributional correctness.
+# Interface rules
+The replacement increment must have the same conditional distribution as the
+original process over `dtnew`; implementations with rejection memory may retain
+the unused portion for later steps. `dtnew` has the sign of the current step and
+is normally smaller in magnitude. A process that cannot preserve this contract
+must throw an informative error instead of silently reusing an invalid increment.
 
 # Arguments
-- `W`: The noise process
-- `dtnew`: New (smaller) time step after rejection
-- `u`: Current solution value (for state-dependent noise)
-- `p`: Parameters (for state-dependent noise)
+- `W`: Noise process with a pending step.
+- `dtnew`: Replacement step width.
+- `u`: Current differential-equation state, or `nothing` when unused.
+- `p`: Current parameters, or `nothing` when unused.
 
-# Details
-The function implements different behaviors based on the RSWM algorithm:
-- RSwM0: Uses bridging but discards future values (appropriate for tau-leaping)
-- RSwM1/2/3: Stores unused portions of noise in stacks for later use
-
-For tau-leaping with state-dependent rates, the rate λ is approximated as constant, so
-storing future values generated with the wrong rate doesn't make sense. RSwM0 discards
-the unused portion after bridging and recalculates fresh noise for subsequent steps.
+# Returns
+`nothing`.
 """
 @inline function reject_step!(W::NoiseProcess, dtnew, u, p)
     q = dtnew / W.dt
