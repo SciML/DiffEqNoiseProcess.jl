@@ -19,6 +19,7 @@ import CommonSolve: step!
 import PoissonRandom, Distributions
 
 import QuadGK
+using PrecompileTools: @compile_workload, @setup_workload
 
 import GPUArraysCore
 
@@ -47,6 +48,7 @@ include("noise_interfaces/noise_transport_interface.jl")
 include("noise_interfaces/common.jl")
 include("correlated_noisefunc.jl")
 include("pCN.jl")
+include("precompile.jl")
 
 export RSWM
 
