@@ -8,9 +8,9 @@ using Optim, ReverseDiff
 
 run_qa(
     DiffEqNoiseProcess;
-    # ambiguities / deps_compat / piracies are genuine findings tracked in
+    # Ambiguities and piracies are genuine findings tracked in
     # https://github.com/SciML/DiffEqNoiseProcess.jl/issues/283
-    aqua_broken = (:ambiguities, :deps_compat, :piracies),
+    aqua_broken = (:ambiguities, :piracies),
     # On Julia >= 1.12, JET typo-mode (report_package) flags 27 pre-existing
     # "local variable may be undefined" reports, all of the same shape: a value
     # assigned inside one `X !== nothing` / `offset !== nothing` guard and used
