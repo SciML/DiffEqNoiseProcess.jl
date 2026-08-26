@@ -270,6 +270,7 @@ function search_VBT(
 
     # create a buffer
     W0tmp, W1tmp = copy(W0), copy(W1)
+    Z0tmp = Z1tmp = nothing
     if Z0 !== nothing
         Z0tmp, Z1tmp = copy(Z0), copy(Z1)
     end

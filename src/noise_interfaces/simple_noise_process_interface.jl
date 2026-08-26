@@ -118,6 +118,7 @@ end
             end
         else
             W0, Wh = W.W[i - 1], W.W[i]
+            Z0 = Zh = nothing
             if W.Z !== nothing
                 Z0, Zh = W.Z[i - 1], W.Z[i]
             end
@@ -204,6 +205,7 @@ end
             end
         else
             W0, Wh = W.W[i - 1], W.W[i]
+            Z0 = Zh = nothing
             if W.Z !== nothing
                 Z0, Zh = W.Z[i - 1], W.Z[i]
             end

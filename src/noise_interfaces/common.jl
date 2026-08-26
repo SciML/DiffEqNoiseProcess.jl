@@ -1,4 +1,4 @@
-DiffEqBase.has_reinit(i::AbstractNoiseProcess) = true
+DiffEqBase.has_reinit(i::NoiseProcessType) = true
 function DiffEqBase.reinit!(
         W::Union{NoiseProcess, NoiseApproximation}, dt;
         t0 = W.t[1],
@@ -127,7 +127,7 @@ function DiffEqBase.reinit!(
 end
 
 function DiffEqBase.reinit!(
-        W::AbstractNoiseProcess, dt;
+        W::Union{SimpleNoiseProcess, BoxWedgeTail}, dt;
         t0 = W.t[1],
         erase_sol = true,
         setup_next = false
@@ -229,17 +229,34 @@ function DiffEqBase.reinit!(
     return nothing
 end
 
-function Base.reverse(W::AbstractNoiseProcess)
-    if W isa NoiseGrid
-        if W.Z === nothing
-            backwardnoise = NoiseGrid(reverse(W.t), reverse(W.W))
-        else
-            backwardnoise = NoiseGrid(reverse(W.t), reverse(W.W), reverse(W.Z))
-        end
+function Base.reverse(W::NoiseGrid)
+    if W.Z === nothing
+        return NoiseGrid(reverse(W.t), reverse(W.W))
     else
-        W.save_everystep = false
-        backwardnoise = NoiseWrapper(W, reverse = true)
+        return NoiseGrid(reverse(W.t), reverse(W.W), reverse(W.Z))
     end
-    return backwardnoise
+end
+
+function Base.reverse(
+        W::Union{
+            NoiseProcess, SimpleNoiseProcess, NoiseWrapper, NoiseFunction, NoiseTransport,
+            NoiseApproximation, BoxWedgeTail,
+        }
+    )
+    W.save_everystep = false
+    return NoiseWrapper(W, reverse = true)
 end
 Base.reverse(W::VirtualBrownianTree) = W
+
+for WType in (SimpleNoiseProcess, NoiseFunction, NoiseTransport, VirtualBrownianTree, BoxWedgeTail),
+        PType in (NoiseApproximation, NoiseGrid)
+    @eval function interpolate!(W::$WType, u, p::$PType, t)
+        return invoke(interpolate!, Tuple{$WType, Any, Any, Any}, W, u, p, t)
+    end
+end
+
+for WType in (NoiseProcess, NoiseWrapper), PType in (NoiseApproximation, NoiseGrid)
+    @eval function interpolate!(W::$WType, u, p::$PType, t; reverse = false)
+        return invoke(interpolate!, Tuple{$WType, Any, Any, Any}, W, u, p, t; reverse)
+    end
+end

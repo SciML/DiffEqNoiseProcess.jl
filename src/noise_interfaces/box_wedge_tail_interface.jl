@@ -120,6 +120,7 @@ end
             end
         else
             W0, Wh = W.W[i - 1], W.W[i]
+            Z0 = Zh = nothing
             if W.Z !== nothing
                 Z0, Zh = W.Z[i - 1], W.Z[i]
             end
@@ -206,6 +207,7 @@ end
             end
         else
             W0, Wh = W.W[i - 1], W.W[i]
+            Z0 = Zh = nothing
             if W.Z !== nothing
                 Z0, Zh = W.Z[i - 1], W.Z[i]
             end
@@ -305,6 +307,8 @@ function generate_boxes1(densf, Δr, Δa, Δz, rM, aM, offset = nothing, scale =
             end
 
             if offset !== nothing
+                indx1 = (i - 1) * scale + one(scale)
+                indx2 = (j - 1) * scale + one(scale)
                 offset[indx1:(indx1 + (scale - one(scale))), indx2:(indx2 + (scale - one(scale)))] .= z
             end
         end
@@ -373,6 +377,8 @@ function generate_boxes3(densf, Δr, Δa, Δz, rM, aM, offset = nothing, scale =
             end
             z -= Δz
             if offset !== nothing
+                indx1 = (i - 1) * scale + one(scale)
+                indx2 = (j - 1) * scale + one(scale)
                 offset[indx1:(indx1 + (scale - one(scale))), indx2:(indx2 + (scale - one(scale)))] .= z
             end
         end
