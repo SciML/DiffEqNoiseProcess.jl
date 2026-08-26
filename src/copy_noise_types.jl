@@ -1,4 +1,4 @@
-function Base.copy!(Wnew::T, W::T) where {T <: AbstractNoiseProcess}
+function Base.copy!(Wnew::T, W::T) where {T <: NoiseProcessType}
     for x in filter(!=(:u), fieldnames(typeof(W)))
         if getfield(W, x) isa Random.AbstractRNG
             setfield!(Wnew, x, copy(getfield(W, x)))

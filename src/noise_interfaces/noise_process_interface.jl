@@ -651,6 +651,7 @@ end
                 return copy(W.curW), nothing
             end
         else
+            Z0 = Zh = nothing
             if reverse
                 W0, Wh = W.W[i], W.W[i - 1] - W.W[i]
                 if W.Z !== nothing
@@ -770,6 +771,7 @@ end
                 out2 .= W.Z[i]
             end
         else
+            Z0 = Zh = nothing
             if reverse
                 W0, Wh = W.W[i], W.W[i - 1]
                 if W.Z !== nothing

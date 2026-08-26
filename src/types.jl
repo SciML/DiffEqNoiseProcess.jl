@@ -1,5 +1,3 @@
-isinplace(W::AbstractNoiseProcess{T, N, S, inplace}) where {T, N, S, inplace} = inplace
-
 """
 ```julia
 NoiseProcess{T, N, Tt, T2, T3, ZType, F, F2, inplace, S1, S2, RSWM, C, RNGType} <:
@@ -1703,3 +1701,11 @@ function BoxWedgeTail!(
     )
     return BoxWedgeTail{true}(t0, W0, Z0, dist, bridge; kwargs...)
 end
+
+const NoiseProcessType = Union{
+    NoiseProcess, SimpleNoiseProcess, NoiseWrapper, NoiseFunction, NoiseTransport,
+    NoiseGrid, NoiseApproximation, VirtualBrownianTree, BoxWedgeTail,
+}
+
+@inline _isinplace(::Type{<:AbstractNoiseProcess{T, N, S, inplace}}) where {T, N, S, inplace} = inplace
+@inline isinplace(W::NoiseProcessType) = _isinplace(typeof(W))
