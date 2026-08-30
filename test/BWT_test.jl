@@ -262,9 +262,9 @@
 
     samples = [
         DiffEqNoiseProcess.sample_distribution(
-                W, one(W.dt), nothing, nothing,
-                nothing, W.rng
-            ) for i in 1:100_000
+            W, one(W.dt), nothing, nothing,
+            nothing, W.rng
+        ) for i in 1:100_000
     ]
 
     dW1 = getindex.(getindex.(samples, 1), 1)
