@@ -5,7 +5,7 @@
     import SDEProblemLibrary: prob_sde_linear, prob_sde_2Dlinear
 
     prob = prob_sde_linear
-    integrator = init(prob, EM(), dt = 0.01)
+    integrator = init(prob, EM(), dt = 0.01, seed = 2203)
 
     W = NoiseApproximation(integrator)
 
@@ -17,8 +17,14 @@
     accept_step!(W, dt, nothing, nothing)
     @test W.curW == 0.5 + dWold
     @test W.curt == dt
-    @test W.curW + W.dW == W.u[end]
     @test W.curW == W.u[11]
+    # Pending step targets the source endpoint; accepting snaps onto it exactly.
+    # (For this seed, no Float64 dW satisfies curW + dW == u[end] before the snap.)
+    target = W.u[end]
+    @test W.source1.u == target
+    accept_step!(W, dt, nothing, nothing, false)
+    @test W.curW == target
+    @test W.curt == 2dt
 
     W = NoiseApproximation(integrator)
     for i in 1:10

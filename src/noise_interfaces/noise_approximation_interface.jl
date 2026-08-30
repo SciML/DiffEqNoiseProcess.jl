@@ -36,17 +36,20 @@ function calculate_step!(W::NoiseApproximation, dt, u, p)
 end
 
 function accept_step!(W::NoiseApproximation, dt, u, p, setup_next = true)
+    # Snap onto the source solution values that `calculate_step!` prepared as the
+    # step target. Accumulating `curW += dW` can miss that endpoint by 1 ULP
+    # because `curW + (target - curW)` is not always exactly `target` in Float64.
     if isinplace(W)
-        W.curW .+= W.dW
+        W.curW .= W.source1.u
     else
-        W.curW += W.dW
+        W.curW = copy(W.source1.u)
     end
-    W.curt += W.dt
+    W.curt = W.source1.t
     if W.Z !== nothing
         if isinplace(W)
-            W.curZ .+= W.dZ
+            W.curZ .= W.source2.u
         else
-            W.curZ += W.dZ
+            W.curZ = copy(W.source2.u)
         end
     end
 
