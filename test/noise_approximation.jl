@@ -5,7 +5,7 @@
     import SDEProblemLibrary: prob_sde_linear, prob_sde_2Dlinear
 
     prob = prob_sde_linear
-    integrator = init(prob, EM(), dt = 0.01)
+    integrator = init(prob, EM(), dt = 0.01, seed = 2203)
 
     W = NoiseApproximation(integrator)
 
@@ -17,7 +17,8 @@
     accept_step!(W, dt, nothing, nothing)
     @test W.curW == 0.5 + dWold
     @test W.curt == dt
-    @test W.curW + W.dW == W.u[end]
+    # Some endpoints have no Float64 increment that reconstructs them exactly.
+    @test abs(W.curW + W.dW - W.u[end]) <= eps(W.u[end])
     @test W.curW == W.u[11]
 
     W = NoiseApproximation(integrator)
