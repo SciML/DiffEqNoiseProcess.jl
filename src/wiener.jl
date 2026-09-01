@@ -25,8 +25,11 @@ Generate an array of random numbers from the standard normal distribution, match
 # Returns
 An array of random numbers from the standard normal distribution with the same size as proto
 """
-@inline function wiener_randn(rng::AbstractRNG, proto::AbstractArray{T}) where {T <: Number}
+@inline function wiener_randn(rng::AbstractRNG, proto::Array{T}) where {T <: Number}
     return randn(rng, T, size(proto))
+end
+@inline function wiener_randn(rng::AbstractRNG, proto::AbstractArray{T}) where {T <: Number}
+    return randn!(rng, similar(proto, T, size(proto)))
 end
 """
     wiener_randn(rng::AbstractRNG, proto::T) where {T <: StaticArraysCore.SArray}
