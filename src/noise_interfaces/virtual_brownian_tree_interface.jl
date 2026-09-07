@@ -164,14 +164,16 @@ end
 # for each node regardless of traversal order.
 function split_VBT_seed(rng::AbstractRNG, parent_seed::Integer, current_depth, Nt)
     # Compute child seeds by splitting the seed range
-    # Each level halves the range, ensuring non-overlapping seeds
-    offset = (Nt - 1) ÷ 2^(current_depth + 1)
-    seed_l = parent_seed - offset
-    seed_r = parent_seed + offset
+    # Each level halves the range, ensuring non-overlapping seeds.
+    # Use Int64 for the power so 2^(depth+1) does not overflow Int32 (which
+    # wraps to 0 and then DivideError on ÷).
+    offset = (Int64(Nt) - 1) ÷ (Int64(2)^(current_depth + 1))
+    seed_l = Int64(parent_seed) - offset
+    seed_r = Int64(parent_seed) + offset
 
     # Set RNG to deterministic state based on parent seed
     Random.seed!(rng, parent_seed)
-    return seed_l, seed_r, parent_seed
+    return seed_l, seed_r, Int64(parent_seed)
 end
 
 # create the cache of the VBT with depth tree_depth
@@ -196,8 +198,9 @@ function create_VBT_cache(
     # Use an integer seed for the root node. We generate a random initial seed
     # from the RNG and add an offset to center the seed range.
     # This allows child seeds to be computed by adding/subtracting offsets.
-    initial_seed = abs(rand(rng, Int)) % (Nt * 1000) + (Nt + 1) ÷ 2
-    seeds = [initial_seed]
+    # Int64 keeps the seed space wide enough on 32-bit Julia (Int === Int32).
+    initial_seed = abs(rand(rng, Int64)) % (Int64(Nt) * 1000) + (Int64(Nt) + 1) ÷ 2
+    seeds = Int64[initial_seed]
 
     q = 1 // 2
 
