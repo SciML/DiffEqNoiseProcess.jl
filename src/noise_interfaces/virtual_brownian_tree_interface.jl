@@ -181,8 +181,10 @@ function create_VBT_cache(
         bridge, t0, W0, Z0, tend, Wend, Zend, rng::AbstractRNG,
         tree_depth, search_depth
     )
-    # total number of cached time steps and W values
-    Nt = Int(2^search_depth + 1)
+    # total number of cached time steps and W values.
+    # Must use Int64: on 32-bit Julia, 2^35 (default search_depth for atol=1e-10)
+    # wraps Int32 to 0, collapsing Nt to 1 and zeroing all seed offsets.
+    Nt = Int64(2)^Int64(search_depth) + one(Int64)
 
     ts = [t0, tend]
     Ws = [W0, Wend]
@@ -255,7 +257,7 @@ function search_VBT(
         t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
         rng::AbstractRNG
     )
-    Nt = Int(2^W.search_depth + 1)
+    Nt = Int64(2)^Int64(W.search_depth) + one(Int64)
     depth = Int(W.tree_depth + 1)
     seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
 
@@ -316,7 +318,7 @@ function search_VBT!(
         out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
         rng::AbstractRNG
     )
-    Nt = Int(2^W.search_depth + 1)
+    Nt = Int64(2)^Int64(W.search_depth) + one(Int64)
     depth = Int(W.tree_depth + 1)
     seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
 
