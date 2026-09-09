@@ -164,14 +164,16 @@ end
 # for each node regardless of traversal order.
 function split_VBT_seed(rng::AbstractRNG, parent_seed::Integer, current_depth, Nt)
     # Compute child seeds by splitting the seed range
-    # Each level halves the range, ensuring non-overlapping seeds
-    offset = (Nt - 1) ÷ 2^(current_depth + 1)
-    seed_l = parent_seed - offset
-    seed_r = parent_seed + offset
+    # Each level halves the range, ensuring non-overlapping seeds.
+    # Use Int64 for the power so 2^(depth+1) does not overflow Int32 (which
+    # wraps to 0 and then DivideError on ÷).
+    offset = (Int64(Nt) - 1) ÷ (Int64(2)^(current_depth + 1))
+    seed_l = Int64(parent_seed) - offset
+    seed_r = Int64(parent_seed) + offset
 
     # Set RNG to deterministic state based on parent seed
     Random.seed!(rng, parent_seed)
-    return seed_l, seed_r, parent_seed
+    return seed_l, seed_r, Int64(parent_seed)
 end
 
 # create the cache of the VBT with depth tree_depth
@@ -179,8 +181,10 @@ function create_VBT_cache(
         bridge, t0, W0, Z0, tend, Wend, Zend, rng::AbstractRNG,
         tree_depth, search_depth
     )
-    # total number of cached time steps and W values
-    Nt = Int(2^search_depth + 1)
+    # total number of cached time steps and W values.
+    # Must use Int64: on 32-bit Julia, 2^35 (default search_depth for atol=1e-10)
+    # wraps Int32 to 0, collapsing Nt to 1 and zeroing all seed offsets.
+    Nt = Int64(2)^Int64(search_depth) + one(Int64)
 
     ts = [t0, tend]
     Ws = [W0, Wend]
@@ -196,8 +200,9 @@ function create_VBT_cache(
     # Use an integer seed for the root node. We generate a random initial seed
     # from the RNG and add an offset to center the seed range.
     # This allows child seeds to be computed by adding/subtracting offsets.
-    initial_seed = abs(rand(rng, Int)) % (Nt * 1000) + (Nt + 1) ÷ 2
-    seeds = [initial_seed]
+    # Int64 keeps the seed space wide enough on 32-bit Julia (Int === Int32).
+    initial_seed = abs(rand(rng, Int64)) % (Int64(Nt) * 1000) + (Int64(Nt) + 1) ÷ 2
+    seeds = Int64[initial_seed]
 
     q = 1 // 2
 
@@ -252,7 +257,7 @@ function search_VBT(
         t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
         rng::AbstractRNG
     )
-    Nt = Int(2^W.search_depth + 1)
+    Nt = Int64(2)^Int64(W.search_depth) + one(Int64)
     depth = Int(W.tree_depth + 1)
     seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
 
@@ -313,7 +318,7 @@ function search_VBT!(
         out1, out2, t, seed, t0, t1, W0, W1, Z0, Z1, W::VirtualBrownianTree,
         rng::AbstractRNG
     )
-    Nt = Int(2^W.search_depth + 1)
+    Nt = Int64(2)^Int64(W.search_depth) + one(Int64)
     depth = Int(W.tree_depth + 1)
     seed_l, seed_r, seed_v = split_VBT_seed(rng, seed, depth, Nt)
 
