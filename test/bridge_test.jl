@@ -130,7 +130,6 @@ end
     dt = 0.125
     t_max = 20.0
     st = []
-    Random.seed!(1234)
     for i in 1:500_000
         local ou = OrnsteinUhlenbeckProcess(1.5, 0.25, 0.2, 0.0, 0.0)
         local prob = NoiseProblem(ou, (0.0, t_max))
@@ -142,7 +141,6 @@ end
     end
 
     stats_interpolated = RunningStats()
-    Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess(1.5, 0.25, 0.2, 0.0, 0.0)
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
@@ -151,7 +149,6 @@ end
         push_stats!(stats_interpolated, s2.u)
     end
 
-    Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess(1.5, 0.25, 0.2, 0.0, 0.0)
     prob = NoiseProblem(ou, (0.0, t_max))
     stats_solver = RunningStats()
@@ -162,11 +159,20 @@ end
         push_stats!(stats_solver, s.u)
     end
 
-    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_solver); atol = 1.0e-3))
+    # `solve` reseeds each realization from system entropy (`reseed = true`), so
+    # the three statistics are independent Monte Carlo estimates and comparing
+    # them pairwise doubles the sampling error. Comparing each against the exact
+    # OU marginal moments (mean μ(1 - e^{-Θt}), var σ²(1 - e^{-2Θt})/(2Θ)) keeps
+    # atol = 1e-3 at ~6 standard errors and cannot flake.
+    mean_ou = 0.25 .* (1 .- exp.(-1.5 .* st))
+    std_ou = sqrt.(0.2^2 .* (1 .- exp.(-3.0 .* st)) ./ 3.0)
+    @test all(isapprox.(stats_mean(stats_forward), mean_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_interpolated), mean_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_solver), mean_ou; atol = 1.0e-3))
 
-    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_solver); atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_forward), std_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_interpolated), std_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_solver), std_ou; atol = 1.0e-3))
 end
 
 @testset "Vector Ou-Bridge" begin
@@ -174,7 +180,6 @@ end
     dt = 0.125
     t_max = 20.0
     st = []
-    Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess([1.5], [0.25], [0.2], 0.0, [0.0])
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
@@ -186,7 +191,6 @@ end
     end
 
     stats_interpolated = RunningStats()
-    Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess([1.5], [0.25], [0.2], 0.0, [0.0])
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
@@ -195,7 +199,6 @@ end
         push_stats!(stats_interpolated, s2.u)
     end
 
-    Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess([1.5], [0.25], [0.2], 0.0, [0.0])
     prob = NoiseProblem(ou, (0.0, t_max))
     stats_solver = RunningStats()
@@ -214,11 +217,17 @@ end
         push_stats!(stats_solver, s2.u)
     end
 
-    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_solver); atol = 1.0e-3))
+    # See "Scalar Ou-Bridge": compare each independent Monte Carlo estimate to
+    # the exact OU marginal moments rather than to each other.
+    mean_ou = 0.25 .* (1 .- exp.(-1.5 .* st))
+    std_ou = sqrt.(0.2^2 .* (1 .- exp.(-3.0 .* st)) ./ 3.0)
+    @test all(isapprox.(stats_mean(stats_forward), mean_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_interpolated), mean_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_solver), mean_ou; atol = 1.0e-3))
 
-    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_solver); atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_forward), std_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_interpolated), std_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_solver), std_ou; atol = 1.0e-3))
 end
 
 @testset "Inplace OU-Bridge" begin
@@ -226,7 +235,6 @@ end
     dt = 0.125
     t_max = 20.0
     st = []
-    Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess!([1.5], [0.25], [0.2], 0.0, [0.0])
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
@@ -238,7 +246,6 @@ end
     end
 
     stats_interpolated = RunningStats()
-    Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess!([1.5], [0.25], [0.2], 0.0, [0.0])
     for i in 1:500_000
         local prob = NoiseProblem(ou, (0.0, t_max))
@@ -247,7 +254,6 @@ end
         push_stats!(stats_interpolated, s2.u)
     end
 
-    Random.seed!(1234)
     ou = OrnsteinUhlenbeckProcess!([1.5], [0.25], [0.2], 0.0, [0.0])
     prob = NoiseProblem(ou, (0.0, t_max))
     stats_solver = RunningStats()
@@ -266,9 +272,15 @@ end
         push_stats!(stats_solver, s2.u)
     end
 
-    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(stats_mean(stats_forward), stats_mean(stats_solver); atol = 1.0e-3))
+    # See "Scalar Ou-Bridge": compare each independent Monte Carlo estimate to
+    # the exact OU marginal moments rather than to each other.
+    mean_ou = 0.25 .* (1 .- exp.(-1.5 .* st))
+    std_ou = sqrt.(0.2^2 .* (1 .- exp.(-3.0 .* st)) ./ 3.0)
+    @test all(isapprox.(stats_mean(stats_forward), mean_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_interpolated), mean_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_mean(stats_solver), mean_ou; atol = 1.0e-3))
 
-    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_interpolated); atol = 1.0e-3))
-    @test all(isapprox.(stats_std(stats_forward), stats_std(stats_solver); atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_forward), std_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_interpolated), std_ou; atol = 1.0e-3))
+    @test all(isapprox.(stats_std(stats_solver), std_ou; atol = 1.0e-3))
 end
