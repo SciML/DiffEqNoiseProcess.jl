@@ -35,6 +35,24 @@ function Base.copy!(Wnew::T, W::T) where {T <: NoiseProcessType}
     return Wnew
 end
 
+# A solve never writes to the grid arrays, so copies share them and duplicate only the step state.
+function Base.copy!(Wnew::T, W::T) where {T <: NoiseGrid}
+    Wnew.t = W.t
+    Wnew.u = W.u
+    Wnew.W = W.W
+    Wnew.Z = W.Z
+    Wnew.curt = W.curt
+    Wnew.curW = copy(W.curW)
+    Wnew.curZ = W.curZ === nothing ? nothing : copy(W.curZ)
+    Wnew.dt = W.dt
+    Wnew.dW = copy(W.dW)
+    Wnew.dZ = W.dZ === nothing ? nothing : copy(W.dZ)
+    Wnew.step_setup = W.step_setup
+    Wnew.reset = W.reset
+    Wnew.cur_time = deepcopy(W.cur_time)
+    return Wnew
+end
+
 function Base.copy(W::NoiseProcess)
     Wnew = NoiseProcess{isinplace(W)}(
         W.curt, W.curW, W.curZ, W.dist, W.bridge;
