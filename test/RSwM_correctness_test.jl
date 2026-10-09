@@ -173,4 +173,26 @@
             end
         end
     end
+
+    @testset "RSwM3 in-place S₂ bridge reject_step! does not allocate" begin
+        # Forming L₂ - W.dWtilde / L₃ - W.dZtilde before copyat_or_push! allocates on
+        # every nonempty-S₂ rejection (~192 B/reject for length-4 W and Z). Mutating
+        # the popped S₂ slot in place must keep a warmed reject_step! at 0 B.
+        W = WienerProcess!(
+            0.0, zeros(4), zeros(4);
+            rswm = RSWM(adaptivealg = :RSwM3), rng = Xoshiro(7)
+        )
+        calculate_step!(W, 0.2, nothing, nothing)
+        for _ in 1:50
+            reject_step!(W, 0.5 * W.dt, nothing, nothing)
+            accept_step!(W, 0.2, nothing, nothing)
+        end
+        total = 0
+        for _ in 1:100
+            @test !isempty(W.S₂)
+            total += @allocated reject_step!(W, 0.5 * W.dt, nothing, nothing)
+            accept_step!(W, 0.2, nothing, nothing)
+        end
+        @test total == 0
+    end
 end
