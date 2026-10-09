@@ -173,4 +173,27 @@
             end
         end
     end
+
+    @testset "RSwM3 in-place S₂ bridge reject_step! does not allocate" begin
+        W = WienerProcess!(
+            0.0, zeros(4), zeros(4);
+            rswm = RSWM(adaptivealg = :RSwM3), rng = Xoshiro(7)
+        )
+        calculate_step!(W, 0.2, nothing, nothing)
+        for _ in 1:50
+            reject_step!(W, 0.5 * W.dt, nothing, nothing)
+            accept_step!(W, 0.2, nothing, nothing)
+        end
+        # Measure through a local function so @allocated sees a compiled call site.
+        # A bare `@allocated reject_step!(...)` after `using` inside `@testset` /
+        # `@safetestset` leaves a 32 B/call world-age artifact on Julia 1.10.
+        measure_reject(W) = @allocated reject_step!(W, 0.5 * W.dt, nothing, nothing)
+        total = 0
+        for _ in 1:100
+            @test !isempty(W.S₂)
+            total += measure_reject(W)
+            accept_step!(W, 0.2, nothing, nothing)
+        end
+        @test total == 0
+    end
 end

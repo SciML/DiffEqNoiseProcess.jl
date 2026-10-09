@@ -466,7 +466,11 @@ must throw an informative error instead of silently reusing an invalid increment
                 # slot L₂ was popped from.
                 cutLength = L₁ - dtM
                 if cutLength > W.rswm.discard_length
-                    if W.Z == nothing
+                    if isinplace(W)
+                        @.. L₂ -= W.dWtilde
+                        W.Z !== nothing && @.. L₃ -= W.dZtilde
+                        ResettableStacks.copyat_or_push!(W.S₁, (cutLength, L₂, L₃))
+                    elseif W.Z == nothing
                         ResettableStacks.copyat_or_push!(
                             W.S₁, (cutLength, L₂ - W.dWtilde, nothing)
                         )
