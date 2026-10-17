@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Noise Process Types · DiffEqNoiseProcess.jl</title><meta name="title" content="Noise Process Types · DiffEqNoiseProcess.jl"/><meta property="og:title" content="Noise Process Types · DiffEqNoiseProcess.jl"/><meta property="twitter:title" content="Noise Process Types · DiffEqNoiseProcess.jl"/><meta name="description" content="Documentation for DiffEqNoiseProcess.jl."/><meta property="og:description" content="Documentation for DiffEqNoiseProcess.jl."/><meta property="twitter:description" content="Documentation for DiffEqNoiseProcess.jl."/><meta property="og:url" content="https://docs.sciml.ai/DiffEqNoiseProcess/stable/tutorials/noise_processes/"/><meta property="twitter:url" content="https://docs.sciml.ai/DiffEqNoiseProcess/stable/tutorials/noise_processes/"/><link rel="canonical" href="https://docs.sciml.ai/DiffEqNoiseProcess/stable/tutorials/noise_processes/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img src="../../assets/logo.png" alt="DiffEqNoiseProcess.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DiffEqNoiseProcess.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../basic_usage/">Basic Usage Tutorial</a></li><li class="is-active"><a class="tocitem" href>Noise Process Types</a><ul class="internal"><li><a class="tocitem" href="#Standard-Brownian-Motion"><span>Standard Brownian Motion</span></a></li><li><a class="tocitem" href="#Mean-Reverting-Processes"><span>Mean-Reverting Processes</span></a></li><li><a class="tocitem" href="#Jump-Processes"><span>Jump Processes</span></a></li><li><a class="tocitem" href="#Financial-Models"><span>Financial Models</span></a></li><li><a class="tocitem" href="#Bridge-Processes"><span>Bridge Processes</span></a></li><li><a class="tocitem" href="#Process-Comparisons"><span>Process Comparisons</span></a></li></ul></li><li><a class="tocitem" href="../advanced_features/">Advanced Features</a></li></ul></li><li><span class="tocitem">API Reference</span><ul><li><a class="tocitem" href="../../api/noise_processes/">Noise Processes API</a></li><li><a class="tocitem" href="../../api/interface/">Noise Process Interface</a></li></ul></li><li><span class="tocitem">Legacy Docs</span><ul><li><a class="tocitem" href="../../noise_processes/">Classic Noise Processes</a></li><li><a class="tocitem" href="../../abstract_noise_processes/">Abstract Noise Processes</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Noise Process Types</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Noise Process Types</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqNoiseProcess.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/SciML/DiffEqNoiseProcess.jl/blob/master/docs/src/tutorials/noise_processes.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Noise-Process-Types"><a class="docs-heading-anchor" href="#Noise-Process-Types">Noise Process Types</a><a id="Noise-Process-Types-1"></a><a class="docs-heading-anchor-permalink" href="#Noise-Process-Types" title="Permalink"></a></h1><p>This tutorial demonstrates the various types of noise processes available in DiffEqNoiseProcess.jl and their specific use cases.</p><h2 id="Standard-Brownian-Motion"><a class="docs-heading-anchor" href="#Standard-Brownian-Motion">Standard Brownian Motion</a><a id="Standard-Brownian-Motion-1"></a><a class="docs-heading-anchor-permalink" href="#Standard-Brownian-Motion" title="Permalink"></a></h2><h3 id="Wiener-Process"><a class="docs-heading-anchor" href="#Wiener-Process">Wiener Process</a><a id="Wiener-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Wiener-Process" title="Permalink"></a></h3><p>The standard Wiener process is the foundation of stochastic calculus:</p><pre><code class="language-julia hljs">using DiffEqNoiseProcess, SciMLBase, Random, Distributions
+using Statistics
+
+# Set seed for reproducibility
+Random.seed!(123)
+
+# Standard Wiener process
+W = WienerProcess(0.0, 0.0, 1.0)
+
+# Simulate it
+prob = NoiseProblem(W, (0.0, 2.0))
+sol = solve(prob; dt = 0.01)
+
+println(&quot;Final value: $(sol.u[end])&quot;)
+println(&quot;Path length: $(length(sol.t))&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final value: 0.7198927871776024
+Path length: 201</code></pre><h3 id="Correlated-Wiener-Process"><a class="docs-heading-anchor" href="#Correlated-Wiener-Process">Correlated Wiener Process</a><a id="Correlated-Wiener-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Correlated-Wiener-Process" title="Permalink"></a></h3><p>For multi-dimensional systems with correlated noise:</p><pre><code class="language-julia hljs"># 2D correlated Wiener process with correlation matrix
+Γ = [1.0 0.5; 0.5 1.0]  # Correlation matrix
+W0 = [0.0, 0.0]         # Initial values
+Z0 = [1.0, 1.0]         # Final values
+
+corr_W = CorrelatedWienerProcess(Γ, 0.0, W0, Z0)
+
+# Simulate
+prob_corr = NoiseProblem(corr_W, (0.0, 1.0))
+sol_corr = solve(prob_corr; dt = 0.01)
+
+println(&quot;Final 2D noise: $(sol_corr.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final 2D noise: [0.6727408295002562, -0.1088306522271254]</code></pre><h2 id="Mean-Reverting-Processes"><a class="docs-heading-anchor" href="#Mean-Reverting-Processes">Mean-Reverting Processes</a><a id="Mean-Reverting-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Mean-Reverting-Processes" title="Permalink"></a></h2><h3 id="Ornstein-Uhlenbeck-Process"><a class="docs-heading-anchor" href="#Ornstein-Uhlenbeck-Process">Ornstein-Uhlenbeck Process</a><a id="Ornstein-Uhlenbeck-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Ornstein-Uhlenbeck-Process" title="Permalink"></a></h3><p>Models mean-reverting behavior, which is commonly used in interest rate models:</p><pre><code class="language-julia hljs"># Parameters: Θ (mean reversion rate), μ (long-term mean), σ (volatility)
+Θ = 2.0   # Fast mean reversion
+μ = 0.5   # Mean level
+σ = 0.3   # Volatility
+
+OU = OrnsteinUhlenbeckProcess(Θ, μ, σ, 0.0, 0.0, 1.0)
+
+# Simulate
+prob_ou = NoiseProblem(OU, (0.0, 5.0))
+sol_ou = solve(prob_ou; dt = 0.01)
+
+println(&quot;OU process starts at: $(sol_ou.u[1])&quot;)
+println(&quot;OU process ends at: $(sol_ou.u[end])&quot;)
+println(&quot;Long-term mean μ: $μ&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">OU process starts at: 0.0
+OU process ends at: 0.6742771423352715
+Long-term mean μ: 0.5</code></pre><h2 id="Jump-Processes"><a class="docs-heading-anchor" href="#Jump-Processes">Jump Processes</a><a id="Jump-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Jump-Processes" title="Permalink"></a></h2><h3 id="Compound-Poisson-Process"><a class="docs-heading-anchor" href="#Compound-Poisson-Process">Compound Poisson Process</a><a id="Compound-Poisson-Process-1"></a><a class="docs-heading-anchor-permalink" href="#Compound-Poisson-Process" title="Permalink"></a></h3><p>Models discontinuous jumps at random times:</p><pre><code class="language-julia hljs"># Parameters: λ (jump rate)
+λ = 2.0  # 2 jumps per unit time on average
+
+# Create compound Poisson process with constant rate
+# Use computerates=false for constant rate values
+poisson_proc = CompoundPoissonProcess(λ, 0.0, 0.0; computerates = false)
+
+# Simulate
+prob_poisson = NoiseProblem(poisson_proc, (0.0, 2.0))
+sol_poisson = solve(prob_poisson; dt = 0.01)
+
+println(&quot;Final Poisson process value: $(sol_poisson.u[end])&quot;)
+
+# Count number of jumps (non-zero increments)
+jumps = sum(abs.(diff(sol_poisson.u)) .&gt; 1e-10)
+println(&quot;Number of jumps: $jumps&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Final Poisson process value: 0.0
+Number of jumps: 0</code></pre><h2 id="Financial-Models"><a class="docs-heading-anchor" href="#Financial-Models">Financial Models</a><a id="Financial-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Financial-Models" title="Permalink"></a></h2><h3 id="Geometric-Brownian-Motion"><a class="docs-heading-anchor" href="#Geometric-Brownian-Motion">Geometric Brownian Motion</a><a id="Geometric-Brownian-Motion-1"></a><a class="docs-heading-anchor-permalink" href="#Geometric-Brownian-Motion" title="Permalink"></a></h3><p>The classic Black-Scholes model for stock prices:</p><pre><code class="language-julia hljs"># Stock parameters
+μ_stock = 0.08   # 8% expected return
+σ_stock = 0.25   # 25% volatility
+S0 = 100.0       # Initial stock price
+
+GBM = GeometricBrownianMotionProcess(μ_stock, σ_stock, 0.0, S0, S0)
+
+# Simulate stock price over 1 year
+prob_gbm = NoiseProblem(GBM, (0.0, 1.0))
+sol_gbm = solve(prob_gbm; dt = 1/252)  # Daily steps
+
+println(&quot;Initial stock price: $(sol_gbm.u[1])&quot;)
+println(&quot;Final stock price: $(sol_gbm.u[end])&quot;)
+println(&quot;Return: $((sol_gbm.u[end] - sol_gbm.u[1])/sol_gbm.u[1] * 100)%&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Initial stock price: 100.0
+Final stock price: 133.35327858748084
+Return: 33.353278587480844%</code></pre><h2 id="Bridge-Processes"><a class="docs-heading-anchor" href="#Bridge-Processes">Bridge Processes</a><a id="Bridge-Processes-1"></a><a class="docs-heading-anchor-permalink" href="#Bridge-Processes" title="Permalink"></a></h2><p>Bridge processes are conditioned to pass through specific values:</p><h3 id="Brownian-Bridge"><a class="docs-heading-anchor" href="#Brownian-Bridge">Brownian Bridge</a><a id="Brownian-Bridge-1"></a><a class="docs-heading-anchor-permalink" href="#Brownian-Bridge" title="Permalink"></a></h3><p>A Wiener process conditioned to start and end at specific values:</p><pre><code class="language-julia hljs"># Bridge from 0 at t=0 to 1 at t=1
+bridge = BrownianBridge(0.0, 1.0, 0.0, 1.0)
+
+prob_bridge = NoiseProblem(bridge, (0.0, 1.0))
+sol_bridge = solve(prob_bridge; dt = 0.01)
+
+println(&quot;Bridge starts at: $(sol_bridge.u[1])&quot;)
+println(&quot;Bridge ends at: $(sol_bridge.u[end])&quot;)
+println(&quot;Should be exactly 0 and 1 respectively&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Bridge starts at: 0.0
+Bridge ends at: 1.0
+Should be exactly 0 and 1 respectively</code></pre><h3 id="Geometric-Brownian-Bridge"><a class="docs-heading-anchor" href="#Geometric-Brownian-Bridge">Geometric Brownian Bridge</a><a id="Geometric-Brownian-Bridge-1"></a><a class="docs-heading-anchor-permalink" href="#Geometric-Brownian-Bridge" title="Permalink"></a></h3><p>A geometric Brownian motion conditioned on endpoints:</p><pre><code class="language-julia hljs"># Bridge parameters
+μ_bridge = 0.05
+σ_bridge = 0.2
+start_val = 100.0
+end_val = 110.0
+
+gbm_bridge = GeometricBrownianBridge(μ_bridge, σ_bridge, 0.0, start_val, 1.0, end_val)
+
+prob_gbm_bridge = NoiseProblem(gbm_bridge, (0.0, 1.0))
+sol_gbm_bridge = solve(prob_gbm_bridge; dt = 0.01)
+
+println(&quot;GBM bridge starts at: $(sol_gbm_bridge.u[1])&quot;)
+println(&quot;GBM bridge ends at: $(sol_gbm_bridge.u[end])&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">GBM bridge starts at: 1.0
+GBM bridge ends at: 1.3237416286096217</code></pre><h2 id="Process-Comparisons"><a class="docs-heading-anchor" href="#Process-Comparisons">Process Comparisons</a><a id="Process-Comparisons-1"></a><a class="docs-heading-anchor-permalink" href="#Process-Comparisons" title="Permalink"></a></h2><p>Let&#39;s compare different noise processes visually by looking at their statistical properties:</p><pre><code class="language-julia hljs">using Statistics
+
+# Generate multiple realizations for statistical analysis
+function analyze_process(noise_process, name, n_paths=1000)
+    final_values = Float64[]
+
+    for i in 1:n_paths
+        # Reset the process for each simulation
+        reset_process = typeof(noise_process)(noise_process.params...)
+        prob = NoiseProblem(reset_process, (0.0, 1.0))
+        sol = solve(prob; dt = 0.01)
+        push!(final_values, sol.u[end])
+    end
+
+    println(&quot;$name Statistics (after t=1):&quot;)
+    println(&quot;  Mean: $(round(mean(final_values), digits=4))&quot;)
+    println(&quot;  Std:  $(round(std(final_values), digits=4))&quot;)
+    println(&quot;  Min:  $(round(minimum(final_values), digits=4))&quot;)
+    println(&quot;  Max:  $(round(maximum(final_values), digits=4))&quot;)
+    println()
+
+    return final_values
+end
+
+# Note: This analysis would require process constructors to be callable
+# For demonstration, we&#39;ll just show the concept
+println(&quot;Statistical analysis concept:&quot;)
+println(&quot;- Wiener process: Mean ≈ 0, increasing variance with time&quot;)
+println(&quot;- OU process: Mean reverts to long-term level&quot;)
+println(&quot;- GBM: Log-normal distribution of final values&quot;)
+println(&quot;- Compound Poisson: Discrete jumps, possibly skewed distribution&quot;)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Statistical analysis concept:
+- Wiener process: Mean ≈ 0, increasing variance with time
+- OU process: Mean reverts to long-term level
+- GBM: Log-normal distribution of final values
+- Compound Poisson: Discrete jumps, possibly skewed distribution</code></pre><p>Each noise process has unique characteristics suitable for different modeling scenarios. Choose based on your specific application needs.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../basic_usage/">« Basic Usage Tutorial</a><a class="docs-footer-nextpage" href="../advanced_features/">Advanced Features »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.16.1 on <span class="colophon-date" title="Sunday 11 January 2026 23:29">Sunday 11 January 2026</span>. Using Julia version 1.12.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
