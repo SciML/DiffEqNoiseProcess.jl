@@ -33,3 +33,18 @@ Random.seed!(seed);
         @test norm(soloop.Z - sol.Z) == 0.0
     end
 end
+
+# https://github.com/SciML/DiffEqNoiseProcess.jl/issues/258
+@testset "Default rng gives each process its own stream" begin
+    W1 = WienerProcess(0.0, 0.0, 0.0; reseed = false)
+    W2 = WienerProcess(0.0, 0.0, 0.0; reseed = false)
+    sol1 = solve(NoiseProblem(W1, (0.0, 1.0)); dt = 0.1)
+    sol2 = solve(NoiseProblem(W2, (0.0, 1.0)); dt = 0.1)
+    @test sol1.W != sol2.W
+
+    W3 = WienerProcess(0.0, 0.0, 0.0; rng = Xoshiro(7), reseed = false)
+    W4 = WienerProcess(0.0, 0.0, 0.0; rng = Xoshiro(7), reseed = false)
+    sol3 = solve(NoiseProblem(W3, (0.0, 1.0)); dt = 0.1)
+    sol4 = solve(NoiseProblem(W4, (0.0, 1.0)); dt = 0.1)
+    @test sol3.W == sol4.W
+end
