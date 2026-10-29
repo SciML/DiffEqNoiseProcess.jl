@@ -1,1 +1,1 @@
-{"formatters": {".jl": ["/home/crackauc/.juliaup/bin/julia", "+1.13", "--project=/home/crackauc/sandbox/agent-jobs/DiffEqNoiseProcess.jl/jobs/346-devin/scratch/runicenv", "-m", "Runic", "--check", "{files}"]}}
+{"formatters": {".jl": ["julia", "-e", "using Runic; exit(Runic.main(ARGS))", "--", "--check", "{files}"]}}
