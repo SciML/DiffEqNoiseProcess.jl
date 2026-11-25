@@ -47,11 +47,10 @@ end
 end
 @inline function DiffEqNoiseProcess.wiener_randn!(
         rng::AbstractRNG,
-        rand_vec::Array{
-            <:ReverseDiff.TrackedReal,
-        }
-    )
-    return rand_vec .= ReverseDiff.track.(randn.((rng,), typeof.(value.(rand_vec))))
+        rand_vec::Array{<:ReverseDiff.TrackedReal{T}}
+    ) where {T}
+    draws = DiffEqNoiseProcess.wiener_randn!(rng, Array{T}(undef, size(rand_vec)))
+    return rand_vec .= ReverseDiff.track.(draws)
 end
 @inline function DiffEqNoiseProcess.wiener_randn!(
         rng::AbstractRNG,

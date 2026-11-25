@@ -17,6 +17,24 @@ using Random, Test
     @test W.curW isa Array{<:ReverseDiff.TrackedReal}
     @test fill!(W.dW, zero(eltype(W.dW))) === W.dW
 
+    function seeded_wiener_step(w0, z0)
+        W = WienerProcess!(0.0, w0, z0; rng = Xoshiro(12345))
+        calculate_step!(W, 0.25, nothing, nothing)
+        return W.dW, W.dZ
+    end
+    plain_dW, plain_dZ = seeded_wiener_step(zeros(16), zeros(16))
+    tracked_dW, tracked_dZ = seeded_wiener_step(
+        ReverseDiff.track(zeros(16)), ReverseDiff.track(zeros(16))
+    )
+    @test map(x -> getfield(x, :value), tracked_dW) == plain_dW
+    @test map(x -> getfield(x, :value), tracked_dZ) == plain_dZ
+
+    aux_tracked_dW, aux_tracked_dZ = seeded_wiener_step(
+        zeros(16), ReverseDiff.track(zeros(16))
+    )
+    @test aux_tracked_dW == plain_dW
+    @test map(x -> getfield(x, :value), aux_tracked_dZ) == plain_dZ
+
     # Out-of-place processes keep TrackedArray storage: they rebind, not mutate,
     # and wiener_randn on a TrackedArray prototype draws through the tape.
     Woop = WienerProcess(0.0, proto)
@@ -67,4 +85,32 @@ using Random, Test
     @info du0, dp, df
     @test du0 ≈ df[1:2] rtol = 1.0e-7
     @test dp ≈ df[3:4] rtol = 1.0e-7
+
+    function wide_rode_f(du, u, p, t, W)
+        @. du = p[1] * u * sin(W) + p[2] * cos(W)
+        return nothing
+    end
+    wide_u0 = collect(range(0.8, 1.1; length = 16))
+    wide_p = [1.2, -0.8]
+    wide_t = 0.0:0.1:0.5
+    wide_prob = RODEProblem(wide_rode_f, wide_u0, (0.0, 0.5), wide_p)
+    wide_loss(p; sensealg = nothing) = sum(
+        abs2, Array(
+            solve(
+                wide_prob, RandomEM(); dt = 0.01, p, saveat = wide_t,
+                seed = UInt64(12345), sensealg
+            )
+        )
+    ) / 2
+    wide_adjoint = Zygote.gradient(
+        p -> wide_loss(p; sensealg = ReverseDiffAdjoint()), wide_p
+    )[1]
+    fd_gradient(h) = [
+        (wide_loss(wide_p + h .* [1.0, 0.0]) - wide_loss(wide_p - h .* [1.0, 0.0])) / (2h),
+        (wide_loss(wide_p + h .* [0.0, 1.0]) - wide_loss(wide_p - h .* [0.0, 1.0])) / (2h),
+    ]
+    fd_h = fd_gradient(1.0e-5)
+    fd_h2 = fd_gradient(0.5e-5)
+    @test fd_h ≈ fd_h2 rtol = 1.0e-5
+    @test wide_adjoint ≈ fd_h2 rtol = 1.0e-4
 end
