@@ -11,13 +11,31 @@ import ReverseDiff
 # Array{TrackedReal} convention used for u0. Out-of-place processes keep
 # TrackedArray storage: they rebind rather than mutate, and wiener_randn on a
 # TrackedArray prototype produces the draws.
+@inline collect_tracked(x::ReverseDiff.TrackedArray) = collect(x)
+@inline collect_tracked(x) = x
+
 @inline function DiffEqNoiseProcess.NoiseProcess{true}(
         t0, W0::ReverseDiff.TrackedArray, Z0, dist, bridge; kwargs...
     )
     return DiffEqNoiseProcess.NoiseProcess{true}(
-        t0, collect(W0),
-        Z0 isa ReverseDiff.TrackedArray ? collect(Z0) : Z0,
+        t0, collect_tracked(W0), collect_tracked(Z0), dist, bridge; kwargs...
+    )
+end
+
+@inline function DiffEqNoiseProcess.NoiseProcess{true}(
+        t0, W0, Z0::ReverseDiff.TrackedArray, dist, bridge; kwargs...
+    )
+    return DiffEqNoiseProcess.NoiseProcess{true}(
+        t0, collect_tracked(W0), collect_tracked(Z0), dist, bridge; kwargs...
+    )
+end
+
+@inline function DiffEqNoiseProcess.NoiseProcess{true}(
+        t0, W0::ReverseDiff.TrackedArray, Z0::ReverseDiff.TrackedArray,
         dist, bridge; kwargs...
+    )
+    return DiffEqNoiseProcess.NoiseProcess{true}(
+        t0, collect_tracked(W0), collect_tracked(Z0), dist, bridge; kwargs...
     )
 end
 
