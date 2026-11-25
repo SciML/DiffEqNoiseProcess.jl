@@ -2,7 +2,7 @@
 
 julia_version = "1.13.4"
 manifest_format = "2.1"
-project_hash = "36656fe38ea1fed87966594d91ff226e333561ec"
+project_hash = "fe001cab42f205357e5eaafa157efd7179708871"
 
 [[deps.ADTypes]]
 deps = ["PrecompileTools"]
@@ -283,7 +283,7 @@ version = "7.21.6"
 
 [[deps.DiffEqNoiseProcess]]
 deps = ["CommonSolve", "DiffEqBase", "Distributions", "GPUArraysCore", "LinearAlgebra", "Markdown", "PoissonRandom", "PrecompileTools", "QuadGK", "Random", "RecipesBase", "RecursiveArrayTools", "ResettableStacks", "SciMLBase", "StaticArraysCore", "Statistics"]
-path = "/home/runner/_work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl"
+path = "/home/runner/work/DiffEqNoiseProcess.jl/DiffEqNoiseProcess.jl"
 uuid = "77a26b50-5914-5dd7-bc55-306e6241c503"
 version = "5.36.6"
 
